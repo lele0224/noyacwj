@@ -1,0 +1,1753 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>诺亚牌宠物机</title>
+<style>
+    /* --- 全局变量与基础样式 --- */
+    :root {
+        --blue-base: #3b4652;    
+        --blue-dark: #1e242b;    
+        --blue-screen: #5c84a8;  
+        --black-main: #0f1214;   
+        --black-dark: #060709;   
+        --text-color: #b5cadd;
+        --highlight: #d1b55a;
+        --danger: #d15a5a;
+    }
+
+    body {
+        margin: 0; padding: 0;
+        background-color: #0a0d11;
+        background-image: radial-gradient(circle at 50% 50%, #161c23 0%, #000 100%);
+        display: flex; justify-content: center; align-items: center;
+        min-height: 100vh;
+        font-family: 'Courier New', Courier, monospace;
+        overflow: hidden; user-select: none;
+    }
+
+    /* --- 掌机外壳设计 --- */
+    #device {
+        width: 380px; height: 740px;
+        background: linear-gradient(145deg, var(--blue-base), var(--blue-dark));
+        border-radius: 190px 190px 160px 160px;
+        box-shadow: 
+            inset -15px -15px 30px rgba(0,0,0,0.6),
+            inset 10px 10px 25px rgba(255,255,255,0.15),
+            0 40px 80px rgba(0,0,0,0.9),
+            0 0 25px rgba(92, 132, 168, 0.25);
+        position: relative;
+        display: flex; flex-direction: column; align-items: center;
+        padding-top: 80px; box-sizing: border-box;
+        border: 4px solid var(--black-main);
+    }
+
+    /* 顶部蝴蝶结装饰 */
+    .bow-container {
+        position: absolute; top: -15px; z-index: 10;
+        width: 160px; height: 80px;
+        filter: drop-shadow(0 10px 8px rgba(0,0,0,0.6));
+    }
+
+    /* 屏幕边框 */
+    .screen-bezel {
+        width: 310px; height: 320px;
+        background: linear-gradient(135deg, #1b1e22 0%, #060709 100%);
+        border-radius: 40px 40px 50px 50px;
+        display: flex; justify-content: center; align-items: center;
+        box-shadow: 
+            inset 0 10px 25px rgba(0,0,0,1),
+            0 5px 15px rgba(255,255,255,0.08),
+            0 0 0 4px var(--black-dark);
+        position: relative;
+    }
+
+    .brand {
+        position: absolute; top: -25px;
+        color: #111; font-size: 14px; font-weight: 900;
+        letter-spacing: 3px; text-shadow: 1px 1px 0 rgba(255,255,255,0.1);
+    }
+
+    /* --- 核心屏幕区域 --- */
+    .screen {
+        width: 260px; height: 260px;
+        background-color: var(--black-dark);
+        border: 3px solid #000;
+        border-radius: 15px;
+        position: relative; overflow: hidden;
+        color: var(--blue-screen);
+        box-shadow: inset 0 0 30px rgba(92, 132, 168, 0.15);
+    }
+
+    /* 屏幕扫描线效果 */
+    .screen::after {
+        content: ""; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+        background: linear-gradient(rgba(92,132,168,0) 50%, rgba(92,132,168,0.05) 50%);
+        background-size: 100% 4px; z-index: 5; pointer-events: none;
+    }
+
+    /* 顶部状态栏 */
+    .status-bar {
+        display: flex; justify-content: space-between;
+        padding: 6px 10px; font-size: 11px; font-weight: bold;
+        border-bottom: 1px dashed var(--blue-screen);
+        background: rgba(92,132,168,0.1);
+        position: relative; z-index: 6;
+    }
+    .status-item { display: flex; flex-direction: column; align-items: center; }
+    .status-bar progress { width: 45px; height: 6px; appearance: none; margin-top: 4px; }
+    progress::-webkit-progress-bar { background-color: #1a1a1a; border-radius: 3px; }
+    progress::-webkit-progress-value { background-color: var(--blue-screen); border-radius: 3px; box-shadow: 0 0 6px var(--blue-screen); }
+    .gold-text { color: var(--highlight); text-shadow: 0 0 4px rgba(209, 181, 90, 0.5); }
+
+    /* --- 像素画显示区域 --- */
+    #canvas-container {
+        width: 100%; height: 155px;
+        position: relative;
+        background-color: #dbe4eb; 
+        background-image: 
+            radial-gradient(#b8c6d1 20%, transparent 20%),
+            radial-gradient(#b8c6d1 20%, transparent 20%);
+        background-position: 0 0, 4px 4px;
+        background-size: 8px 8px;
+        display: flex; justify-content: center; align-items: flex-end; 
+        padding-bottom: 2px; box-sizing: border-box;
+        overflow: hidden;
+        box-shadow: inset 0 0 20px rgba(20, 30, 40, 0.2);
+    }
+
+    .pixel-bg {
+        position: absolute; width: 100%; height: 100%; top: 0; left: 0; pointer-events: none; z-index: 1;
+        display: flex; justify-content: center; align-items: center;
+    }
+    .bg-text {
+        font-family: 'Arial', sans-serif;
+        font-size: 50px; color: rgba(255, 255, 255, 0.5); 
+        font-weight: 900; letter-spacing: -2px;
+        opacity: 0.6; margin-bottom: 20px;
+    }
+
+    /* 诺亚像素画布 */
+    canvas {
+        position: relative; z-index: 5;
+        width: 120px; height: 156px; 
+        image-rendering: pixelated; 
+        animation: breathe 2.5s infinite ease-in-out;
+        margin-bottom: -5px; 
+        filter: drop-shadow(4px 4px 0 rgba(0,0,0,0.2));
+    }
+    @keyframes breathe {
+        0%, 100% { transform: scale(1) translateY(0); }
+        50% { transform: scale(1.02) translateY(-2px); }
+    }
+    
+       /* 探险动画覆盖层 */
+    #adventure-overlay {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: #000; z-index: 8; display: none;
+        flex-direction: column; justify-content: center; align-items: center;
+        color: var(--blue-screen); font-size: 14px; font-weight: bold;
+        padding-bottom: 25px; 
+        box-sizing: border-box; 
+    }
+    .adventure-icon { font-size: 40px; margin-bottom: 10px; animation: float 2s infinite ease-in-out; }
+    @keyframes float { 0%,100%{transform:translateY(0);} 50%{transform:translateY(-10px);} }
+    
+    .walking-dots::after { content: '...'; animation: dots 1.5s infinite; }
+    @keyframes dots { 0%{content:'.'} 33%{content:'..'} 66%{content:'...'} }
+
+    /* --- 对话框区域 --- */
+    .dialogue-box {
+        position: absolute; bottom: 0; width: 100%; height: 70px;
+        background: rgba(6, 7, 9, 0.96);
+        border-top: 2px solid var(--blue-screen);
+        padding: 8px; box-sizing: border-box;
+        font-size: 12px; line-height: 1.4; font-weight: bold;
+        text-shadow: 1px 1px 0 #000; color: var(--text-color);
+        overflow-y: auto; z-index: 6; scrollbar-width: none;
+    }
+    .cursor { display: inline-block; width: 6px; height: 12px; background: var(--blue-screen); animation: blink 1s infinite; vertical-align: middle; margin-left: 2px;}
+    @keyframes blink { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
+    /* --- 弹窗与菜单 UI --- */
+    .modal {
+        display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(6, 7, 9, 0.98); z-index: 10; padding: 10px; box-sizing: border-box;
+    }
+    .modal h3 { margin: 5px 0 10px 0; font-size: 14px; text-align: center; border-bottom: 2px solid var(--blue-screen); padding-bottom: 5px; color:#fff;}
+    .menu-list { list-style: none; padding: 0; margin: 0; height: 170px; overflow-y: auto; scrollbar-width: none;}
+    .menu-list li {
+        padding: 8px 10px; border: 1px solid #222; margin-bottom: 6px;
+        font-size: 11px; cursor: pointer; border-radius: 5px;
+        background: #0a0c0e; transition: 0.2s; font-weight: bold; color: #ccc;
+        display: flex; justify-content: space-between;
+    }
+    .menu-list li:hover { background: var(--blue-screen); color: #000; border-color: var(--blue-screen); transform: translateX(3px);}
+    .close-btn { 
+        position: absolute; bottom: 10px; left: 10%; width: 80%;
+        background: transparent; color: var(--blue-screen); border: 1px dashed var(--blue-screen); 
+        padding: 6px; cursor: pointer; border-radius: 8px; font-family: inherit; font-weight: bold; transition: 0.2s;
+    }
+    .close-btn:hover { background: var(--blue-screen); color: #000; }
+
+    /* 全屏事件弹窗 */
+    #event-modal {
+        display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(6, 7, 9, 0.98); color: var(--blue-screen); z-index: 20;
+        padding: 15px; box-sizing: border-box;
+        flex-direction: column; justify-content: center; align-items: center; text-align: center;
+        border: 2px solid var(--blue-screen);
+    }
+    #event-text { font-size: 12px; margin-bottom: 20px; font-weight: bold; line-height: 1.6; text-shadow: 0 0 2px var(--blue-screen); color: #fff;}
+    .event-btn { 
+        background: var(--blue-dark); color: var(--text-color); border: 1px solid var(--blue-screen); 
+        padding: 10px 15px; margin: 6px; font-family: inherit; cursor: pointer; 
+        border-radius: 6px; font-weight: bold; width: 100%; font-size: 11px; transition: 0.2s;
+    }
+    .event-btn:hover { background: var(--blue-screen); color: #000; transform: scale(1.02);}
+
+    /* --- 实体按键区域 --- */
+    .controls-area {
+        margin-top: 45px; width: 320px;
+        display: flex; justify-content: space-between; align-items: center;
+        padding: 0 15px; box-sizing: border-box;
+    }
+
+    /* 十字方向键 */
+    .d-pad { position: relative; width: 110px; height: 110px; }
+    .d-btn {
+        position: absolute; width: 35px; height: 35px;
+        background: var(--black-main); border: none;
+        box-shadow: inset 1px 1px 3px rgba(255,255,255,0.08), inset -2px -2px 5px rgba(0,0,0,0.8), 0 5px 10px rgba(0,0,0,0.6);
+        color: var(--blue-screen); font-size: 10px; font-weight: bold; font-family: inherit;
+        cursor: pointer; transition: 0.1s; display: flex; justify-content: center; align-items: center;
+        text-align: center;
+    }
+    .d-btn:active { transform: translateY(2px); box-shadow: inset 2px 2px 5px rgba(0,0,0,0.9); }
+    
+    .d-up { top: 0; left: 37px; border-radius: 8px 8px 3px 3px; }
+    
+    .d-down { bottom: 0; left: 37px; border-radius: 3px 3px 8px 8px; }
+    .d-left { left: 0; top: 37px; border-radius: 8px 3px 3px 8px; }
+    .d-right { right: 0; top: 37px; border-radius: 3px 8px 8px 3px; }
+    .d-center {
+        position: absolute; top: 37px; left: 37px; width: 35px; height: 35px;
+        background: var(--black-main); border-radius: 3px;
+        box-shadow: inset 0 0 5px rgba(0,0,0,0.5); pointer-events: none;
+    }
+    .d-center::after {
+        content: ''; width: 20px; height: 20px; background: #000; border-radius: 50%; display:block; margin: 7.5px; opacity: 0.5;
+    }
+
+    /* 右侧动作键 */
+    .action-btns { display: flex; gap: 12px; transform: rotate(-15deg); }
+    .a-btn {
+        width: 50px; height: 50px; border-radius: 50%;
+        background: var(--black-main); border: 2px solid #1a1a1a;
+        box-shadow: inset 2px 2px 5px rgba(255,255,255,0.08), inset -2px -2px 6px rgba(0,0,0,0.8), 0 5px 10px rgba(0,0,0,0.5);
+        color: var(--blue-screen); font-size: 12px; font-weight: bold; font-family: inherit;
+        cursor: pointer; transition: 0.1s;
+    }
+    .a-btn:active { transform: scale(0.92); }
+    .a-btn-label { position: absolute; bottom: -22px; font-size: 11px; color: #111; font-weight: bold; text-align: center; width: 100%;}
+
+    .sys-btn {
+        margin-top: 35px; width: 140px; height: 28px;
+        background: var(--black-main); border-radius: 15px; border: none;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.5);
+        color: #444; font-family: inherit; font-size: 10px; font-weight: bold; cursor: pointer;
+    }
+    .sys-btn:active { transform: translateY(2px); }
+
+    /* 手机适配 */
+    @media screen and (max-width: 450px) {
+        body { align-items: flex-start; padding-top: 5vh; }
+        #device { transform: scale(0.85); transform-origin: top center; }
+    }
+    @media screen and (max-width: 360px) { #device { transform: scale(0.75); } }
+</style>
+</head>
+<body>
+
+<div id="device">
+    <svg class="bow-container" viewBox="0 0 200 100">
+        <defs>
+            <linearGradient id="bowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stop-color="#2a2a2a" />
+                <stop offset="50%" stop-color="#111111" />
+                <stop offset="100%" stop-color="#050505" />
+            </linearGradient>
+            <filter id="shadow">
+                <feDropShadow dx="0" dy="5" stdDeviation="3" flood-opacity="0.8"/>
+            </filter>
+        </defs>
+        <path d="M100,50 C60,15 15,5 5,40 C-5,75 30,95 100,50" fill="url(#bowGrad)" filter="url(#shadow)"/>
+        <path d="M100,50 C140,15 185,5 195,40 C205,75 170,95 100,50" fill="url(#bowGrad)" filter="url(#shadow)"/>
+        <rect x="85" y="35" width="30" height="30" rx="8" fill="url(#bowGrad)" filter="url(#shadow)" stroke="#333" stroke-width="1.5"/>
+    </svg>
+
+    <div class="screen-bezel">
+        <div class="brand">NOAH·CYDRIAN</div>
+        
+        <div class="screen">
+            <div class="status-bar">
+                <div class="status-item" id="lv-text">Lv.1 饱食 <progress id="bar-hunger" value="100" max="100"></progress></div>                 <div class="status-item">心情 <progress id="bar-mood" value="100" max="100"></progress></div>                 <div class="status-item">健康 <progress id="bar-health" value="100" max="100"></progress></div>
+                <div class="status-item gold-text">G<span id="txt-gold">520</span></div>
+            </div>
+
+            <div id="canvas-container">
+                <div class="pixel-bg">
+                    <div class="bg-text"></div>
+                </div>
+                <!-- 探险时的遮罩层 -->
+                <div id="adventure-overlay">
+                    <div class="adventure-icon" id="adv-icon">✈</div> <canvas id="adv-canvas" width="10" height="10" style="width: 50px; height: 50px; image-rendering: pixelated; margin-bottom: 15px; animation: float 2s infinite ease-in-out; display: none;"></canvas>
+                    <div class="walking-dots" id="adv-text">EXPLORING</div>
+                </div>
+                <canvas id="noah-canvas" width="20" height="26"></canvas>
+            </div>
+
+            <div class="dialogue-box" id="dialogue-box">
+                <span id="text-content">正在载入霍格沃兹拉文克劳休息室...</span><span class="cursor"></span>
+            </div>
+
+            <div class="modal" id="sys-modal">
+                <h3 id="modal-title">菜单</h3>
+                <ul class="menu-list" id="modal-list"></ul>
+                <button class="close-btn" onclick="closeModal()">返回 (BACK)</button>
+            </div>
+
+            <div id="event-modal">
+                <div id="event-text">事件</div>
+                <div id="event-options"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls-area">
+        <div class="d-pad">
+            <button class="d-btn d-up" onclick="openLocationMenu()">外出</button>
+            <button class="d-btn d-down" onclick="openMenu('shop')">礼物</button>
+            <button class="d-btn d-left" onclick="openMenu('feed')">投喂</button>
+            <button class="d-btn d-right" onclick="openMenu('interact')">互动</button>
+            <div class="d-center"></div>
+        </div>
+        <div class="action-btns">
+            <div style="position:relative;">
+                <button class="a-btn" onclick="doAction('status')">羁绊</button>
+                <div class="a-btn-label">A</div>
+            </div>
+            <div style="position:relative; margin-top:25px;">
+                <button class="a-btn" onclick="doAction('chat')">对话</button>
+                <div class="a-btn-label">B</div>
+            </div>
+        </div>
+    </div>
+    
+    <button class="sys-btn" onclick="doAction('reset')">时光倒流至初遇</button>
+</div>
+
+<script>
+    // --- 核心数值系统 ---
+       let savedData = localStorage.getItem('noah_save_data_v1');
+    let noah = savedData ? JSON.parse(savedData) : {
+        hunger: 80, mood: 80, health: 100, love: 5, gold: 150, 
+        level: 1, state: 'normal', isAway: false 
+    };
+    noah.isAway = false; // 刷新页面时强制让他回来，防止卡在外出状态
+    let tickCount = 0;
+    
+    const levelTitles = ["未相识", "初遇", "相熟", "心动", "热恋", "挚爱", "灵魂伴侣"];
+
+    // --- UI 更新逻辑 ---
+    function updateUI() {
+                // 长时间养成：所需的羁绊值呈指数级上升，最高阶灵魂伴侣需要极高偏爱值
+        const levelThresholds = [0, 50, 200, 600, 1500, 5200, 13140]; 
+        let newLevel = 1;
+        for(let i = 0; i < levelThresholds.length; i++) {
+            if(noah.love >= levelThresholds[i]) newLevel = i + 1;
+        }
+        newLevel = Math.min(7, newLevel); // 限制最高7级(由于数组从0开始，最大索引6，对应level 7)
+
+        // 注意：原版levelTitles有7个元素，索引是0到6。
+        // 因为等级1对应索引0，所以判断时用 newLevel - 1
+        if (newLevel > noah.level) {
+            noah.level = newLevel;
+            speak(`【系统提示】羁绊突破！随着时间推移，诺亚对你的感情深浅迈入了【${levelTitles[noah.level - 1]}】阶段。`);
+        }
+
+        noah.hunger = Math.max(0, Math.min(100, noah.hunger));
+        noah.mood = Math.max(0, Math.min(100, noah.mood));
+        noah.health = Math.max(0, Math.min(100, noah.health));
+        noah.gold = Math.max(0, noah.gold);
+        
+        document.getElementById('lv-text').innerHTML = `Lv.${noah.level} 饱食 <progress id="bar-hunger" value="${noah.hunger}" max="100"></progress>`;
+        document.getElementById('bar-mood').value = noah.mood;
+        document.getElementById('bar-health').value = noah.health;
+        document.getElementById('txt-gold').innerText = noah.gold;
+
+        if (noah.health < 20) noah.state = 'sick';
+        else if (noah.mood < 30 || noah.hunger < 30) noah.state = 'angry';
+        else if (noah.mood > 70 && noah.hunger > 70) noah.state = 'happy';
+        else noah.state = 'normal';
+
+        drawNoah();
+        // 每次UI更新时，自动保存到本地，实现长期养成
+        localStorage.setItem('noah_save_data_v1', JSON.stringify(noah));
+    }
+
+    let typeInterval;
+    function speak(text) {
+        clearInterval(typeInterval);
+        const textSpan = document.getElementById('text-content');
+        const box = document.getElementById('dialogue-box');
+        textSpan.innerHTML = '';
+        let i = 0;
+        typeInterval = setInterval(() => {
+            if(text.charAt(i) === '<') {
+                let tag = "";
+                while(text.charAt(i) !== '>' && i < text.length) { tag += text.charAt(i); i++; }
+                tag += '>'; textSpan.innerHTML += tag;
+            } else {
+                textSpan.innerHTML += text.charAt(i);
+            }
+            i++;
+            box.scrollTop = box.scrollHeight;
+            if (i >= text.length) clearInterval(typeInterval);
+        }, 30);
+    }
+
+    // --- 像素画逻辑 ---
+    const ctx = document.getElementById('noah-canvas').getContext('2d');
+    const palette = {
+        '..': null, 'H7': '#000000', 'H6': '#383838', 'E16': '#FFF5EE', 'C4': '#33CCFF',
+        'C3': '#CCFFFF', 'E2': '#FFCCCC', 'E3': '#FF7777', 'C16': '#1E5AA0', 'H2': '#FFFFFF', 'H3': '#A0A0A0', 'H5': '#2F2F2F'
+    };
+    // --- 新增：给小物品和场景的颜料 ---
+    Object.assign(palette, {
+        'W1': '#FFFFFF', 'B1': '#000000', 'Y1': '#FFD700', 'Y2': '#FFA500', 
+        'BR': '#8B4513', 'BL': '#1E90FF', 'G1': '#32CD32', 'G2': '#006400', 
+        'R1': '#FF0000', 'P1': '#FF69B4', 'GR': '#808080',
+        'LP': '#E5C3C6', 'DP': '#B38A8E', 'CM': '#F5EBE6', 'GB': '#9CA8B8', 
+        'DB': '#687586', 'GL': '#CBAA77', 'DG': '#5C5855', 'WH': '#FFFFFF' , 
+'DR': '#8B5A5A', 'LR': '#CD9B9B', 'MG': '#8FBC8F', 'DT': '#698B69', 
+        'CB': '#829EB9', 'SB': '#A4BCE6', 'WC': '#E8ECEF', 'BT': '#5C4033'
+    });
+
+    // --- 新增：小物品与场景的像素画图纸 ---
+    const sprites = {
+        'soda': [
+            ".. .. GB GB GB .. .. ..",
+            ".. GB WH WH WH GB .. ..",
+            "GB SB CB CB CB SB GB ..",
+            "GB CB CB WC CB CB GB ..",
+            "GB CB WC CB CB CB GB ..",
+            "GB CB CB CB CB CB GB ..",
+            "GB SB CB CB CB SB GB ..",
+            ".. GB GB GB GB GB .. .."
+        ],
+        'tea': [
+            ".. .. .. .. .. .. .. ..",
+            ".. .. WH WC WC WH .. ..",
+            ".. WC MG MG MG MG WC WH",
+            "WC DT MG WC MG DT WC WH",
+            "WC MG MG MG MG MG WC ..",
+            ".. WC MG MG MG WC .. ..",
+            ".. .. WC WC WC .. .. ..",
+            ".. WC WC WC WC WC .. .."
+        ],
+        'potion': [
+            ".. .. .. BT BT .. .. ..",
+            ".. .. GB WH WH GB .. ..",
+            ".. .. GB LR LR GB .. ..",
+            ".. GB LR LR WC LR GB ..",
+            "GB LR LR LR LR LR LR GB",
+            "GB DR LR WC LR LR DR GB",
+            "GB DR DR DR DR DR DR GB",
+            ".. GB GB GB GB GB GB .."
+        ],
+                   'pen': [
+            ".. .. WH CM CM .. ..",
+            ".. WH CM LP CM CM ..",
+            "WH CM LP LP CM DG ..",
+            "CM LP LP CM DG DG ..",
+            "CM CM CM DG DG .. ..",
+            ".. CM DG DG .. .. ..",
+            ".. .. DG .. .. .. ..",
+            ".. .. DG .. .. .. .."
+        ],
+         'milk': [
+            ".. .. DG DG DG .. ..",
+            ".. DG WH WH WH DG ..",
+            "DG CM CM CM CM CM DG",
+            "DG CM GB GB GB CM DG",
+            "DG CM GB WH GB CM DG",
+            "DG CM GB GB GB CM DG",
+            "DG CM CM CM CM CM DG",
+            ".. DG DG DG DG DG .."
+        ],
+        'beer': [
+            ".. W1 W1 W1 W1 .. ..",
+            "W1 W1 W1 W1 W1 W1 ..",
+            "B1 Y1 Y1 Y1 Y1 B1 ..",
+            "B1 Y1 Y2 Y1 Y1 B1 B1",
+            "B1 Y1 Y1 Y2 Y1 B1 Y1",
+            "B1 Y2 Y1 Y1 Y1 B1 B1",
+            "B1 Y1 Y2 Y1 Y1 B1 ..",
+            ".. B1 B1 B1 B1 .. .."
+        ],
+               'gift': [
+            ".. .. GL .. GL .. ..",
+            ".. GL GL GL GL GL ..",
+            "DG DG DG DG DG DG DG",
+            "DG LP LP GL LP LP DG",
+            "DG LP LP GL LP LP DG",
+            "DG LP LP GL LP LP DG",
+            "DG DG DG DG DG DG DG",
+            ".. .. .. .. .. .. .."
+      
+        ],
+        'lake': [
+            ".. .. .. G1 G1 .. .. .. .. ..",
+            ".. .. G1 G2 G1 G1 .. .. .. ..",
+            ".. G1 G2 G1 G2 G1 G1 .. .. ..",
+            ".. .. .. BR BR .. .. .. .. ..",
+            ".. .. .. BR BR .. .. .. .. ..",
+            ".. BL BL BL BL BL BL .. .. ..",
+            "BL W1 BL BL BL BL W1 BL .. ..",
+            "BL BL BL W1 BL BL BL BL BL ..",
+            ".. BL BL BL BL BL W1 BL .. ..",
+            ".. .. BL BL BL BL BL .. .. .."
+        ],
+        'london': [
+            ".. .. .. .. B1 B1 .. .. .. ..",
+            ".. .. .. B1 GR GR B1 .. .. ..",
+            ".. .. B1 GR GR GR GR B1 .. ..",
+            ".. .. B1 GR Y1 Y1 GR B1 .. ..",
+            ".. .. B1 GR Y1 Y1 GR B1 .. ..",
+            ".. .. B1 GR GR GR GR B1 .. ..",
+            ".. .. B1 GR W1 W1 GR B1 .. ..",
+            ".. .. B1 GR W1 W1 GR B1 .. ..",
+            "B1 B1 B1 B1 B1 B1 B1 B1 B1 B1",
+            "GR GR GR GR GR GR GR GR GR GR"
+        ],
+        'library': [
+            "BR BR BR BR BR BR BR BR BR BR",
+            "BR R1 R1 BR BL BL BR G1 G1 BR",
+            "BR W1 W1 BR W1 W1 BR W1 W1 BR",
+            "BR BR BR BR BR BR BR BR BR BR",
+            "BR Y1 Y1 BR P1 P1 BR W1 W1 BR",
+            "BR W1 W1 BR W1 W1 BR W1 W1 BR",
+            "BR BR BR BR BR BR BR BR BR BR",
+            "BR BL BL BR R1 R1 BR G1 G1 BR",
+            "BR W1 W1 BR W1 W1 BR W1 W1 BR",
+            "BR BR BR BR BR BR BR BR BR BR"
+        ],
+        'room': [
+            ".. .. .. .. R1 R1 .. .. .. ..",
+            ".. .. .. R1 R1 R1 R1 .. .. ..",
+            ".. .. R1 R1 R1 R1 R1 R1 .. ..",
+            ".. R1 R1 R1 R1 R1 R1 R1 R1 ..",
+            "B1 B1 B1 B1 B1 B1 B1 B1 B1 B1",
+            "B1 W1 W1 W1 W1 W1 W1 W1 W1 B1",
+            "B1 W1 BL BL W1 W1 BL BL W1 B1",
+            "B1 W1 BL BL W1 W1 BL BL W1 B1",
+            "B1 W1 W1 W1 BR BR W1 W1 W1 B1",
+            "B1 B1 B1 B1 BR BR B1 B1 B1 B1"
+        ]
+    };
+
+    // --- 新增：控制物品显示 3 秒的函数 ---
+    window.currentShowingItem = null;
+    function showItem(itemName) {
+        window.currentShowingItem = itemName;
+        drawNoah();
+        setTimeout(() => {
+            window.currentShowingItem = null;
+            drawNoah();
+        }, 3000); // 物品会在诺亚旁边显示3秒然后消失
+    }
+    const pixelMap = [
+        ".. .. .. .. .. .. .. H7 H7 H7 H7 H7 H7 .. .. .. .. .. .. ..",
+        ".. .. .. .. .. H7 H6 H6 H6 H6 H6 H6 H6 H6 H7 .. .. .. .. ..",
+        ".. .. .. H7 H7 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H7 H7 .. .. ..",
+        ".. .. H7 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H7 .. ..",
+        ".. H7 H6 H6 H6 H7 H7 H6 H6 H6 H6 H6 H6 H7 H7 H6 H6 H6 H7 ..",
+        "H7 H6 H6 H6 H7 H7 H6 H6 H6 H6 H6 H6 H6 H6 H7 H7 H6 H6 H6 H7",
+        "H7 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H7",
+        "H7 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H7 H6 H6 H6 H6 H6 H6 H7",
+        "H7 H6 H6 H6 H6 H6 H6 H6 H6 H7 H6 H6 H7 H6 H6 H6 H6 H7 H6 H7",
+        "H7 H6 H6 H7 H6 H6 H6 H6 H6 H7 H6 H6 H7 H6 H6 H6 H6 H6 H7 H7",
+        "H7 H6 H7 H6 H6 H7 H6 H7 E16 H7 H6 H7 E16 H7 H6 H6 H7 H6 H6 H7",
+        ".. H7 H7 H6 H7 H7 H7 E16 E16 H7 E16 E16 E16 H7 H7 H6 H7 H7 ..",
+        ".. .. H7 H6 H7 E16 C4 C4 E16 E16 E16 E16 C4 C4 E16 H7 H6 H7 ..",
+        ".. .. H7 H7 E2 E16 C3 C3 E16 E16 E16 E16 C3 C3 E16 E2 H7 H7 ..",
+        ".. .. .. H7 H7 E2 E2 E16 E16 E16 E16 E16 E16 E2 E2 H7 H7 .. ..",
+        ".. .. .. .. H7 H7 H7 C16 E16 H2 E16 C16 H7 H7 H7 .. .. .. ..",
+        ".. .. .. .. .. H7 H6 C16 C16 C16 C16 C16 H6 H7 .. .. .. .. ..",
+        ".. .. .. .. H7 H6 H6 C16 H3 H6 H3 C16 H6 H6 H7 .. .. .. ..",
+        ".. .. .. H7 H6 H6 H6 C16 C16 C16 C16 C16 H6 H6 H6 H7 .. .. ..",
+        ".. .. .. H7 E16 E16 H7 H6 H3 H6 H3 H6 H7 E16 E16 H7 .. .. ..",
+        ".. .. .. .. H7 H7 H7 H6 C16 H6 C16 H6 H7 H7 H7 .. .. .. ..",
+        ".. .. .. .. .. H7 H6 H6 H6 H7 H6 H6 H6 H7 .. .. .. .. ..",
+        ".. .. .. .. .. .. H7 H5 H5 H7 H5 H5 H7 .. .. .. .. ..",
+        ".. .. .. .. .. .. .. H7 H7 .. H7 H7 .. .. .. .. .. .." 
+    ];
+    // 控制诺亚表情的状态机
+    let currentFace = 'normal';
+
+    // 闭眼贴图 (把眼睛变成肤色并加上睫毛横线)
+    const pixelMap_blink = [
+        ".. .. .. .. .. .. .. H7 H7 H7 H7 H7 H7 .. .. .. .. .. .. ..",
+        ".. .. .. .. .. H7 H6 H6 H6 H6 H6 H6 H6 H6 H7 .. .. .. .. ..",
+        ".. .. .. H7 H7 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H7 H7 .. .. ..",
+        ".. .. H7 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H7 .. ..",
+        ".. H7 H6 H6 H6 H7 H7 H6 H6 H6 H6 H6 H6 H7 H7 H6 H6 H6 H7 ..",
+        "H7 H6 H6 H6 H7 H7 H6 H6 H6 H6 H6 H6 H6 H6 H7 H7 H6 H6 H6 H7",
+        "H7 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H7",
+        "H7 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H7 H6 H6 H6 H6 H6 H6 H7",
+        "H7 H6 H6 H6 H6 H6 H6 H6 H6 H7 H6 H6 H7 H6 H6 H6 H6 H7 H6 H7",
+        "H7 H6 H6 H7 H6 H6 H6 H6 H6 H7 H6 H6 H7 H6 H6 H6 H6 H6 H7 H7",
+        "H7 H6 H7 H6 H6 H7 H6 H7 E16 H7 H6 H7 E16 H7 H6 H6 H7 H6 H6 H7",
+        ".. H7 H7 H6 H7 H7 H7 E16 E16 H7 E16 E16 E16 H7 H7 H6 H7 H7 ..",
+        ".. .. H7 H6 H7 E16 E16 E16 E16 E16 E16 E16 E16 E16 E16 H7 H6 H7 ..", 
+        ".. .. H7 H7 E2 E16 H7 H7 E16 E16 E16 E16 H7 H7 E16 E2 H7 H7 ..", 
+        ".. .. .. H7 H7 E2 E2 E16 E16 E16 E16 E16 E16 E2 E2 H7 H7 .. ..",
+        ".. .. .. .. H7 H7 H7 C16 E16 H2 E16 C16 H7 H7 H7 .. .. .. ..",
+        ".. .. .. .. .. H7 H6 C16 C16 C16 C16 C16 H6 H7 .. .. .. .. ..",
+        ".. .. .. .. H7 H6 H6 C16 H3 H6 H3 C16 H6 H6 H7 .. .. .. ..",
+        ".. .. .. H7 H6 H6 H6 C16 C16 C16 C16 C16 H6 H6 H6 H7 .. .. ..",
+        ".. .. .. H7 E16 E16 H7 H6 H3 H6 H3 H6 H7 E16 E16 H7 .. .. ..",
+        ".. .. .. .. H7 H7 H7 H6 C16 H6 C16 H6 H7 H7 H7 .. .. .. ..",
+        ".. .. .. .. .. H7 H6 H6 H6 H7 H6 H6 H6 H7 .. .. .. .. ..",
+        ".. .. .. .. .. .. H7 H5 H5 H7 H5 H5 H7 .. .. .. .. ..",
+        ".. .. .. .. .. .. .. H7 H7 .. H7 H7 .. .. .. .. .. .." 
+    ];
+
+    // 害羞贴图 (加深红晕范围)
+    const pixelMap_shy = [
+        ".. .. .. .. .. .. .. H7 H7 H7 H7 H7 H7 .. .. .. .. .. .. ..",
+        ".. .. .. .. .. H7 H6 H6 H6 H6 H6 H6 H6 H6 H7 .. .. .. .. ..",
+        ".. .. .. H7 H7 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H7 H7 .. .. ..",
+        ".. .. H7 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H7 .. ..",
+        ".. H7 H6 H6 H6 H7 H7 H6 H6 H6 H6 H6 H6 H7 H7 H6 H6 H6 H7 ..",
+        "H7 H6 H6 H6 H7 H7 H6 H6 H6 H6 H6 H6 H6 H6 H7 H7 H6 H6 H6 H7",
+        "H7 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H7",
+        "H7 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H7 H6 H6 H6 H6 H6 H6 H7",
+        "H7 H6 H6 H6 H6 H6 H6 H6 H6 H7 H6 H6 H7 H6 H6 H6 H6 H7 H6 H7",
+        "H7 H6 H6 H7 H6 H6 H6 H6 H6 H7 H6 H6 H7 H6 H6 H6 H6 H6 H7 H7",
+        "H7 H6 H7 H6 H6 H7 H6 H7 E16 H7 H6 H7 E16 H7 H6 H6 H7 H6 H6 H7",
+        ".. H7 H7 H6 H7 H7 H7 E16 E16 H7 E16 E16 E16 H7 H7 H6 H7 H7 ..",
+        ".. .. H7 H6 H7 E16 C4 C4 E16 E16 E16 E16 C4 C4 E16 H7 H6 H7 ..",
+        ".. .. H7 H7 E3 E2 C3 C3 E16 E16 E16 E16 C3 C3 E2 E3 H7 H7 ..", 
+        ".. .. .. H7 H7 E3 E3 E2 E16 E16 E16 E16 E2 E3 E3 H7 H7 .. ..", 
+        ".. .. .. .. H7 H7 H7 C16 E16 H2 E16 C16 H7 H7 H7 .. .. .. ..",
+        ".. .. .. .. .. H7 H6 C16 C16 C16 C16 C16 H6 H7 .. .. .. .. ..",
+        ".. .. .. .. H7 H6 H6 C16 H3 H6 H3 C16 H6 H6 H7 .. .. .. ..",
+        ".. .. .. H7 H6 H6 H6 C16 C16 C16 C16 C16 H6 H6 H6 H7 .. .. ..",
+        ".. .. .. H7 E16 E16 H7 H6 H3 H6 H3 H6 H7 E16 E16 H7 .. .. ..",
+        ".. .. .. .. H7 H7 H7 H6 C16 H6 C16 H6 H7 H7 H7 .. .. .. ..",
+        ".. .. .. .. .. H7 H6 H6 H6 H7 H6 H6 H6 H7 .. .. .. .. ..",
+        ".. .. .. .. .. .. H7 H5 H5 H7 H5 H5 H7 .. .. .. .. ..",
+        ".. .. .. .. .. .. .. H7 H7 .. H7 H7 .. .. .. .. .. .." 
+    ];
+       function drawNoah() {
+        if (noah.isAway) { ctx.clearRect(0, 0, 20, 26); return; }
+        ctx.clearRect(0, 0, 20, 26);
+        let currentMap;
+        if (currentFace === 'blink') {
+            currentMap = [...pixelMap_blink];
+        } else if (currentFace === 'shy') {
+            currentMap = [...pixelMap_shy];
+        } else {
+            currentMap = [...pixelMap];
+        }
+        // 画出诺亚
+        for (let y = 0; y < currentMap.length; y++) {
+            let rowColors = currentMap[y].trim().split(/\s+/);
+            for (let x = 0; x < rowColors.length; x++) {
+                let color = palette[rowColors[x]];
+                if (color) { ctx.fillStyle = color; ctx.fillRect(x, y, 1, 1); }
+            }
+        }
+        // --- 新增：画出你投喂或购买的小物品 ---
+        if (window.currentShowingItem && sprites[window.currentShowingItem]) {
+            let itemMap = sprites[window.currentShowingItem];
+            let startX = 13; // 固定在诺亚的右下角
+            let startY = 17; 
+            for (let y = 0; y < itemMap.length; y++) {
+                let rowColors = itemMap[y].trim().split(/\s+/);
+                for (let x = 0; x < rowColors.length; x++) {
+                    let color = palette[rowColors[x]];
+                    if (color) { ctx.fillStyle = color; ctx.fillRect(startX + x, startY + y, 1, 1); }
+                }
+            }
+        }
+    }
+
+    // --- 极度丰富的外出事件库 (6个地点 x 10+事件) ---
+    const locations = {
+        "london": {
+            name: "伦敦街头 (雨夜)",
+            icon: "☔",
+            desc: "我们的“无限”之地。适合约会，但花销较大。",
+            cost: { hunger: 15, health: 5, gold: 30 }, // 消耗高
+            events: [
+                { text: "下雨了，他用灰色羽绒服把你裹进怀里。", diff: { love: 25, mood: 20 }, reply: "“冷吗？靠近点。这件衣服买来就是为了此刻能装下两个人。”" },
+                { text: "路过一家麻瓜唱片店，里面在放莫扎特。", diff: { mood: 15, love: 10 }, reply: "“古典乐和雨声很配，就像我和你。进去看看？也许能找到那张我们要的黑胶。”" },
+                { text: "在街角花店买了一束茉莉花。", diff: { gold: -20, love: 20 }, reply: "“虽然我喜欢茉莉只是因为好闻，但现在它代表我那个在雨中傻笑的女朋友。”" },
+                { text: "在泰晤士河旁闲逛，讨论哲学悖论。", diff: { mood: 30, gold: 0 }, reply: "“塞翁失马，焉知非福。就像我即使失去了整个世界，只要你在，我就赢了。”" },
+                { text: "去便利店买了一罐碳酸饮料。", diff: { hunger: 10, gold: -5 }, reply: "“呲——气泡音。给，第一口给你。这可是麻瓜世界的魔药。”" },
+                { text: "偶遇一家电玩城，他非要和你比赛车。", diff: { mood: 20, love: 10, gold: -20 }, reply: "“我赢了。作为奖励，今晚你要一直牵着我的手，不许放开。”" },
+                { text: "在红绿灯下，他突然吻了你。", diff: { love: 40, mood: 40 }, reply: "“绿灯亮了，但我不想走。让整个伦敦都等着吧，我现在只想吻我的伽拉提。”" },
+                { text: "看到一只淋湿的流浪猫。", diff: { mood: 10, love: 10 }, reply: "“眼神像你犯错时一样无辜。好吧，我们给它买点吃的，但不能带回家，家里只能有你一个小麻烦。”" },
+                { text: "路过电影院，正在放映青春片。", diff: { gold: -30, love: 15 }, reply: "“虽然剧情烂俗，但我乐意陪你看。因为黑暗中我可以肆无忌惮地看着你的侧脸。”" },
+                { text: "在威斯敏斯特站口，他像往常一样等你。", diff: { love: 30 }, reply: "“周五的约定。不管发生什么，我都会在这里。哪怕世界末日。”" }
+            ]
+        },
+        "library": {
+            name: "霍格沃兹图书馆",
+            icon: "📖",
+            desc: "拉文克劳的主场。安静，省钱，增长智慧。",
+            cost: { hunger: 10, health: 0, gold: 0 },
+            events: [
+                { text: "你们在平斯夫人的眼皮底下传递纸条。", diff: { love: 10, mood: 10 }, reply: "纸条上写着：‘第7排书架后见，想你了。署名：你帅气的BF’" },
+                { text: "他帮你补习魔药学论文。", diff: { mood: 15 }, reply: "“这里写错了。你是想把坩埚炸了吗？笨蛋，看着我，再讲一遍。”" },
+                { text: "在禁书区门口探头探脑。", diff: { mood: 20, love: 10 }, reply: "“想进去？只要你开口，我就能带你溜进去。反正也不是第一次违反校规了。”" },
+                { text: "他看着书睡着了，睫毛很长。", diff: { love: 20 }, reply: "（你偷偷亲了他一下）他闭着眼勾起嘴角：“偷袭？记在账上了，醒来后百倍奉还。”" },
+                { text: "为了一个学术问题争论不休。", diff: { mood: 10 }, reply: "“缸中之脑...好吧，也许你说得对。但我更愿意相信我的大脑此刻感受到的对你的爱是真实的。”" },
+                { text: "遇到了法斯特·赛肯德，气氛尴尬。", diff: { mood: -10 }, reply: "诺亚冷冷地看了他一眼，把你拉到身后：“让开，你挡住我们要找的书了。”" },
+                { text: "找到一本关于古代如尼文的旧书。", diff: { mood: 20 }, reply: "“虽然晦涩，但我们可以一起破译。就像我们一起探索这个世界一样。”" },
+                { text: "窗外下起了雪，室内很温暖。", diff: { hunger: -5, love: 15 }, reply: "“如果时间能停在这一刻就好了。只有书香，雪，和你。”" },
+                { text: "他用魔法变出一朵蓝色的小花夹在你书里。", diff: { love: 15 }, reply: "“书看累了就看花，花看累了...就看我。我比花好看。”" },
+                { text: "你们共用一副耳机听麻瓜音乐。", diff: { mood: 20 }, reply: "“别告诉别人我在听这个。这是属于我们两个的小秘密。”" }
+            ]
+        },
+        "lake": {
+            name: "黑湖 / 禁林边缘",
+            icon: "🌲",
+            desc: "冒险者的乐园。可能受伤，也可能捡到宝藏。",
+            cost: { hunger: 20, health: 15, gold: 0 },
+            events: [
+                { text: "在禁林边缘发现了一个古老的宝箱！", diff: { gold: 100, mood: 20 }, reply: "“看来幸运女神今天偏爱你。全部归你，我只要你开心。” (获得100G)" },
+                { text: "遇到了巨大的黑湖鱿鱼，被泼了一身水。", diff: { health: -10, mood: -10 }, reply: "“该死！清理一新！这触手怪是不是嫉妒我长得帅？”" },
+                { text: "在草丛里捡到了一些稀有草药。", diff: { gold: 40, mood: 10 }, reply: "“斯普劳特教授会喜欢这个的，或者我们可以拿去卖了换黄油啤酒。” (获得40G)" },
+                { text: "为了摘悬崖边的一朵花，他摔伤了手臂。", diff: { health: -30, love: 30 }, reply: "“嘶...别哭。这点伤换你笑一下，值了。你看，花很美，像你。”" },
+                { text: "偶遇一只迷路的小独角兽。", diff: { mood: 30, love: 10 }, reply: "“它让你摸？哼，看来纯洁的生物都喜欢你。但我才是最喜欢你的那个。”" },
+                { text: "遇到了正在巡逻的海格。", diff: { hunger: -20 }, reply: "“岩皮饼？哦不...为了牙齿着想，我们还是快跑吧。” (因逃跑消耗饱食)" },
+                { text: "在湖边打水漂，他竟然输给了你。", diff: { mood: 15 }, reply: "“我那是让着你！好吧，愿赌服输，背你回城堡。”" },
+                { text: "发现了马人留下的预言石板。", diff: { gold: 60 }, reply: "“星象说今晚会有好事发生...比如，你会请我吃夜宵？” (获得60G)" },
+                { text: "被一群护树罗锅围攻。", diff: { health: -15, mood: -5 }, reply: "“别怕，躲我身后！这些小东西脾气真暴躁。”" },
+                { text: "在湖边看夕阳，水面波光粼粼。", diff: { love: 20, mood: 20 }, reply: "“人不能两次踏进同一条河流，但我会无数次爱上同一个你。”" }
+            ]
+        },
+        "hogsmeade": {
+            name: "霍格莫德村",
+            icon: "🍺",
+            desc: "热闹的巫师村落。吃喝玩乐，消耗金币。",
+            cost: { hunger: -30, health: 5, gold: 40 }, // 回复饱食
+            events: [
+                { text: "在三把扫帚喝热黄油啤酒。", diff: { hunger: 20, mood: 20 }, reply: "“你嘴唇上有泡沫...别动，我帮你擦。”（他凑过来吻掉了泡沫）" },
+                { text: "在蜂蜜公爵买了一大堆糖果。", diff: { hunger: 10, gold: -20 }, reply: "“张嘴。甜吗？再甜也没有你甜。”" },
+                { text: "去了佐科笑话店，买了个恶作剧道具。", diff: { gold: -15, mood: 15 }, reply: "“我想把这个放在布雷斯的枕头下...嘘，这是我们共犯的证明。”" },
+                { text: "在帕笛芙夫人茶馆，被情侣们闪瞎了眼。", diff: { mood: -5, love: 10 }, reply: "“这里太粉红了，受不了。但如果是和你在一起...勉强可以忍受。”" },
+                { text: "遇到了正在约会的德拉科·马尔福。", diff: { mood: 0 }, reply: "“看什么看，马尔福？再看把你变成白鼬。走吧，别理他。”" },
+                { text: "在邮局给未来的我们写了一封信。", diff: { love: 20 }, reply: "“收件人：诺亚和他的妻子。寄出时间：现在。希望未来的我依然这么帅。”" },
+                { text: "突降大雪，躲进一家废弃的小屋。", diff: { love: 30 }, reply: "“这场景像不像电影？只有我们两个，与世隔绝。真希望雪永远不停。”" },
+                { text: "买了尖叫游乐园的门票。", diff: { health: -5, mood: 25, gold: -30 }, reply: "“你尖叫的样子真可爱。害怕就抱紧我，这就是我存在的意义。”" },
+                { text: "在文人居羽毛笔店挑了一支笔。", diff: { gold: -10, mood: 10 }, reply: "“用这支笔写给你的情书，会不会更有文采一点？”" },
+                { text: "在大街上大声喊你的名字。", diff: { mood: 20, love: 10 }, reply: "“我要让整个霍格莫德都知道，你是我的！”" }
+            ]
+        },
+        "room": {
+            name: "有求必应屋",
+            icon: "🏰",
+            desc: "只属于你们的秘密基地。训练战斗或寻找失物。",
+            cost: { hunger: 20, health: 15, gold: 0 },
+            events: [
+                { text: "把房间变成了决斗俱乐部，练习除你武器。", diff: { health: -10, love: 15 }, reply: "“反应不错。但在战场上，敌人不会像我这样舍不得伤你。再来！”" },
+                { text: "在杂物堆里找到了一袋被遗忘的金币。", diff: { gold: 80 }, reply: "“这是谁藏的私房钱？现在它是我们的恋爱基金了。” (获得80G)" },
+                { text: "房间变成了全是镜子的迷宫。", diff: { mood: 10 }, reply: "“好多我，好多你。无论你看向哪里，看到的都是我们在一起的样子。”" },
+                { text: "他教你呼神护卫，他的守护神是一只冰原狼。", diff: { love: 25, mood: 20 }, reply: "“想着最快乐的记忆...对我来说，那段记忆就是遇到你的那天。”" },
+                { text: "房间变成了一片柔软的云海。", diff: { health: 10, mood: 20 }, reply: "（躺在云上）“如果累了就睡一会。我会守着你，连噩梦都不敢靠近。”" },
+                { text: "练习大脑封闭术，他对你敞开了心扉。", diff: { love: 30 }, reply: "“看到了吗？我的脑海里，除了那些乱七八糟的理论，剩下的全是你。”" },
+                { text: "找到了一把旧的飞天扫帚，在屋里低空飞行。", diff: { mood: 15, health: -5 }, reply: "“抓紧我！我们要撞上天花板了——哈哈，刺激吗？”" },
+                { text: "房间变成了一个复古的舞厅。", diff: { love: 20 }, reply: "“这位美丽的小姐，能请你跳支舞吗？就像我们在伦敦眼下跳弗拉明戈那样。”" },
+                { text: "意外翻出了西奥多·诺特小时候的照片。", diff: { mood: -10 }, reply: "“烧了吧。别让这东西污染了我们的秘密基地。”" },
+                { text: "在这里什么都不做，只是静静地拥抱。", diff: { mood: 30, love: 20 }, reply: "“外面世界很吵，人群很吵。只有这里，只有你，是安静的。”" }
+            ]
+        },
+        "astronomy": {
+            name: "天文塔顶层",
+            icon: "🌌",
+            desc: "离星星最近的地方。深夜，高处不胜寒。",
+            cost: { hunger: 10, health: 10, gold: 0 },
+            events: [
+                { text: "用望远镜观测木星的卫星。", diff: { mood: 20 }, reply: "“宇宙大爆炸，万物诞生...而我的宇宙中心，此时此刻正站在我身边。”" },
+                { text: "高处的风很大，吹乱了他的黑发。", diff: { love: 15, health: -5 }, reply: "“别动，让我帮你挡风。要是你感冒了，我会心疼死的。”" },
+                { text: "在这里俯瞰整个霍格沃兹。", diff: { mood: 15 }, reply: "“看，那是黑湖，那是球场...总有一天，我会带你去更远的地方，全世界遨游。”" },
+                { text: "流星划过，你们一起许愿。", diff: { love: 25 }, reply: "“许了什么愿？想让我活几万年？准了。我要留着这条命，一直爱你。”" },
+                { text: "遇到了正在夜巡的费尔奇和洛丽丝夫人。", diff: { mood: -20, health: -10 }, reply: "“快跑！幻身咒！呼...差点被抓到，不过这心跳加速的感觉，还不错。”" },
+                { text: "在这里跳了一支没有音乐的舞。", diff: { love: 20 }, reply: "“星光就是聚光灯，风声就是伴奏。你是我的舞伴，也是我唯一的观众。”" },
+                { text: "讨论关于死亡和永恒的话题。", diff: { mood: 10 }, reply: "“如果有一天我死了...我会让你把我做成魂器。这样我就能永远陪着你，你也永远甩不掉我。”" },
+                { text: "他在栏杆边缘做危险动作吓唬你。", diff: { mood: -10, love: 10 }, reply: "“担心我？放心，我舍不得死。我还没娶到你呢。”" },
+                { text: "喝了一口偷带上来的烈火威士忌。", diff: { health: -5, mood: 15 }, reply: "“敬星空，敬自由，敬该死的纯血统论，敬我们。”" },
+                { text: "在这里迎接日出。", diff: { mood: 30, love: 20 }, reply: "“天亮了。新的一天，我还爱着你。而且比昨天更爱一点。”" }
+            ]
+        }
+    };
+
+    // --- 新增：打开地点选择菜单 ---
+    function openLocationMenu() {
+        if(noah.isAway) { speak("诺亚正在外面探险，耐心点，女朋友。"); return; }
+        if(noah.health < 20 || noah.hunger < 20) { 
+            speak("“我太累了，或者太饿了...先照顾好我，再带你去征服世界。” (状态过低，无法外出)"); 
+            return; 
+        }
+
+        const list = document.getElementById('modal-list');
+        list.innerHTML = '';
+        document.getElementById('modal-title').innerText = "🌍 选择目的地";
+        
+        for (let key in locations) {
+            let loc = locations[key];
+            let li = document.createElement('li');
+            // 显示消耗提示
+            let costText = [];
+            if(loc.cost.gold > 0) costText.push(`-${loc.cost.gold}G`);
+            if(loc.cost.hunger > 0) costText.push(`饱食-${loc.cost.hunger}`);
+            
+            li.innerHTML = `<span>${loc.icon} ${loc.name}</span> <span style="font-size:9px;opacity:0.7">${costText.join(' ')}</span>`;
+            li.onclick = () => { confirmAdventure(key); };
+            list.appendChild(li);
+        }
+        document.getElementById('sys-modal').style.display = 'block';
+    }
+
+    function confirmAdventure(locKey) {
+        let loc = locations[locKey];
+        
+        // 检查金币是否足够
+        if(noah.gold < loc.cost.gold) {
+            speak(`“去${loc.name}可是要花钱的。看看你的钱包，只有${noah.gold}G。我们还是去黑湖捡破烂吧。”`);
+            closeModal();
+            return;
+        }
+
+        closeModal();
+        
+        // 扣除消耗
+        noah.gold -= loc.cost.gold;
+        noah.hunger -= loc.cost.hunger;
+        if(loc.cost.health) noah.health -= loc.cost.health;
+        // 霍格莫德特殊回复
+        if(locKey === 'hogsmeade') noah.hunger += 30;
+
+        // 开始探险动画
+        noah.isAway = true;
+        document.getElementById('adventure-overlay').style.display = 'flex';
+        document.getElementById('noah-canvas').style.display = 'none'; 
+        // --- 新增：用场景像素画代替原本的 Emoji ---
+        document.getElementById('adv-icon').style.display = 'none'; 
+        const advCanvas = document.getElementById('adv-canvas');
+        advCanvas.style.display = 'block';
+        const advCtx = advCanvas.getContext('2d');
+        advCtx.clearRect(0, 0, 10, 10);
+        
+        // 判断去哪里，画出哪里的图纸
+        let sceneKey = 'lake';
+        if (locKey === 'london' || locKey === 'astronomy') sceneKey = 'london';
+        else if (locKey === 'library') sceneKey = 'library';
+        else if (locKey === 'hogsmeade' || locKey === 'room') sceneKey = 'room';
+        
+        let sceneMap = sprites[sceneKey];
+        if (sceneMap) {
+            for (let y = 0; y < sceneMap.length; y++) {
+                let rowColors = sceneMap[y].trim().split(/\s+/);
+                for (let x = 0; x < rowColors.length; x++) {
+                    let color = palette[rowColors[x]];
+                    if (color) { advCtx.fillStyle = color; advCtx.fillRect(x, y, 1, 1); }
+                }
+            }
+        }
+        document.getElementById('adv-text').innerText = "EXPLORING " + loc.name.split(' ')[0];
+        
+        speak(`“去${loc.name}？好主意。跟紧我，别走丢了。” (预计耗时8秒)`);
+
+        setTimeout(() => {
+            noah.isAway = false;
+            document.getElementById('adventure-overlay').style.display = 'none';
+            document.getElementById('noah-canvas').style.display = 'block'; 
+            
+            // 随机抽取该地点的事件
+            const eventPool = loc.events;
+            const event = eventPool[Math.floor(Math.random() * eventPool.length)];
+            
+            // 应用数值变化
+            if(event.diff.gold) noah.gold += event.diff.gold;
+            if(event.diff.love) noah.love += event.diff.love;
+            if(event.diff.mood) noah.mood += event.diff.mood;
+            if(event.diff.health) noah.health += event.diff.health;
+            if(event.diff.hunger) noah.hunger += event.diff.hunger;
+
+            speak(event.reply);
+            updateUI();
+            showEventModal(event.text, event.diff);
+            
+        }, 8000);
+    }
+
+    function showEventModal(text, diff) {
+        let diffText = "";
+        if(diff.gold > 0) diffText += `<span style="color:#d1b55a">+${diff.gold}G </span>`;
+        if(diff.gold < 0) diffText += `<span style="color:#d15a5a">${diff.gold}G </span>`;
+        if(diff.love > 0) diffText += `<span style="color:#ff99cc">偏爱+${diff.love} </span>`;
+        if(diff.health < 0) diffText += `<span style="color:#d15a5a">健康${diff.health} </span>`;
+        if(diff.mood > 0) diffText += `<span style="color:#5cd1ff">心情+${diff.mood} </span>`;
+
+        document.getElementById('event-text').innerHTML = `${text}<br><br><div style="font-size:10px; margin-top:5px;">${diffText}</div>`;
+        document.getElementById('event-options').innerHTML = `<button class="event-btn" onclick="document.getElementById('event-modal').style.display='none'">确定</button>`;
+        document.getElementById('event-modal').style.display = 'flex';
+    }
+
+    // --- 原有菜单逻辑 ---
+    const menus = {
+        feed: [
+            { name: "十全大补爱心魔药 (G100)", action: () => buyItem(100, 'health', 80, 'love', 20, "这什么东西？为了你我喝...咳，感觉好多了，你是不是在里面加了福灵剂？") },
+            { name: "递给他茉莉花茶 (G10)", action: () => buyItem(10, 'mood', 15, 'love', 10, "香味很熟悉。不过你难道不知道，我喜欢茉莉仅仅是因为好闻，但我喜欢你，是因为那是你。") },
+            { name: "递一罐碳酸饮料 (G15)", action: () => buyItem(15, 'mood', 20, 'hunger', 10, "呲——（拉开易拉罐）。气泡炸裂的声音。活在当下的感觉真好，尤其是你在我旁边。") },
+            { name: "送毒蘑菇牛奶 (G5)", action: () => buyItem(5, 'health', -10, 'love', 30, "你又来？行，黑历史过不去了是吧。只要是你给的，就算叫我父亲我也喝。(一饮而尽)") },
+            { name: "三把扫帚热黄油啤酒 (G25)", action: () => buyItem(25, 'hunger', 30, 'mood', 20, "干杯，别喝醉了，不然我怕我控制不住想对你做点什么。") },
+            { name: "蜂蜜公爵糖羽毛笔 (G20)", action: () => buyItem(20, 'hunger', 15, 'mood', 15, "一边思考缸中之脑，一边吃糖...我也只有在你面前才会这么矛盾了。笨蛋。") }
+        ],
+        interact: [
+            { name: "✉️ 写悄悄话给他", action: () => openSecretChat() },
+            { name: "递给他绿色小蛇玩偶", action: () => chat("小绿蛇") },
+            { name: "说“我恨你X万遍”", action: () => chat("互怼") },
+            { name: "扯他脖子上的蓝宝石项链", action: () => chat("项链") },
+            { name: "让他把围巾系在头上", action: () => chat("围巾") },
+            { name: "聊聊薛定谔的猫", action: () => chat("哲学") },
+            { name: "故意提西奥多·诺特", action: () => chat("西奥多") },
+            { name: "故意提布雷斯·扎比尼", action: () => chat("布雷斯") },
+            { name: "夸他“帅极了”", action: () => chat("自恋") },
+            { name: "邀请他在雨中漫步", action: () => chat("雨中") }
+        ],
+              shop: [
+            { name: "夹心面包灰色羽绒服 (G150)", action: () => buyItem(150, 'love', 50, 'mood', 30, "你嫌它丑？可它暖和啊，而且这件衣服的大小，刚好足够把你整个人包进我怀里。") },
+            { name: "《莫里斯的情人》影票 (G80)", action: () => buyItem(80, 'mood', 40, 'love', 40, "在下雨的晚上看这部电影最合适了。我依然想不通克莱夫怎么会舍得结婚，换作是我，死都不放手。") },
+            { name: "去体验“无限”的门票 (G200)", action: () => buyItem(200, 'love', 80, 'mood', 60, "周五的约定。哪怕宇宙爆炸，这周五我也会准时带你去体验真正的自由。") },
+            { name: "定制情侣拉文克劳围巾 (G120)", action: () => buyItem(120, 'love', 60, 'mood', 50, "戴上它，这样全霍格沃兹就都知道，你是被我诺亚·司德里安圈养的了。") },
+            { name: "茉莉香氛蜡烛 (G30)", action: () => buyItem(30, 'mood', 20, 'love', 10, "点燃它，就像你随时在我身边。不过你本人比这味道好闻一万倍。") },
+            { name: "莫扎特黑胶唱片 (G60)", action: () => buyItem(60, 'mood', 35, 'love', 20, "古典乐？眼光不错。今晚来我房间，我们一起听。不许拒绝。") },
+            { name: "冰原狼木雕 (G50)", action: () => buyItem(50, 'love', 30, 'mood', 20, "我的守护神。只要你看着它，就像我一直在保护你一样。") },
+            { name: "蓝宝石情侣对戒 (G520)", action: () => buyItem(520, 'love', 200, 'mood', 100, "买这个？你可想好了，戴上就别想摘下来。这辈子你都是我的。") },
+            { name: "伦敦眼双人夜场票 (G180)", action: () => buyItem(180, 'love', 70, 'mood', 50, "在最高处接吻的人会永远在一起？这种麻瓜传说我也信，走吧。") },
+            { name: "限量版碳酸饮料盲盒 (G40)", action: () => buyItem(40, 'hunger', 20, 'mood', 25, "呲——第一口给你。这比任何福灵剂都让我上瘾。") },
+            { name: "最新款双人掌机 (G250)", action: () => buyItem(250, 'mood', 80, 'love', 50, "敢跟我比？输了的人今晚要答应对方一个要求。我赢定了。") },
+            { name: "黄铜天文望远镜 (G150)", action: () => buyItem(150, 'mood', 60, 'love', 40, "用它看星星，用眼睛看你。宇宙再大，也没有你对我的引力大。") },
+            { name: "《十大哲学悖论》 (G70)", action: () => buyItem(70, 'mood', 40, 'love', 30, "缸中之脑？双缝干涉？这些都不如‘我怎么这么爱你’这个悖论难解。") },
+            { name: "绿色小蛇刺绣抱枕 (G45)", action: () => buyItem(45, 'love', 30, 'mood', 15, "咳...这个手感确实不错。但我晚上还是更想抱你本人。") },
+            { name: "泰晤士河夜游船票 (G100)", action: () => buyItem(100, 'mood', 50, 'love', 40, "冷吗？靠近点。夜风再冷，有我在你身边就不会让你冻着。") },
+            { name: "麻瓜青春电影全集 (G80)", action: () => buyItem(80, 'mood', 30, 'love', 50, "这么烂俗的剧情？Fine，只要是你选的，就算看一万遍我也乐意。") },
+            { name: "雨中漫步透明伞 (G35)", action: () => buyItem(35, 'love', 25, 'mood', 15, "其实不用伞。被淋湿了，我就有理由把你整个人裹进我的羽绒服里了。") },
+            { name: "防西奥多靠近符咒 (G100)", action: () => buyItem(100, 'mood', 60, 'love', 40, "这东西太有用了！再让我看到那个疯子靠近你，我就让他灰飞烟灭！") },
+            { name: "专属亲亲兑换卡片 (G99)", action: () => buyItem(99, 'love', 80, 'mood', 50, "你买这个？(耳朵泛红) 随时兑现，过期不候。现在就要用吗？") },
+            { name: "黑魔法古籍孤本 (G300)", action: () => buyItem(300, 'mood', 100, 'love', 80, "这书很难找。里面有个咒语...能让你永远离不开我。开玩笑的，我不用咒语也能做到。") },
+            { name: "斯莱特林配色手链 (G60)", action: () => buyItem(60, 'love', 40, 'mood', 20, "虽然我是拉文克劳，但只要是你这只斯莱特林小蛇，我甘愿被你缠绕。") },
+            { name: "海滨假日特快车票 (G220)", action: () => buyItem(220, 'love', 90, 'mood', 70, "海边放肆追逐？好啊，如果我抓到你，你就任我处置。跑快点。") },
+            { name: "布雷斯专属恶作剧盒 (G50)", action: () => buyItem(50, 'mood', 50, 'love', 20, "干得漂亮。那个伪君子打开的时候，我一定要用留影机拍下来！") },
+            { name: "《庄子与老子》译本 (G65)", action: () => buyItem(65, 'mood', 35, 'love', 25, "为无为，事无事。但我对你，只想‘但行好事，莫问前程’。") },
+            { name: "茉莉香睡眠眼罩 (G30)", action: () => buyItem(30, 'mood', 20, 'health', 15, "只要闭上眼，闻到这味道，我的梦里全都是你。") },
+            { name: "无限符号∞项链坠 (G131)", action: () => buyItem(131, 'love', 99, 'mood', 50, "把它挂在我的蓝宝石项链旁边。这代表我对你的爱，无始无终，无限循环。") },
+            { name: "猫咪高级零食罐头 (G20)", action: () => buyItem(20, 'mood', 15, 'love', 10, "给家里的猫？行吧。不过你得先喂我，我比猫更需要你。") },
+            { name: "双缝干涉微缩模型 (G90)", action: () => buyItem(90, 'mood', 45, 'love', 35, "当你不观测时，光是波；当我看着你时，你就是我的全世界。") },
+            { name: "薛定谔的猫盲盒 (G55)", action: () => buyItem(55, 'mood', 30, 'love', 25, "在打开前，猫是死是活都有可能。但无论打开什么，我都确信我爱你。") },
+            { name: "司德里安情书信纸 (G40)", action: () => buyItem(40, 'love', 35, 'mood', 20, "想让我给你写情书？没问题，署名永远是‘你全世界最帅气最无所不能的BF’。") },
+            { name: "兔子耳朵毛绒发箍 (G25)", action: () => buyItem(25, 'mood', -10, 'love', 40, "想让我戴这个告诉你为什么兔子有两只耳朵？想都别想！...好吧，只戴五分钟。") },
+            { name: "伦敦街边小吃集锦 (G75)", action: () => buyItem(75, 'hunger', 40, 'mood', 30, "不用去伦敦也能吃到？张嘴，啊——看你吃东西也是一种享受。") },
+            { name: "塞翁失马连环画册 (G20)", action: () => buyItem(20, 'mood', 15, 'love', 15, "塞翁失马，焉知非福。遇到你，就是我这辈子最大的福气。") }
+        ]
+    };
+
+    function openMenu(type) {
+        if(noah.isAway) { speak("诺亚正在外面探险，你的思念只能留给空气了。"); return; }
+        const list = document.getElementById('modal-list');
+        list.innerHTML = '';
+        const titles = {feed: '🍽️ 偏爱投喂', interact: '✨ 专属互动', shop: '🎁 选购礼物'};
+        document.getElementById('modal-title').innerText = titles[type];
+        
+        menus[type].forEach(item => {
+            let li = document.createElement('li');
+            li.innerText = item.name;
+            li.onclick = () => { item.action(); closeModal(); };
+            list.appendChild(li);
+        });
+        document.getElementById('sys-modal').style.display = 'block';
+    }
+
+    function closeModal() { document.getElementById('sys-modal').style.display = 'none'; }
+            function openSecretChat() {
+        if(noah.isAway) { speak("诺亚不在家，你的信被风吹走了。"); return; }
+        closeModal();
+        
+        setTimeout(() => {
+            let msg = prompt("你想对诺亚输入什么悄悄话？(输入：爱你、想你、想抱抱、茉莉、宇宙、西奥多、下雨、晚安...)");
+            if(!msg) return;
+            msg = msg.trim();
+            if(msg.length === 0) return;
+            
+            noah.hunger -= 2; 
+            let reply = "";
+            let loveUp = 0; let moodUp = 0;
+            
+            const pick = (arr) => arr[Math.floor(Math.random() * arr.length)];
+
+            // ================= 至少25个关键词判定逻辑 =================
+            
+            // 1. 表白类：爱你/喜欢
+            if(msg.includes("爱你") || msg.includes("喜欢你") || msg.includes("love")) {
+                reply = pick([
+                    "“我也爱你。比这宇宙里的所有星星加起来还要爱你。” (眼神温柔得快要化掉)",
+                    "“这就对了。作为奖励，今晚允许你一直盯着我看。” (嘴角疯狂上扬)",
+                    "“I love you three thousand. 每天说一遍，少一遍都不行，必须说给我听。”"
+                ]);
+                loveUp = 20; moodUp = 20; makeShy();
+            } 
+            // 2. 想念类：想你/miss
+            else if(msg.includes("想你") || msg.includes("miss")) {
+                reply = pick([
+                    "“我也在想你。每一分，每一秒，甚至在呼吸的间隙。”",
+                    "“想我了？那就别只在心里想，现在立刻马上，到我怀里来。”",
+                    "“真巧，我的脑子里刚才也全是你。这就是所谓的心灵感应？”"
+                ]);
+                loveUp = 15; moodUp = 15;
+            }
+            // 3. 分手/离开
+            else if(msg.includes("分手") || msg.includes("离开") || msg.includes("不爱")) {
+                reply = pick([
+                    "“你想都别想！(猛地抓住你的手腕) 招惹了我，就算死你也只能死在我身边！”",
+                    "“分手？除非我死，或者世界毁灭。把这句话收回去，立刻。” (眼神冰冷可怕)",
+                    "“呵，你可以试试看走得掉吗？不管是天涯海角，我都会把你抓回来锁在身边。”"
+                ]);
+                loveUp = -10; moodUp = -50; 
+            } 
+            // 4. 亲密互动：抱抱
+            else if(msg.includes("抱抱") || msg.includes("抱我")) {
+                reply = pick([
+                    "“(一把将你拉进怀里) 早就等你这句话了。今天就让你待在我怀里，哪也不许去。”",
+                    "“只要抱抱？贪心点，我的女朋友。我整个人都是你的。”",
+                    "“过来。要是你冷了，我的灰色羽绒服随时为你敞开。”"
+                ]);
+                loveUp = 15; moodUp = 15; makeShy();
+            } 
+            // 5. 亲密互动：亲亲/吻
+            else if(msg.includes("亲亲") || msg.includes("吻")) {
+                reply = pick([
+                    "“闭上眼。(轻轻吻在你的唇上) 只有你能让我这么失控。”",
+                    "“今天不把你亲得喘不过气，我就不叫诺亚。”",
+                    "“你主动提的？那我不客气了。等会别喊停。”"
+                ]);
+                loveUp = 15; moodUp = 15; makeShy();
+            } 
+            // 6. 负面情绪：累/难过/哭
+            else if(msg.includes("累") || msg.includes("难过") || msg.includes("伤心") || msg.includes("委屈") || msg.includes("哭")) {
+                reply = pick([
+                    "“怎么了？谁欺负你了？告诉我名字，我去让他体会一下什么是真正的地狱。别怕，我在。”",
+                    "“累了就靠在我肩膀上睡一会。天塌下来有我顶着，你只需要负责开心就好。”",
+                    "“乖，不哭。不管发生了什么，你还有我。我是你最坚固的方舟。”"
+                ]);
+                loveUp = 10; moodUp = 10;
+            }
+            // 7. 睡觉：晚安/困
+            else if(msg.includes("晚安") || msg.includes("睡") || msg.includes("困")) {
+                reply = pick([
+                    "“晚安。记得梦里也要和我约会。”",
+                    "“睡吧，小懒猪。明天早上醒来，我依然爱你。”",
+                    "“别踢被子。如果你冷了，就喊我的名字，我会用魔法马上赶到。”"
+                ]);
+                loveUp = 10; moodUp = 5;
+            }
+            // 8. 吃醋对象：西奥多/诺特
+            else if(msg.includes("西奥多") || msg.includes("诺特")) {
+                reply = pick([
+                    "“永远不要在我面前左一句西奥多右一句西奥多！我眼睛瞎了才看不出那个疯子看你的眼神乱七八糟。”",
+                    "“你为什么要在给我的悄悄话里提那个疯子？！今晚的惩罚加倍，你别想下床了。”",
+                    "“再提他一次，我就去给他下个遗忘咒，让他连自己叫什么都忘了。”"
+                ]);
+                loveUp = 5; moodUp = -30;
+            } 
+            // 9. 吃醋对象：布雷斯/扎比尼
+            else if(msg.includes("布雷斯") || msg.includes("扎比尼")) {
+                reply = pick([
+                    "“那个伪君子？嗤。别让他靠近你，否则我不保证他的魔杖明天还能不能用。”",
+                    "“提他干嘛？你是不是太闲了，看来我得占满你所有的注意力才行。”",
+                    "“离他远点。我的眼光可没那么差，会容忍那种伪君子觊觎我的人。”"
+                ]);
+                loveUp = 5; moodUp = -20;
+            }
+            // 10. 吃醋对象：法斯特
+            else if(msg.includes("法斯特")) {
+                reply = pick([
+                    "“那个拉文克劳级长算什么？他能像我这样，把宇宙、星星和我都捧到你面前吗？”",
+                    "“你提他？(冷笑) 是不是觉得他脾气好？你男朋友脾气可不好，你最好马上顺顺我的毛。”",
+                    "“不管他有多小心翼翼，你都是我的。任何人都不准抢走。”"
+                ]);
+                loveUp = 5; moodUp = -20;
+            }
+            // 11. 吃醋对象：德拉科/马尔福
+            else if(msg.includes("德拉科") || msg.includes("马尔福")) {
+                reply = pick([
+                    "“那个大少爷？有空管他，不如多看看你面前帅气无所不能的男朋友。”",
+                    "“别管他了。有我在，你不需要和那种满口纯血统的家伙过多接触。”",
+                    "“怎么，马尔福又惹事了？如果是惹了你，我就去把他变成真正的白鼬。”"
+                ]);
+                loveUp = 5; moodUp = -10;
+            }
+            // 12. 爱好：电影/看电影
+            else if(msg.includes("电影") || msg.includes("影票")) {
+                reply = pick([
+                    "“虽然那些青春电影烂俗得要命，但只要你在旁边，我就乐意看一万遍。”",
+                    "“想看《莫里斯的情人》？下雨天看正好，不过我可不像克莱夫那样懦弱，我绝对不会放开你。”",
+                    "“看什么电影，你直接看我不就好了。我比那些电影好看多了。”"
+                ]);
+                loveUp = 10; moodUp = 15;
+            }
+            // 13. 爱好：游戏/电玩
+            else if(msg.includes("游戏") || msg.includes("掌机")) {
+                reply = pick([
+                    "“敢跟我比？输了的人今晚要答应对方一个要求。我赢定了。”",
+                    "“我说过如果你想赢，我就会让你赢。只要你开心，一切谎言都没必要。”",
+                    "“打游戏？好啊。不过我的注意力可能只会在你拿手柄的手指上。”"
+                ]);
+                loveUp = 5; moodUp = 20;
+            }
+            // 14. 气味：茉莉/茉莉花
+            else if(msg.includes("茉莉")) {
+                reply = pick([
+                    "“我喜欢茉莉仅仅是因为好闻，但我喜欢你，是因为你是你。”",
+                    "“你身上的味道比任何茉莉香氛都让我上瘾。过来，让我抱一下闻闻。”",
+                    "“下着雨的房间挥满茉莉香，孤冷得要命。幸好，现在有你在。”"
+                ]);
+                loveUp = 15; moodUp = 20;
+            }
+            // 15. 特定物品：蓝宝石/项链
+            else if(msg.includes("蓝宝石") || msg.includes("项链")) {
+                reply = pick([
+                    "“我戴着它仅仅是因为这是你送的。别想拿回去，这辈子都挂我脖子上了。”",
+                    "“轻点扯，弄坏了你得把自己赔给我。”",
+                    "“这是你留给我的锚点。有它在，无论我走到宇宙哪里，都能回到你身边。”"
+                ]);
+                loveUp = 20; moodUp = 10;
+            }
+            // 16. 天气：下雨/雨夜
+            else if(msg.includes("雨") || msg.includes("下雨")) {
+                reply = pick([
+                    "“伦敦的雨总是这么冷。过来，躲进我的羽绒服里。感受到了吗？我的心跳只为你加速。”",
+                    "“别淋雨，感冒了我可是会心疼的。就算要在雨中漫步，也得我给你挡着。”",
+                    "“不管外面多大的雨，我都只想紧紧抱住你。”"
+                ]);
+                loveUp = 15; moodUp = 15;
+            }
+            // 17. 衣物：羽绒服/衣服
+            else if(msg.includes("羽绒服") || msg.includes("灰色")) {
+                reply = pick([
+                    "“你嫌它丑像夹心面包？可它暖和啊，而且大小刚好足够把你整个人包进我怀里。”",
+                    "“冷了就钻进来，这件衣服买来就是为了此刻能装下两个人。”",
+                    "“衣服难看没关系，穿它的男朋友帅极了就行了。”"
+                ]);
+                loveUp = 10; moodUp = 15;
+            }
+            // 18. 饮食：碳酸饮料/可乐
+            else if(msg.includes("碳酸饮料") || msg.includes("饮料")) {
+                reply = pick([
+                    "“呲——第一口给你。这比任何福灵剂都让我上瘾。”",
+                    "“活在当下的感觉真好，尤其是你在我旁边喝着这个的时候。”",
+                    "“是不是碳酸饮料和可可粉产物都已经满足不了你的食欲了？不如来尝尝我？”"
+                ]);
+                loveUp = 10; moodUp = 15;
+            }
+            // 19. 哲学/物理：宇宙/星星/天文
+            else if(msg.includes("宇宙") || msg.includes("星星") || msg.includes("天文")) {
+                reply = pick([
+                    "“宇宙大爆炸创造了时间与空间，但我的宇宙，是在十岁那条伦敦小巷里撞倒你的那一刻才开始膨胀的。”",
+                    "“用望远镜看星星，用眼睛看你。宇宙再大，也没有你对我的引力大。”",
+                    "“我们就是对方的整个宇宙。只要你在，黑洞都无法吞噬我的光。”"
+                ]);
+                loveUp = 20; moodUp = 20;
+            }
+            // 20. 哲学/物理：悖论/薛定谔/缸中之脑
+            else if(msg.includes("悖论") || msg.includes("薛定谔") || msg.includes("干涉") || msg.includes("缸中之脑")) {
+                reply = pick([
+                    "“在观测之前，猫处于叠加态。但在遇见你之前，我的人生只有一种状态——等你。”",
+                    "“他们说缸中之脑无法证明世界的真实性。但只要我能感受到你在身边，世界就是真实的。”",
+                    "“去他的二八定律，我对你的爱是百分之百，一点折扣都不打。”"
+                ]);
+                loveUp = 15; moodUp = 20;
+            }
+            // 21. 哲学/国学：老子/庄子/哲学
+            else if(msg.includes("老子") || msg.includes("庄子") || msg.includes("哲学")) {
+                reply = pick([
+                    "“塞翁失马，焉知非福。失去什么我都不在乎，只要我拥有你就足够了。”",
+                    "“为无为，事无事。但我对你，只想‘但行好事，莫问前程’。”",
+                    "“每个人都是矛盾的集合体...但我爱你这件事，极其统一，且无可救药。”"
+                ]);
+                loveUp = 15; moodUp = 15;
+            }
+            // 22. 夸赞：帅/完美/夸你
+            else if(msg.includes("帅") || msg.includes("完美") || msg.includes("厉害")) {
+                reply = pick([
+                    "“这还用你说？(嘴角疯狂上扬) 你的男朋友一直都是全世界最帅气最无所不能的。”",
+                    "“我会一直这么帅下去，笨蛋。为了配得上你，我总得保持点优势。”",
+                    "“承认吧，你面前就站着这样一个完美男孩，还不快点扑进我怀里？”"
+                ]);
+                loveUp = 15; moodUp = 30;
+            }
+            // 23. 玩笑：笨蛋/傻子
+            else if(msg.includes("笨蛋") || msg.includes("傻")) {
+                reply = pick([
+                    "“敢叫我笨蛋？你死定了。(坏笑) 看来我需要用点行动证明我的高智商。”",
+                    "“我是笨蛋的话，那你就是笨蛋的唯一弱点。”",
+                    "“只有在你面前我才愿意当个不讲理的笨蛋，因为你总会纵容我。”"
+                ]);
+                loveUp = 10; moodUp = 10;
+            }
+            // 24. 睡觉怪癖：蛇玩偶/玩偶
+            else if(msg.includes("蛇玩偶") || msg.includes("玩偶")) {
+                reply = pick([
+                    "“(熟练地抱在怀里) 咳，晚上抱着它仅仅是因为...它有你的味道。别多想。”",
+                    "“这东西一点都不好看。但如果你不在，我只能靠抱着它才睡得着。”",
+                    "“玩偶哪有你抱起来舒服。今晚你来代替它，不许拒绝。”"
+                ]);
+                loveUp = 10; moodUp = 15; makeShy();
+            }
+            // 25. 承诺：未来/无限/自由/结婚
+            else if(msg.includes("未来") || msg.includes("无限") || msg.includes("自由") || msg.includes("结婚")) {
+                reply = pick([
+                    "“准备好当我的战车了吗？我会带你撕出一个最精彩的未来。”",
+                    "“自由和无限？只要你在我身边，去哪里都是一场盛大的冒险。”",
+                    "“结婚？当然，我可是要把你这只小蛇永远圈养在我的领地里的。”"
+                ]);
+                loveUp = 25; moodUp = 25;
+            }
+            // 26. 誓言保护：害怕/保护
+            else if(msg.includes("怕") || msg.includes("保护")) {
+                reply = pick([
+                    "“别怕，不管多少人想伤害你，我都会在这些人前保护你。”",
+                    "“我如果连受一点点伤的准备都没有，还用什么保护你？躲我身后。”",
+                    "“只要你喊我的名字，我保证没人能动你一根头发。”"
+                ]);
+                loveUp = 20; moodUp = 15;
+            }
+            // 默认回复
+            else {
+                reply = pick([
+                    `“‘${msg}’？虽然不知道你小脑瓜里在想什么，但只要是你写的，我都会像珍宝一样收藏起来。”`,
+                    `“不管你说了什么，只要是你，我就照单全收。”`,
+                    `“嗯哼？你想用‘${msg}’来引起我全世界最帅男朋友的注意吗？你成功了。”`
+                ]);
+                loveUp = 5; moodUp = 5;
+            }
+            
+            noah.love += loveUp; noah.mood += moodUp;
+            speak(reply);
+            updateUI();
+        }, 150);
+    }
+   
+    function buyItem(cost, attr1, val1, attr2, val2, reply) {
+        if (noah.gold < cost) { speak("加隆不够了，笨蛋。求求你那无所不能的天才男朋友帮你买吧。(去黑湖或有求必应屋探险可以赚钱)"); return; }
+        noah.gold -= cost;
+        noah[attr1] += val1;
+        if(attr2) noah[attr2] += val2;
+        speak(reply); 
+        
+        // --- 新增：智能识别物品并显示像素画 ---
+          let spriteKey = 'gift'; // 商店物品默认显示粉色小礼物盒
+     
+     // 牛奶回复里有"黑历史"，触发牛奶图标
+     if (reply.includes("黑历史") || reply.includes("一饮而尽")) spriteKey = 'milk';
+     // 啤酒触发beer
+     else if (reply.includes("干杯")) spriteKey = 'beer';
+     // 糖羽毛笔触发pen
+     else if (reply.includes("吃糖")) spriteKey = 'pen';
+     // ↓↓↓ 你新增的三个物品判定 ↓↓↓
+     else if (reply.includes("福灵剂")) spriteKey = 'potion';  // 十全大补爱心魔药
+     else if (reply.includes("好闻")) spriteKey = 'tea';       // 茉莉花茶
+     else if (reply.includes("气泡")) spriteKey = 'soda';      // 碳酸饮料
+        
+        if (typeof showItem === 'function') showItem(spriteKey);
+        
+        updateUI();
+    }
+    // 强制让他害羞3秒的函数
+    function makeShy() {
+        if (noah.isAway) return; 
+        currentFace = 'shy';
+        drawNoah(); 
+        setTimeout(() => {
+            currentFace = 'normal'; 
+            drawNoah();
+        }, 3000); // 3000毫秒 = 3秒后恢复
+    }
+    function chat(topic) {
+        noah.hunger -= 3; 
+        const responses = {
+            "小绿蛇": { love: 10, mood: 10, text: "(熟练地抱在怀里) 咳，晚上抱着它仅仅是因为...它像你。别多想。" },
+            "互怼": { love: 20, mood: 15, text: "真巧，那我就罚自己爱你 X+1 万遍好了。" },
+            "项链": { love: 15, mood: 10, text: "轻点，笨蛋！这可是你送我的蓝宝石，弄坏了你得把自己赔给我。" },
+            "围巾": { love: 10, mood: 20, text: "天啊，我看见有笨蛋我说什么都听，哪里像——恨我？" },
+            "哲学": { love: 25, mood: 20, text: "在观测之前，猫处于死与活的叠加态。但在遇见你之前，我的人生只有一种状态——等你。" },
+            "西奥多": { love: 10, mood: -30, text: "(眼神瞬间冰冷) 永远别在我面前提那个疯子。瞎子都看得出他对你图谋不轨。你只能看我，听到没？！" },
+            "布雷斯": { love: 5, mood: -20, text: "那个伪君子？嗤。别让他靠近你，否则我不保证他的魔杖明天还能不能用。" },
+            "自恋": { love: 15, mood: 30, text: "这还用你说？(嘴角疯狂上扬) 你的男朋友一直都是全世界最帅气最无所不能的。" },
+            "雨中": { love: 30, mood: 25, text: "伦敦的雨总是这么冷。过来，躲进我的羽绒服里。感受到了吗？我的心跳只为你加速。" }
+        };
+        
+        let res = responses[topic];
+        noah.love += res.love; noah.mood += res.mood;
+        speak(res.text); updateUI();
+        // 如果你选的情话让他极度心动（爱意增加超过15），触发脸红！
+        if (res.love >= 15) {
+            makeShy();
+        }
+    }
+
+    function doAction(action) {
+        if(noah.isAway) return;
+        if(action === 'status') {
+            let desc = "【你是我的伽拉提】<br>陪伴是最长情的告白。只要在一起，羁绊就会自然增长。";
+            speak(`♥ 专属牵绊值: ${noah.love}/50(升级进度) <br>★ 当前阶段: 【${levelTitles[noah.level]}】 <br> ${desc}`);
+        } else if(action === 'chat') {
+                      const idleTalks = [
+                "每个人都是矛盾的集合体...但我爱你这件事，极其统一，且无可救药。",
+                "伦敦像下着雨的围城？怎么，想玩围棋了？赢了算你的，输了我陪你一直下。",
+                "诺亚方舟的方舟在哪？伦敦下次发洪水你会见到的，笨蛋。而且，船上只有我们两个。",
+                "为什么兔子有两只耳朵？下辈子变成兔子再告诉你。但这辈子，我的两只耳朵只听你的。",
+                "时代的进步...刚好，我相信大多已被证实的理论，在最开始都是跳跃性的思考。就像我爱你，不需要任何逻辑推导。",
+                "准备好当我的战车了吗，火星上的玫瑰？我会带你撕出一个最精彩的未来。",
+                "我如果连受一点点伤的准备都没有，还用什么保护你？空谈阔论啊？",
+                "I love you three thousand. 每天说一遍，少一遍都不行，必须说给我听。",
+                "死在我手里要比死在别人手里最有价值，到那一天你还能用我给你做个魂器，这样我就能永远缠着你，一举两得。",
+                "你找别人如果敢用跑的，我会打断你的腿。乖乖留在我身边不好吗？",
+                "你怎么会有一瞬间认为，我会不想帮你的？只要你指明方向，那个地方就是我想去的地方。",
+                "是谁每周五都在威斯敏斯特站接你下车，仅仅是为了想出新的花样解决你当天的无聊烦闷？是你帅极了的男朋友。",
+                "我说过如果你想赢，我就会让你赢，你可以一直正视自己的需求，让谎言在我们中间永远不必要。",
+                "伦敦眼也好，我们在底下跳弗拉明戈舞。只要你在，哪里的风景都一样。",
+                "Boyfriend就boyfriend，非要我掰开了揉碎了说？再让我听见你叫西奥多，我就让你见识一下‘B’开头的其他单词，比如Berserk。",
+                "下次直接点，别让我猜。猜对了没奖励，猜错了你遭殃。来，直接说你喜欢我。",
+                "我到底哪里不值？就喜欢喜欢我吧，我一定值。",
+                "好不好，行不行，试试看？不然我求一下你——求一下你赶快把眼睛睁开，看着你面前就站着的完美男孩。",
+                "碳酸饮料和可可粉产物都已经满足不了你的食欲了吗？不如来尝尝我？",
+                "哄不好了，来道歉。或者亲我一下，这事就算翻篇了。",
+                "Miss you 3000. 听到没？现在立刻马上出现在我面前。",
+                "我会一直这么帅下去，你个笨蛋。为了配得上你，我总得保持点优势。",
+                "如果有谁敢让你受委屈，我不介意让他见识一下拉文克劳的反叛精神和黑魔法的完美结合。",
+                "宇宙大爆炸创造了时间与空间，但我的宇宙，是在十岁那条伦敦小巷里被你撞倒的那一刻才开始膨胀的。",
+                "他们说缸中之脑无法证明世界的真实性。但只要我还能闻到你身上的茉莉香，这个世界就是真实的。",
+                "去他的二八定律，我对你的爱是百分之百，一点折扣都不打。",
+                "你永远不要在我面前左一句西奥多诺特，右一句西奥多诺特，我眼睛瞎了才会看不出来那个疯子看你的眼神乱七八糟。你是我的。",
+                "法斯特那个级长算什么？他能像我这样，把宇宙、星星和我都捧到你面前吗？",
+                "这绿蛇玩偶一点都不好看，但我每晚都要抱着它。别笑，仅仅是因为它有你的味道。",
+                "我戴着这条蓝宝石项链，仅仅是因为是你送的。你要是敢要回去，我就把你绑在霍格沃兹的天文塔上。",
+                "我们当然是灵魂伴侣。不然你以为谁能忍受你往我的牛奶里放毒蘑菇，还叫我父亲？",
+                "别怕，不管多少人想伤害你，我都在这些人前保护你。就算与整个巫师界为敌，我也只要你。",
+                "你问我最大的心愿是什么？想你活几万年算不算？这几万年里，我每一秒都要和你在一起。",
+                "知易行难。但我爱你这件事，既容易，又付诸了我的全部行动。",
+                "如果你需要我，你不能突然不需要了。一旦招惹了我诺亚·司德里安，就是一辈子的事。"
+            ];
+            speak(idleTalks[Math.floor(Math.random() * idleTalks.length)]);
+        } else if(action === 'reset') {
+               if(confirm("确定要重置所有记忆回到初遇吗？(会清空所有好感和进度)")) {
+                localStorage.removeItem('noah_save_data_v1');
+                noah = { hunger: 80, mood: 80, health: 100, love: 5, gold: 100, level: 1, state: 'normal', isAway: false };
+                speak("时光倒流。现在的你们还在初遇养成期，他戴着蓝宝石项链、正一脸傲娇地等着你重新攻略他。"); updateUI();
+            }
+        }
+    }
+
+     // --- 升级版随机事件系统 ---
+    // 根据亲密度(Level)解锁更多事件
+    const specialEvents = [
+        // Lv 1-2: 校园日常与小打小闹
+        { reqLevel: 1, text: "【下课日常】你刚下课走出教室，发现他早就倚在门口等你，连你的课表他都背得滚瓜烂熟。", 
+          btn1: "直球扑进他怀里", btn2: "翻个白眼嫌弃他",
+          actions: [
+            { love: 40, reply: "(稳稳接住你，揉乱你的头发) 慢点，火星上的玫瑰。带你去撕出一个最精彩的未来。" },
+            { mood: 10, reply: "“真受不了你。”你嘀咕着。他凑过来挑眉：“明天记得对我说，现在的我帅极了。”" }
+          ]
+        },
+        { reqLevel: 1, text: "【图书馆】平斯夫人正在巡逻，诺亚在桌子底下用脚轻轻勾了勾你的小腿。",
+          btn1: "踩回去", btn2: "脸红低头",
+          actions: [
+            { love: 15, mood: 10, reply: "他倒吸一口冷气，压低声音笑：“谋杀亲夫啊？这力道，看来晚饭吃得不错。”" },
+            { love: 20, reply: "他看着你红透的耳根，眼神变得极其温柔，递过来一张纸条：‘别躲，看着我。’" }
+          ]
+        },
+        { reqLevel: 1, text: "【恶作剧】你发现他在你的魔药课本上画了一只戴着拉文克劳围巾的小猪。",
+          btn1: "在画旁边写‘这是你’", btn2: "把它擦掉",
+          actions: [
+            { mood: 20, love: 10, reply: "他看到后不仅没生气，还把那页纸撕下来夹进了自己的书里：“收藏了。这是我们共同创作的艺术品。”" },
+            { mood: -10, reply: "“啧，真没情调。那可是我花了三分钟的杰作。”" }
+          ]
+        },
+        { reqLevel: 1, text: "【礼堂用餐】你盘子里的青椒被他默默挑到了自己盘子里，换给你一块牛排。",
+          btn1: "说谢谢", btn2: "把自己盘里的胡萝卜也给他",
+          actions: [
+            { love: 10, reply: "“不用谢。把你养胖点，这样就没有别人能抱动你了。”" },
+            { mood: 5, reply: "“喂！我是你的男朋友，不是你的垃圾桶！...行吧，下不为例。”（虽然嘴上抱怨，还是吃掉了）" }
+          ]
+        },
+        // Lv 3-4: 醋意与热恋
+        { reqLevel: 3, text: "【周五危机】你因为被施了记忆混淆咒，忘记了周五的约定，带着别人去了海德公园。他突然出现拦住你们。", 
+          btn1: "慌乱地向他解释", btn2: "强装镇定看着他",
+          actions: [
+            { love: 20, reply: "“你，瞒着，我带谁，来我们，之前的地盘，约会？”他气极反笑，声音冷得像冰原狼。" },
+            { mood: -30, reply: "他一把将你扯进怀里，用最具攻击性的眼神盯着那个人：“滚。她是我的。”" }
+          ]
+        },
+        { reqLevel: 3, text: "【夜半微醺】你在休息室喝了一点酒，刚巧被刚回来的诺亚当场抓获。", 
+          btn1: "急忙解释怕他误会", btn2: "借着酒劲向他撒娇",
+          actions: [
+            { love: 30, reply: "“啊——我懂了，你刚才向我解释，很怕我会误会，是不是？祝贺你现在，应该是喜欢上我了。”" },
+            { mood: 30, reply: "他叹了口气，把你打横抱起：“敢说变成这样是因为别人你就死定了。睡觉！”" }
+          ]
+        },
+        { reqLevel: 3, text: "【偶遇死对头】布雷斯·扎比尼在走廊上和你多说了两句话，诺亚的脸色瞬间阴沉。",
+          btn1: "拉住诺亚的手", btn2: "继续和布雷斯聊天",
+          actions: [
+            { love: 40, mood: 20, reply: "感觉到你的触碰，他紧绷的身体放松下来，反手十指紧扣：“告诉那个伪君子，我们还有事，没空听他废话。”" },
+            { mood: -40, love: -10, reply: "诺亚直接走过来，隔开你们：“扎比尼，你的魔药论文写完了吗？没写完就别在这像只孔雀一样开屏。”" }
+          ]
+        },
+        { reqLevel: 3, text: "【雨夜】伦敦街头下起了大雨，你们只带了一把伞。",
+          btn1: "把伞给他撑", btn2: "钻进他的灰色羽绒服",
+          actions: [
+            { love: 15, reply: "他把伞推回你头顶，自己淋着雨：“笨蛋。要是你感冒了，我会比自己生病更难受。”" },
+            { love: 50, mood: 30, reply: "“聪明。”他拉上拉链，把你紧紧裹在怀里，“这里面很暖和，而且全是我的味道。不许嫌弃。”" }
+          ]
+        },
+        { reqLevel: 3, text: "【飞行课】你的扫帚失控了，差点撞上塔楼。",
+          btn1: "闭眼尖叫", btn2: "大喊诺亚的名字",
+          actions: [
+            { love: 20, reply: "一双有力的手在半空中接住了你。诺亚骑着扫帚，脸色发白：“下次不许飞这么高！你想吓死我吗？”" },
+            { love: 40, mood: 10, reply: "“我在！”他像流星一样冲过来，把你护在身后，“只要你喊我，无论在哪，我都会接住你。”" }
+          ]
+        },
+        // Lv 5-7: 灵魂伴侣与深度羁绊
+        { reqLevel: 5, text: "【深夜卧室】你发现他睡着了，手里还紧紧抓着那个绿色的蛇玩偶。",
+          btn1: "试图把玩偶抽走", btn2: "钻进他怀里代替玩偶",
+          actions: [
+            { mood: -10, reply: "他迷迷糊糊地收紧手臂：“别动...西瑞...那是你...”" },
+            { love: 60, mood: 40, reply: "他瞬间扔掉了玩偶，把你抱得更紧，下巴抵在你头顶：“终于来了。玩偶哪有你抱起来舒服。”" }
+          ]
+        },
+        { reqLevel: 5, text: "【关于未来】你们躺在有求必应屋的地板上看着天花板变幻的星空。",
+          btn1: "问他以后想去哪", btn2: "问他会不会结婚",
+          actions: [
+            { love: 30, reply: "“去全世界遨游。当然，前提是你必须在我的副驾驶座上。你是我的导航，也是我的终点。”" },
+            { love: 50, mood: 20, reply: "“结婚？如果是和你，那就在伦敦的雨天，没有宾客，只有我们。如果是别人...那我宁愿像克莱夫那样孤独终老。”" }
+          ]
+        },
+        { reqLevel: 5, text: "【家庭】路西菲尔给你寄来了一份礼物，诺亚看到后挑了挑眉。",
+          btn1: "是什么？", btn2: "你爸爸真好",
+          actions: [
+            { mood: 10, reply: "“看来路西菲尔已经把你当儿媳妇了。这可是传家宝级别的防御护符...哼，他都没给过我。”" },
+            { love: 20, reply: "“那是。毕竟他和安娜那么相爱，他也希望我也能像他一样，找到那个值得用一生去守护的麻瓜...哦不，斯莱特林。”" }
+          ]
+        },
+        { reqLevel: 5, text: "【哲学时刻】他突然盯着你看：“如果我是缸中之脑，那此刻对你的爱是电信号吗？”",
+          btn1: "也许是吧", btn2: "管它是什么，爱是真的",
+          actions: [
+            { mood: 20, reply: "“就算是电信号，那也是我这颗大脑里最强烈、最无法忽视的信号。它导致了系统过载——全是你的名字。”" },
+            { love: 40, mood: 30, reply: "“说得对。唯心主义万岁。我爱你这件事，是超越物质存在的唯一真理。”" }
+          ]
+        },
+        { reqLevel: 6, text: "【危险时刻】有人在角落里试图对你施恶咒，被诺亚发现了。",
+          btn1: "从容反击", btn2: "躲到诺亚身后",
+          actions: [
+            { love: 30, reply: "诺亚补了一个缴械咒，吹了吹魔杖：“配合完美。不过下次这种脏活累活让我来，别脏了你的手。”" },
+            { love: 60, mood: -20, reply: "他眼神变得极度可怕，魔杖尖端冒出黑魔法的光芒：“除你武器！统统石化！...没人能在我面前动你，梅林也不行。”" }
+          ]
+        },
+        { reqLevel: 6, text: "【永恒】他把玩着脖子上的蓝宝石项链，突然看向你。",
+          btn1: "怎么了？", btn2: "亲他一下",
+          actions: [
+            { love: 30, reply: "“I love you three thousand. 这句话每天说一遍都不够。我想把它刻在我的骨头上，带进坟墓里。”" },
+            { love: 80, mood: 50, reply: "他加深了这个吻，直到两人都喘不过气：“如果有来世，记得还要在10岁那年的伦敦小巷撞倒我。我会在那里等你。”" }
+          ]
+        }
+    ];
+
+    function triggerEvent() {
+        if(noah.isAway || noah.state === 'sick') return;
+        
+        // 筛选符合当前等级的事件
+        const eligibleEvents = specialEvents.filter(e => noah.level >= e.reqLevel);
+        if (eligibleEvents.length === 0) return;
+
+        const ev = eligibleEvents[Math.floor(Math.random() * eligibleEvents.length)];
+        
+        document.getElementById('event-text').innerText = ev.text;
+        
+        // 动态生成按钮逻辑
+        window.currentEventActions = ev.actions;
+        document.getElementById('event-options').innerHTML = `
+            <button class="event-btn" onclick="resolveEvent(0)">${ev.btn1}</button>
+            <button class="event-btn" onclick="resolveEvent(1)">${ev.btn2}</button>
+        `;
+        document.getElementById('event-modal').style.display = 'flex';
+        clearInterval(typeInterval);
+    }
+
+    window.resolveEvent = function(choiceIndex) {
+        document.getElementById('event-modal').style.display = 'none';
+        const result = window.currentEventActions[choiceIndex];
+        
+        if(result.love) noah.love += result.love;
+        if(result.mood) noah.mood += result.mood;
+        if(result.gold) noah.gold += result.gold;
+        if(result.health) noah.health += result.health;
+        
+        speak(result.reply);
+        updateUI();
+    };
+
+
+    // --- 游戏循环 ---
+    setInterval(() => {
+        tickCount++;
+        checkRealTime(); // 实时更新背景颜色
+        // 每30秒自然消耗
+        if(tickCount % 30 === 0 && !noah.isAway) {
+            noah.hunger -= 3; 
+            noah.mood -= 2;
+            
+            if(noah.hunger < 30 || noah.mood < 30) {
+                noah.health -= 5;
+            } else if (noah.hunger > 70 && noah.health < 100) {
+                noah.health += 5; 
+            }
+            
+                  // 长线经济系统：挂机获取零花钱减慢，鼓励你去陪他探险赚大钱
+            noah.gold += 1; 
+            
+            // 长线养成核心：只有在他被你照顾得非常完美（满状态）时，挂机才会随时间增加微量爱意
+            if(noah.mood >= 90 && noah.hunger >= 90) {
+                noah.love += 1;
+            } else if (noah.hunger < 20 || noah.mood < 20) {
+                // 如果长期不理他，他会偷偷扣你攒下来的小爱意，因为他会吃醋冷战
+                noah.love = Math.max(0, noah.love - 1);
+            }
+            updateUI();
+        }
+        
+        // 低概率触发随机剧情 (每60秒检测一次)
+        if(tickCount % 60 === 0 && Math.random() < 0.4) triggerEvent();
+        
+    }, 1000);
+    // === 新增：戳戳互动功能 ===
+    document.getElementById('canvas-container').addEventListener('click', function() {
+        if (noah.isAway) return; // 外出时不能戳
+        
+        const pokeQuotes = [
+            "嘶...别戳我脸，弄坏了你得赔我一个帅气的男朋友。",
+            "你再戳一下试试？(挑眉) 看来你是想感受一下拉文克劳的专属惩罚了。",
+            "怎么了？想我了直说，动手就不太淑女了，虽然我挺喜欢的。",
+            "哎，轻点！我这张脸可是要留着给你看一辈子的。",
+            "戳我干嘛？是不是被我帅到了情不自禁？",
+            "别闹，我正在思考缸中之脑...好吧，你比缸中之脑重要，继续戳吧。"
+        ];
+        
+        let quote = pokeQuotes[Math.floor(Math.random() * pokeQuotes.length)];
+        noah.love += 1; // 戳他还会涨一点点爱意
+        makeShy();      // 戳他会让他脸红3秒！
+        speak(quote);
+        updateUI();
+    });
+    // === 新增：摸摸头(滑动)互动功能 ===
+    let isDragging = false;
+    let dragStartX = 0;
+    let dragDist = 0;
+    const pokeContainer = document.getElementById('canvas-container');
+
+    const startDrag = (e) => {
+        if(noah.isAway) return;
+        isDragging = true; dragDist = 0;
+        dragStartX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
+    };
+    const doDrag = (e) => {
+        if(!isDragging || noah.isAway) return;
+        let currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
+        dragDist += Math.abs(currentX - dragStartX);
+        dragStartX = currentX; // 更新位置
+        
+        // 当你的手指/鼠标在屏幕上来回滑动累计超过 120 像素时触发
+        if(dragDist > 120) { 
+            isDragging = false; // 触发后立刻断开，防止重复触发
+            const petQuotes = [
+                "嗯...头发生电了，不过你的手挺暖和的，允许你再摸一会。",
+                "(闭上眼睛) 像只猫一样被你顺毛的感觉，似乎也不赖。",
+                "别把我头发弄乱了！我可是要时刻保持完美形象给你看的。",
+                "再摸下去，我会忍不住想把你拉进怀里的，笨蛋。"
+            ];
+            noah.mood += 5; noah.love += 1;
+            makeShy(); // 顺毛会让他脸红
+            speak(petQuotes[Math.floor(Math.random() * petQuotes.length)]);
+            updateUI();
+        }
+    };
+    const endDrag = () => { isDragging = false; };
+
+    // 绑定鼠标和手机触摸事件
+    pokeContainer.addEventListener('mousedown', startDrag);
+    pokeContainer.addEventListener('mousemove', doDrag);
+    window.addEventListener('mouseup', endDrag);
+    pokeContainer.addEventListener('touchstart', startDrag, {passive: true});
+    pokeContainer.addEventListener('touchmove', doDrag, {passive: true});
+    window.addEventListener('touchend', endDrag);
+    // ===========================
+    // === 新增：手机晃动(摇一摇)功能 ===
+    let last_x = 0, last_y = 0, last_z = 0, lastUpdate = 0;
+    const SHAKE_THRESHOLD = 1500; // 摇晃灵敏度（越小越容易触发）
+    let isShaking = false;        // 防止连续摇晃导致卡顿的开关
+    
+    function handleMotion(event) {
+        if (noah.isAway) return;
+        let current = event.accelerationIncludingGravity;
+        if (!current) return;
+        
+        let currentTime = new Date().getTime();
+        if ((currentTime - lastUpdate) > 100) {
+            let diffTime = currentTime - lastUpdate;
+            lastUpdate = currentTime;
+            
+            let x = current.x; let y = current.y; let z = current.z;
+            let speed = Math.abs(x + y + z - last_x - last_y - last_z) / diffTime * 10000;
+            
+            if (speed > SHAKE_THRESHOLD && !isShaking) {
+                isShaking = true; // 锁定状态，等他说完这段话
+                
+                const shakeQuotes = [
+                    "哇啊——地震了？！别怕，抓紧我的手！...等等，是你这笨蛋在晃手机？！",
+                    "停停停！我晕车了！你要是把我晃吐了，今晚你负责给我洗衣服！",
+                    "你在干嘛？摇制鸡尾酒吗？我是诺亚，不是黄油啤酒！",
+                    "别晃了！我的大脑都要变成浆糊了，还怎么帮你写魔药学论文！",
+                    "你是想把我的爱意从脑子里晃出来吗？不用晃，它本来就全溢出来了！",
+                    "救命——(抱住屏幕边缘) 再晃我就要用漂浮咒把你的手机定在半空了！"
+                ];
+                
+                let quote = shakeQuotes[Math.floor(Math.random() * shakeQuotes.length)];
+                noah.mood -= 2; // 被摇晕了会稍微掉点心情，真实感拉满
+                makeShy();      // 摇晕了也会脸红
+                speak(quote);
+                updateUI();
+                
+                // 3.5秒后解除锁定，允许再次摇晃
+                setTimeout(() => { isShaking = false; }, 3500); 
+            }
+            last_x = x; last_y = y; last_z = z;
+        }
+    }
+
+    // 适配手机端：因为苹果手机必须点一下屏幕才能开启陀螺仪，所以绑定在第一次点击上
+    document.body.addEventListener('click', function initMotion() {
+        if (typeof DeviceMotionEvent !== 'undefined' && typeof DeviceMotionEvent.requestPermission === 'function') {
+            DeviceMotionEvent.requestPermission().then(permissionState => {
+                if (permissionState === 'granted') {
+                    window.addEventListener('devicemotion', handleMotion, false);
+                }
+            }).catch(console.error);
+        } else {
+            // 安卓直接开启
+            window.addEventListener('devicemotion', handleMotion, false);
+        }
+    }, { once: true }); // { once: true } 保证这段权限请求代码一辈子只执行一次，不占内存
+    // ===========================
+    // 注入生命：自动眨眼系统
+    setInterval(() => {
+        // 外出或者正在害羞时，不执行普通眨眼
+        if (noah.isAway || currentFace === 'shy') return; 
+        
+        currentFace = 'blink';
+        drawNoah();
+        
+        // 闭眼150毫秒后立刻睁开，模拟人类眨眼
+        setTimeout(() => {
+            if (currentFace === 'blink') {
+                currentFace = 'normal';
+                drawNoah();
+            }
+        }, 150);
+    }, 4500); // 每4.5秒眨眼一次
+         setTimeout(() => {
+        checkRealTime(); // 进来先刷一次天色
+        const h = new Date().getHours();
+        let greeting = "";
+        
+        // --- 早安语录库 (6:00 - 10:00) ---
+        const morningQuotes = [
+            "早安，我的伽拉提。醒来的第一眼就能想到你，这种感觉还不赖。",
+            "起床了吗？我刚才在想，今天要带你去霍格莫德喝一杯，还是去图书馆看你发呆。",
+            "早。别揉眼睛了，看着我。新的一天，你依然是我唯一的变量。",
+            "太阳升起来了，但我觉得没有你耀眼。稍微夸张了点？但我就是这么觉得的。",
+            "困吗？过来让我抱一下充电。早安。",
+            "昨天梦到我了吗？因为我梦到你了。早安，准备好开始今天的冒险了吗？"
+        ];
+
+        // --- 晚安语录库 (22:00 - 6:00) ---
+        const nightQuotes = [
+            "这么晚还不睡？是在等我哄你吗？行吧，过来，晚安吻。",
+            "别熬夜了，会有黑眼圈的。虽然你怎样都好看，但我会心疼。晚安。",
+            "睡吧，我就在这里守着。噩梦不敢靠近你的，因为我也在梦里。",
+            "今天过得开心吗？不开心也没关系，我会把明天的运气都分给你。晚安。",
+            "希望今晚的梦里，我们是在伦敦眼的最高处接吻。快睡吧，晚安。",
+            "嘘...把手机放下，闭上眼。听到了吗？那是我想你的声音。晚安。"
+        ];
+
+        // --- 白天默认语录库 (其他时间) ---
+        const defaultQuotes = [
+            "【系统连接成功】<br>你终于来了。按“互动”对我写悄悄话，或者带我去“外出”探险吧。",
+            "一直在等你上线。今天想去哪里？只要和你在一起，哪里都好。",
+            "嘿，看着我。今天的我有没有比昨天更帅一点？",
+            "其实我刚才一直在发呆...在想如果把整个霍格沃兹买下来送给你，你会不会开心。"
+        ];
+        
+        // 随机抽取逻辑
+        if(h >= 6 && h < 10) {
+            greeting = morningQuotes[Math.floor(Math.random() * morningQuotes.length)];
+        } else if(h >= 22 || h < 6) {
+            greeting = nightQuotes[Math.floor(Math.random() * nightQuotes.length)];
+        } else {
+            greeting = defaultQuotes[Math.floor(Math.random() * defaultQuotes.length)];
+        }
+        
+        speak(greeting);
+        updateUI();
+    }, 1000);
+    // === 新增：真实时间昼夜感知系统 ===
+    function checkRealTime() {
+        const hour = new Date().getHours();
+        const container = document.getElementById('canvas-container');
+    
+        
+        if (hour >= 6 && hour < 18) {
+            // 白天状态 (正常蓝灰色)
+            container.style.backgroundColor = '#dbe4eb';
+            container.style.backgroundImage = 'radial-gradient(#b8c6d1 20%, transparent 20%), radial-gradient(#b8c6d1 20%, transparent 20%)';
+            
+        } else if (hour >= 18 && hour < 20) {
+            // 黄昏状态 (暧昧的夕阳橙)
+            container.style.backgroundColor = '#e8d2c3';
+            container.style.backgroundImage = 'radial-gradient(#d4b39e 20%, transparent 20%), radial-gradient(#d4b39e 20%, transparent 20%)';
+         
+        } else {
+            // 深夜状态 (深邃的星空蓝)
+            container.style.backgroundColor = '#2c3540';
+            container.style.backgroundImage = 'radial-gradient(#1f262e 20%, transparent 20%), radial-gradient(#1f262e 20%, transparent 20%)';
+          
+        }
+    }
+</script>
+</body>
+</html>
