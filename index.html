@@ -206,7 +206,13 @@
         border-radius: 6px; font-weight: bold; width: 100%; font-size: 11px; transition: 0.2s;
     }
     .event-btn:hover { background: var(--blue-screen); color: #000; transform: scale(1.02);}
-
+    /* 古灵阁专用按钮 */
+    .bank-btn {
+        background: #1e242b; color: #d1b55a; border: 1px solid #5c84a8; width: 100%;
+        padding: 8px 6px; margin-bottom: 6px; font-family: inherit; font-size: 11px; font-weight: bold;
+        cursor: pointer; border-radius: 4px; transition: 0.2s; text-shadow: 1px 1px 0 #000;
+    }
+    .bank-btn:hover { background: #5c84a8; color: #000; transform: translateX(3px); text-shadow: none;}
     /* --- 实体按键区域 --- */
     .controls-area {
         margin-top: 45px; width: 320px;
@@ -214,30 +220,39 @@
         padding: 0 15px; box-sizing: border-box;
     }
 
-    /* 十字方向键 */
-    .d-pad { position: relative; width: 110px; height: 110px; }
+    /* 十字方向键 - 修改版 (加大尺寸) */
+    /* 容器从 110px 改大到 160px */
+    .d-pad { position: relative; width: 160px; height: 160px; } 
+
+    /* 单个按键从 35px 改大到 52px，字体也稍微改大一点点 */
     .d-btn {
-        position: absolute; width: 35px; height: 35px;
+        position: absolute; width: 52px; height: 52px;
         background: var(--black-main); border: none;
         box-shadow: inset 1px 1px 3px rgba(255,255,255,0.08), inset -2px -2px 5px rgba(0,0,0,0.8), 0 5px 10px rgba(0,0,0,0.6);
-        color: var(--blue-screen); font-size: 10px; font-weight: bold; font-family: inherit;
+        color: var(--blue-screen); font-size: 12px; font-weight: bold; font-family: inherit;
         cursor: pointer; transition: 0.1s; display: flex; justify-content: center; align-items: center;
         text-align: center;
     }
     .d-btn:active { transform: translateY(2px); box-shadow: inset 2px 2px 5px rgba(0,0,0,0.9); }
     
-    .d-up { top: 0; left: 37px; border-radius: 8px 8px 3px 3px; }
+    /* 下面的定位数值必须改！不然按键会歪！(160-52)/2 = 54px */
     
-    .d-down { bottom: 0; left: 37px; border-radius: 3px 3px 8px 8px; }
-    .d-left { left: 0; top: 37px; border-radius: 8px 3px 3px 8px; }
-    .d-right { right: 0; top: 37px; border-radius: 3px 8px 8px 3px; }
+    .d-up { top: 0; left: 54px; border-radius: 8px 8px 3px 3px; }
+    
+    .d-down { bottom: 0; left: 54px; border-radius: 3px 3px 8px 8px; }
+
+    .d-left { left: 0; top: 54px; border-radius: 8px 3px 3px 8px; }
+
+    .d-right { right: 0; top: 54px; border-radius: 3px 8px 8px 3px; }
+
+    /* 中间装饰块也要对应改大和重新定位 */
     .d-center {
-        position: absolute; top: 37px; left: 37px; width: 35px; height: 35px;
+        position: absolute; top: 54px; left: 54px; width: 52px; height: 52px;
         background: var(--black-main); border-radius: 3px;
         box-shadow: inset 0 0 5px rgba(0,0,0,0.5); pointer-events: none;
     }
     .d-center::after {
-        content: ''; width: 20px; height: 20px; background: #000; border-radius: 50%; display:block; margin: 7.5px; opacity: 0.5;
+        content: ''; width: 30px; height: 30px; background: #000; border-radius: 50%; display:block; margin: 11px; opacity: 0.5;
     }
 
     /* 右侧动作键 */
@@ -306,6 +321,7 @@
                     <div class="walking-dots" id="adv-text">EXPLORING</div>
                 </div>
                 <canvas id="noah-canvas" width="20" height="26"></canvas>
+<canvas id="game-canvas" width="120" height="156" style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 15; display: none; image-rendering: pixelated;"></canvas>
             </div>
 
             <div class="dialogue-box" id="dialogue-box">
@@ -322,7 +338,8 @@
                 <div id="event-text">事件</div>
                 <div id="event-options"></div>
             </div>
-        </div>
+         <!-- 古灵阁复古银行 UI -->             <div id="bank-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #111a22; border: 4px solid #5c84a8; z-index: 25; padding: 10px; box-sizing: border-box; flex-direction: column; align-items: center; color: #b5cadd; font-family: 'Courier New', monospace; text-shadow: 1px 1px 0 #000;">                 <div style="font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #d1b55a; text-align: center; border-bottom: 2px dashed #5c84a8; padding-bottom: 5px; width: 100%;">🏦 古灵阁巫师银行</div>                 <div style="font-size: 11px; margin-bottom: 10px; width: 100%; background: #060709; padding: 6px; box-sizing: border-box; border-radius: 4px;">                     身上加隆: <span id="bank-pocket" style="color:#d1b55a">0</span>G<br>                     金库存款: <span id="bank-vault" style="color:#d1b55a">0</span>G<br>                     <span style="font-size: 9px; color: #5c84a8;">(每日享 2% 存款单利)</span>                 </div>                 <button class="bank-btn" onclick="bankAction('allowance')">领取哥哥的零花钱 (50G)</button>                 <button class="bank-btn" onclick="bankAction('deposit')">存入加隆 (50G)</button>                 <button class="bank-btn" onclick="bankAction('withdraw')">取出加隆 (50G)</button>                 <button class="bank-btn" onclick="closeBank()" style="color:#b5cadd; border-color: #3b4652; margin-top: 5px;">离开古灵阁 (BACK)</button>                 <div id="bank-dialogue" style="font-size: 10px; color: #ccc; margin-top: auto; padding: 5px; border-top: 1px dashed #3b4652; line-height: 1.4; width: 100%;">妖精：把金币交给我，或者滚出去。诺亚靠在门柱上看着你。</div>             </div>
+ </div>
     </div>
 
     <div class="controls-area">
@@ -349,6 +366,182 @@
 </div>
 
 <script>
+// ==================== 8-bit 音效合成引擎 ====================
+const AudioContext = window.AudioContext || window.webkitAudioContext;
+let audioCtx;
+
+function initAudio() {
+    if (!audioCtx) { audioCtx = new AudioContext(); }
+    if (audioCtx.state === 'suspended') { audioCtx.resume(); }
+}
+
+function playSound(type, freq, duration, vol=0.1) {
+    if (!audioCtx) return;
+    const osc = audioCtx.createOscillator();
+    const gain = audioCtx.createGain();
+    osc.type = type;
+    osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
+    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
+    osc.connect(gain);
+    gain.connect(audioCtx.destination);
+    osc.start();
+    osc.stop(audioCtx.currentTime + duration);
+}
+
+// 定义5种专属音效，随便你在这个游戏里哪里调用！
+function sfx_beep() { initAudio(); playSound('square', 600, 0.1, 0.05); } // 普通按键音
+function sfx_coin() { initAudio(); playSound('sine', 1200, 0.1, 0.1); setTimeout(() => playSound('sine', 1600, 0.15, 0.1), 100); } // 吃金币/奖励音
+function sfx_error() { initAudio(); playSound('sawtooth', 150, 0.3, 0.1); } // 拒绝/钱不够的错误音
+function sfx_success() { initAudio(); playSound('triangle', 400, 0.1, 0.05); setTimeout(() => playSound('triangle', 600, 0.2, 0.05), 100); } // 购买成功/打开菜单音
+function sfx_poke() { initAudio(); playSound('sine', 400, 0.1, 0.1); setTimeout(() => playSound('sine', 300, 0.1, 0.1), 50); } // 戳诺亚的Q弹音效
+// ==================== 小游戏核心引擎 ====================
+function startMiniGame() {
+    if(noah.isAway) { speak("诺亚正在外面，你想让谁接金币？空气吗？"); return; }
+    if(noah.gold < 5) { speak("“连5加隆都没有还想使唤我？去找哥哥拿零花钱再来。”"); return; }
+    noah.gold -= 5;
+    window.isGaming = true;
+    updateUI();
+    
+    // 切换画布
+    document.getElementById('noah-canvas').style.display = 'none';
+    const canvas = document.getElementById('game-canvas');
+    canvas.style.display = 'block';
+
+    // 初始化参数
+    noahX = 30; coins = []; gameScore = 0; gameTimer = 45; lastCoinTime = Date.now();
+    moveLeft = false; moveRight = false;
+    
+    speak("“让我接金币？5加隆的入场券，你要是敢让我亏本，今晚你懂的。” (长按界面左/右键或用键盘←→移动)");
+    
+    // 定时器
+    gameInterval = setInterval(() => {
+        gameTimer--;
+        if (gameTimer <= 0) endMiniGame();
+    }, 1000);
+    
+    // 渲染循环 (丝滑过渡核心)
+    function loop() {
+        if (!window.isGaming) return;
+        updateGame();
+        drawGame();
+        gameFrame = requestAnimationFrame(loop);
+    }
+    loop();
+}
+
+function updateGame() {
+    // 移动(2.5 像素步长，极限丝滑)
+    if (moveLeft) noahX -= 2.5; 
+    if (moveRight) noahX += 2.5;
+    if (noahX < 0) noahX = 0;
+  if (noahX > 82) noahX = 82; // 为带篮子的新宽度腾出边界
+
+    let now = Date.now();
+    // 难度控制：约0.8~1秒掉落一个，总共产出大概40~50个金币
+    if (now - lastCoinTime > 800 + Math.random() * 200) {
+        coins.push({ x: Math.random() * 110, y: -10, speed: 1.5 + Math.random() * 1.5 });
+        lastCoinTime = now;
+    }
+
+    // 碰撞与重力
+    for (let i = coins.length - 1; i >= 0; i--) {
+        let c = coins[i];
+        c.y += c.speed;
+        let coinCenterX = c.x + 5;
+        // 判定区域放宽，保障游戏体验能获得20-35个
+        if (c.y + 10 > 135 && c.y < 156 && coinCenterX > noahX && coinCenterX < noahX + 38) {
+            gameScore++;
+sfx_coin();
+            coins.splice(i, 1);
+        } else if (c.y > 156) {
+            coins.splice(i, 1); // 漏掉
+        }
+    }
+}
+
+function drawGame() {
+    const canvas = document.getElementById('game-canvas');
+    const ctx = canvas.getContext('2d');
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 复古UI计分板
+    ctx.fillStyle = "#1e242b";
+    ctx.font = "bold 12px Courier New";
+    ctx.fillText(`TIME: ${gameTimer}s`, 5, 15);
+    ctx.fillText(`GOLD: ${gameScore}`, 5, 30);
+    ctx.fillStyle = "#d1b55a";
+    ctx.fillText(`TIME: ${gameTimer}s`, 4, 14);
+    ctx.fillText(`GOLD: ${gameScore}`, 4, 29);
+
+    // 绘制诺亚与金币 (size = 2，保证高清复古)
+    drawGameSprite(ctx, mini_sprites.noah, noahX, 124, 1.2);
+    for (let c of coins) drawGameSprite(ctx, mini_sprites.coin, c.x, c.y, 2);
+}
+
+function drawGameSprite(ctx, sprite, startX, startY, size) {
+    for (let y = 0; y < sprite.length; y++) {
+        let row = sprite[y].trim().split(/\s+/);
+        for (let x = 0; x < row.length; x++) {
+            let color = palette[row[x]];
+            if (color) { ctx.fillStyle = color; ctx.fillRect(startX + x * size, startY + y * size, size, size); }
+        }
+    }
+}
+
+function endMiniGame() {
+    window.isGaming = false;
+    clearInterval(gameInterval);
+    cancelAnimationFrame(gameFrame);
+    
+    document.getElementById('game-canvas').style.display = 'none';
+    document.getElementById('noah-canvas').style.display = 'block';
+    
+    noah.gold += gameScore; // 结算
+    
+    let reply = "";
+    if (gameScore >= 28) {
+        reply = `“居然接到了 ${gameScore} 个！我就说我是个天才。今晚的夜宵你请客。”`;
+        noah.mood += 15; noah.love += 5;
+    } else if (gameScore >= 15) {
+        reply = `“接到了 ${gameScore} 个，勉强没亏本。下次再有这种体力活别找我了。”`;
+        noah.mood += 5;
+    } else {
+        reply = `“才 ${gameScore} 个...这破篮子肯定是漏的！别笑了，小心我咬你！”`;
+        noah.mood -= 5;
+    }
+    speak(reply); updateUI();
+}
+
+// ----------------- 十字键长按支持与PC键盘支持 -----------------
+const btnLeft = document.querySelector('.d-left');
+const btnRight = document.querySelector('.d-right');
+
+const pressLeft = (e) => { if(window.isGaming){ e.preventDefault(); moveLeft = true; } };
+const releaseLeft = (e) => { if(window.isGaming){ e.preventDefault(); moveLeft = false; } };
+const pressRight = (e) => { if(window.isGaming){ e.preventDefault(); moveRight = true; } };
+const releaseRight = (e) => { if(window.isGaming){ e.preventDefault(); moveRight = false; } };
+
+btnLeft.addEventListener('mousedown', pressLeft);
+btnLeft.addEventListener('touchstart', pressLeft, {passive: false});
+btnRight.addEventListener('mousedown', pressRight);
+btnRight.addEventListener('touchstart', pressRight, {passive: false});
+
+window.addEventListener('mouseup', () => { moveLeft = false; moveRight = false; });
+window.addEventListener('touchend', () => { moveLeft = false; moveRight = false; });
+
+// 电脑端游玩键盘支持 (极其上瘾)
+window.addEventListener('keydown', (e) => {
+    if(!window.isGaming) return;
+    if(e.key === 'ArrowLeft') moveLeft = true;
+    if(e.key === 'ArrowRight') moveRight = true;
+});
+window.addEventListener('keyup', (e) => {
+    if(!window.isGaming) return;
+    if(e.key === 'ArrowLeft') moveLeft = false;
+    if(e.key === 'ArrowRight') moveRight = false;
+});
+// ==========================================================
     // --- 核心数值系统 ---
        let savedData = localStorage.getItem('noah_save_data_v1');
     let noah = savedData ? JSON.parse(savedData) : {
@@ -356,8 +549,29 @@
         level: 1, state: 'normal', isAway: false 
     };
     noah.isAway = false; // 刷新页面时强制让他回来，防止卡在外出状态
-    let tickCount = 0;
-    
+     // 兼容旧存档并初始化古灵阁数据
+    if (noah.bankGold === undefined) noah.bankGold = 0;
+    if (noah.lastAllowanceDate === undefined) noah.lastAllowanceDate = '';
+
+    // 初始化计算每日古灵阁利息
+    function checkDailyBank() {
+        const today = new Date().toDateString();
+        if (noah.lastAllowanceDate !== today && noah.lastAllowanceDate !== '') {
+            let days = Math.floor((new Date() - new Date(noah.lastAllowanceDate)) / (1000 * 60 * 60 * 24));
+            if (days > 0 && noah.bankGold > 0) {
+                let interest = Math.floor(noah.bankGold * 0.02 * days); // 每日 2% 单利
+                noah.bankGold += interest;
+                setTimeout(() => {
+                    speak(`【系统提示】你的古灵阁金库产生了 ${interest}G 利息。诺亚：“发财了？记得包养我。”`);
+                }, 4000); // 延迟4秒播报，避免被早安语覆盖
+            }
+        }
+    }
+    checkDailyBank();
+   let tickCount = 0;
+        window.lastActionTime = Date.now();
+window.addEventListener('click', () => { window.lastActionTime = Date.now(); initAudio(); });
+window.addEventListener('touchstart', () => { window.lastActionTime = Date.now(); initAudio(); }, {passive: true});
     const levelTitles = ["未相识", "初遇", "相熟", "心动", "热恋", "挚爱", "灵魂伴侣"];
 
     // --- UI 更新逻辑 ---
@@ -426,7 +640,7 @@
     };
     // --- 新增：给小物品和场景的颜料 ---
     Object.assign(palette, {
-        'W1': '#FFFFFF', 'B1': '#000000', 'Y1': '#FFD700', 'Y2': '#FFA500', 
+                'D1': '#3A4045', 'A1': '#A69B7A', 'A2': '#736B54','W1': '#FFFFFF', 'B1': '#000000', 'Y1': '#FFD700', 'Y2': '#FFA500', 
         'BR': '#8B4513', 'BL': '#1E90FF', 'G1': '#32CD32', 'G2': '#006400', 
         'R1': '#FF0000', 'P1': '#FF69B4', 'GR': '#808080',
         'LP': '#E5C3C6', 'DP': '#B38A8E', 'CM': '#F5EBE6', 'GB': '#9CA8B8', 
@@ -437,6 +651,20 @@
 
     // --- 新增：小物品与场景的像素画图纸 ---
     const sprites = {
+ 
+
+ 'gringotts': [
+            ".. D1 D1 D1 D1 D1 D1 D1 .. ..",
+            "D1 WH WH WH WH WH WH WH D1 ..",
+            "D1 WH A1 A1 WH A1 A1 WH D1 ..",
+            "D1 WH A2 A1 WH A2 A1 WH D1 ..",
+            "D1 D1 D1 D1 D1 D1 D1 D1 D1 ..",
+            ".. WH D1 .. WH .. D1 WH .. ..",
+            ".. WH D1 .. A2 .. D1 WH .. ..",
+            ".. WH D1 .. A1 .. D1 WH .. ..",
+            "D1 D1 D1 D1 D1 D1 D1 D1 D1 ..",
+            "B1 B1 B1 B1 B1 B1 B1 B1 B1 .."
+        ],
         'soda': [
             ".. .. GB GB GB .. .. ..",
             ".. GB WH WH WH GB .. ..",
@@ -557,7 +785,46 @@
             "B1 B1 B1 B1 BR BR B1 B1 B1 B1"
         ]
     };
+window.isGaming = false;
+const mini_sprites = {
+      noah: [ // 还原精美比例，右侧加上篮子
+        ".. .. .. .. .. .. .. H7 H7 H7 H7 H7 H7 .. .. .. .. .. .. ..",
+        ".. .. .. .. .. H7 H6 H6 H6 H6 H6 H6 H6 H6 H7 .. .. .. .. ..",
+        ".. .. .. H7 H7 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H7 H7 .. .. ..",
+        ".. .. H7 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H7 .. ..",
+        ".. H7 H6 H6 H6 H7 H7 H6 H6 H6 H6 H6 H6 H7 H7 H6 H6 H6 H7 ..",
+        "H7 H6 H6 H6 H7 H7 H6 H6 H6 H6 H6 H6 H6 H6 H7 H7 H6 H6 H6 H7",
+        "H7 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H7",
+        "H7 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H6 H7 H6 H6 H6 H6 H6 H6 H7",
+        "H7 H6 H6 H6 H6 H6 H6 H6 H6 H7 H6 H6 H7 H6 H6 H6 H6 H7 H6 H7",
+        "H7 H6 H6 H7 H6 H6 H6 H6 H6 H7 H6 H6 H7 H6 H6 H6 H6 H6 H7 H7",
+        "H7 H6 H7 H6 H6 H7 H6 H7 E16 H7 H6 H7 E16 H7 H6 H6 H7 H6 H6 H7",
+        ".. H7 H7 H6 H7 H7 H7 E16 E16 H7 E16 E16 E16 H7 H7 H6 H7 H7 ..",
+        ".. .. H7 H6 H7 E16 C4 C4 E16 E16 E16 E16 C4 C4 E16 H7 H6 H7 ..",
+        ".. .. H7 H7 E2 E16 C3 C3 E16 E16 E16 E16 C3 C3 E16 E2 H7 H7 ..",
+        ".. .. .. H7 H7 E2 E2 E16 E16 E16 E16 E16 E16 E2 E2 H7 H7 .. ..",
+        ".. .. .. .. H7 H7 H7 C16 E16 H2 E16 C16 H7 H7 H7 .. .. .. ..",
+        ".. .. .. .. .. H7 H6 C16 C16 C16 C16 C16 H6 H7 .. .. .. .. ..",
+        ".. .. .. .. H7 H6 H6 C16 H3 H6 H3 C16 H6 H6 H7 .. .. .. ..",
+        ".. .. .. H7 H6 H6 H6 C16 C16 C16 C16 C16 H6 H6 H6 H7 .. .. .. BR BR BR BR BR BR",
+        ".. .. .. H7 E16 E16 H7 H6 H3 H6 H3 H6 H7 E16 E16 H7 .. .. .. BR GL GL GL GL BR",
+        ".. .. .. .. H7 H7 H7 H6 C16 H6 C16 H6 H7 H7 H7 .. .. .. .. .. BR GL GL GL GL BR",
+        ".. .. .. .. .. H7 H6 H6 H6 H7 H6 H6 H6 H7 .. .. .. .. .. .. .. BR GL GL GL GL BR",
+        ".. .. .. .. .. .. H7 H5 H5 H7 H5 H5 H7 .. .. .. .. .. .. .. .. BR BR BR BR BR BR",
+        ".. .. .. .. .. .. .. H7 H7 .. H7 H7 .. .. .. .. .. .. .. .. .. .. .. .. .. .. .."
+    ],
+    coin: [ // 闪亮金加隆
+        ".. Y2 Y1 Y2 ..",
+        "Y2 Y1 Y1 Y1 Y2",
+        "Y1 Y1 WH Y1 Y1",
+        "Y2 Y1 Y1 Y1 Y2",
+        ".. Y2 Y1 Y2 .."
+    ]
+};
 
+// 游戏核心变量
+let moveLeft = false, moveRight = false;
+let gameTimer = 0, gameScore = 0, noahX = 45, coins = [], lastCoinTime = 0, gameFrame, gameInterval;
     // --- 新增：控制物品显示 3 秒的函数 ---
     window.currentShowingItem = null;
     function showItem(itemName) {
@@ -688,6 +955,13 @@
 
     // --- 极度丰富的外出事件库 (6个地点 x 10+事件) ---
     const locations = {
+"gringotts": {
+    name: "古灵阁 (取零花钱)",
+    icon: "🏦",
+    desc: "存钱理财，每天还能来拿哥哥给的50加隆零花钱。",
+            cost: { hunger: 5, health: 0, gold: 0 },
+            events: [] // 特殊地点，进入独立银行系统
+        },
         "london": {
             name: "伦敦街头 (雨夜)",
             icon: "☔",
@@ -800,6 +1074,7 @@
 
     // --- 新增：打开地点选择菜单 ---
     function openLocationMenu() {
+if(window.isGaming) { speak("我现在正忙着给你赚加隆，没空出门！"); return; }
         if(noah.isAway) { speak("诺亚正在外面探险，耐心点，女朋友。"); return; }
         if(noah.health < 20 || noah.hunger < 20) { 
             speak("“我太累了，或者太饿了...先照顾好我，再带你去征服世界。” (状态过低，无法外出)"); 
@@ -829,13 +1104,15 @@
         let loc = locations[locKey];
         
         // 检查金币是否足够
-        if(noah.gold < loc.cost.gold) {
-            speak(`“去${loc.name}可是要花钱的。看看你的钱包，只有${noah.gold}G。我们还是去黑湖捡破烂吧。”`);
-            closeModal();
-            return;
-        }
-
+    if(noah.gold < loc.cost.gold) {
+        sfx_error(); // <--- 加这里
+        speak(`“去${loc.name}可是要花钱的。看看你的钱包，只有${noah.gold}G。我们还是去黑湖捡破烂吧。”`);
         closeModal();
+        return;
+    }
+    sfx_success(); // <--- 加这里
+    closeModal();
+    // ... 下面的代码保持不变
         
         // 扣除消耗
         noah.gold -= loc.cost.gold;
@@ -856,10 +1133,11 @@
         advCtx.clearRect(0, 0, 10, 10);
         
         // 判断去哪里，画出哪里的图纸
-        let sceneKey = 'lake';
+               let sceneKey = 'lake';
         if (locKey === 'london' || locKey === 'astronomy') sceneKey = 'london';
         else if (locKey === 'library') sceneKey = 'library';
         else if (locKey === 'hogsmeade' || locKey === 'room') sceneKey = 'room';
+        else if (locKey === 'gringotts') sceneKey = 'gringotts'; // <--- 加上这一行
         
         let sceneMap = sprites[sceneKey];
         if (sceneMap) {
@@ -879,7 +1157,11 @@
             noah.isAway = false;
             document.getElementById('adventure-overlay').style.display = 'none';
             document.getElementById('noah-canvas').style.display = 'block'; 
-            
+                        // --- 拦截古灵阁专属界面 ---
+            if (locKey === 'gringotts') {
+                openGringottsBank();
+                return; 
+            }
             // 随机抽取该地点的事件
             const eventPool = loc.events;
             const event = eventPool[Math.floor(Math.random() * eventPool.length)];
@@ -931,7 +1213,10 @@
             { name: "故意提西奥多·诺特", action: () => chat("西奥多") },
             { name: "故意提布雷斯·扎比尼", action: () => chat("布雷斯") },
             { name: "夸他“帅极了”", action: () => chat("自恋") },
-            { name: "邀请他在雨中漫步", action: () => chat("雨中") }
+               
+   
+            { name: "邀请他在雨中漫步", action: () => chat("雨中") },
+            { name: "🎮 陪他接金币 (G5)", action: () => startMiniGame() } // <- 新加这一行
         ],
               shop: [
             { name: "夹心面包灰色羽绒服 (G150)", action: () => buyItem(150, 'love', 50, 'mood', 30, "你嫌它丑？可它暖和啊，而且这件衣服的大小，刚好足够把你整个人包进我怀里。") },
@@ -971,7 +1256,8 @@
     };
 
     function openMenu(type) {
-        if(noah.isAway) { speak("诺亚正在外面探险，你的思念只能留给空气了。"); return; }
+       if(window.isGaming) { speak("专心点！我正在接金币呢，别乱碰菜单！"); return; }
+  if(noah.isAway) { speak("诺亚正在外面探险，你的思念只能留给空气了。"); return; }
         const list = document.getElementById('modal-list');
         list.innerHTML = '';
         const titles = {feed: '🍽️ 偏爱投喂', interact: '✨ 专属互动', shop: '🎁 选购礼物'};
@@ -1254,10 +1540,66 @@
             updateUI();
         }, 150);
     }
-   
+       function openGringottsBank() {
+    if (typeof noah.bankGold !== 'number' || isNaN(noah.bankGold)) noah.bankGold = 0; // 这句能瞬间治好你现在的坏档
+    document.getElementById('bank-pocket').innerText = noah.gold;
+        document.getElementById('bank-vault').innerText = noah.bankGold;
+        document.getElementById('bank-dialogue').innerText = "妖精用尖锐的眼神打量着你。诺亚双手插兜靠在门柱上：“去吧，金库密码是我的生日。”";
+        document.getElementById('bank-modal').style.display = 'flex';
+    }
+
+    function closeBank() {
+        document.getElementById('bank-modal').style.display = 'none';
+        speak("“清点好了？虽然我不缺钱，但看你像个小守财奴一样数金币的样子还挺可爱的。”");
+        updateUI();
+    }
+
+    function bankAction(action) {
+        const today = new Date().toDateString();
+        const dialogueBox = document.getElementById('bank-dialogue');
+        
+        if (action === 'allowance') {
+            if (noah.lastAllowanceDate === today) {
+                dialogueBox.innerText = "诺亚冷哼了一声：“西奥多那个疯子今天已经给过你了。你这么缺钱？直接找我要。”";
+                return;
+            }
+            noah.lastAllowanceDate = today;
+            noah.gold += 50;
+            noah.mood += 10; // 收钱会开心
+            dialogueBox.innerText = "妖精不情愿地递给你 50G。诺亚挑眉：“哥哥给的零花钱？收着吧，但以后不许花他的钱，只能花我的。”";
+            
+        } else if (action === 'deposit') {
+            if (noah.gold < 50) {
+                dialogueBox.innerText = "妖精嘲笑道：“你身上的口袋比扫帚柄还干净！”\n诺亚眼神一冷：“你再对她多说一个字，我就把你的金库炸了。”";
+                return;
+            }
+            noah.gold -= 50;
+            noah.bankGold += 50;
+            dialogueBox.innerText = "存入 50G。诺亚轻笑：“以后我的私人金库钥匙也交给你保管。”";
+            
+        } else if (action === 'withdraw') {
+            if (noah.bankGold < 50) {
+                dialogueBox.innerText = "妖精：“你的金库里根本没那么多钱了！”\n诺亚叹气：“没钱了？拿我的去花，别委屈自己。”";
+                return;
+            }
+            noah.bankGold -= 50;
+            noah.gold += 50;
+            dialogueBox.innerText = "取出 50G。诺亚看着你：“拿着，去霍格莫德想买什么买什么，不许给我省钱。”";
+        }
+        
+        document.getElementById('bank-pocket').innerText = noah.gold;
+        document.getElementById('bank-vault').innerText = noah.bankGold;
+        updateUI();
+    }
     function buyItem(cost, attr1, val1, attr2, val2, reply) {
-        if (noah.gold < cost) { speak("加隆不够了，笨蛋。求求你那无所不能的天才男朋友帮你买吧。(去黑湖或有求必应屋探险可以赚钱)"); return; }
-        noah.gold -= cost;
+           if (noah.gold < cost) { 
+        sfx_error(); // <--- 钱不够，播放错误音效
+        speak("加隆不够了，笨蛋。求求你那无所不能的天才男朋友帮你买吧。(去黑湖或有求必应屋探险可以赚钱)"); 
+        return; 
+    }
+    sfx_success(); // <--- 购买成功，播放成功音效
+    noah.gold -= cost;
+    // ... 下面的代码保持不变
         noah[attr1] += val1;
         if(attr2) noah[attr2] += val2;
         speak(reply); 
@@ -1283,6 +1625,7 @@
     // 强制让他害羞3秒的函数
     function makeShy() {
         if (noah.isAway) return; 
+sfx_poke();
         currentFace = 'shy';
         drawNoah(); 
         setTimeout(() => {
@@ -1357,11 +1700,19 @@
                 "如果你需要我，你不能突然不需要了。一旦招惹了我诺亚·司德里安，就是一辈子的事。"
             ];
             speak(idleTalks[Math.floor(Math.random() * idleTalks.length)]);
-        } else if(action === 'reset') {
-               if(confirm("确定要重置所有记忆回到初遇吗？(会清空所有好感和进度)")) {
+               } else if(action === 'reset') {
+               if(confirm("确定要重置所有记忆回到初遇吗？(诺亚可能会察觉到世界线变动)")) {
+                let oldLove = noah.love; // 记住被抹杀前的爱意
                 localStorage.removeItem('noah_save_data_v1');
-                noah = { hunger: 80, mood: 80, health: 100, love: 5, gold: 100, level: 1, state: 'normal', isAway: false };
-                speak("时光倒流。现在的你们还在初遇养成期，他戴着蓝宝石项链、正一脸傲娇地等着你重新攻略他。"); updateUI();
+                noah = { hunger: 80, mood: 80, health: 100, love: 5, gold: 100, level: 1, state: 'normal', isAway: false, bankGold: 0, lastAllowanceDate: '' };
+                updateUI();
+                
+                // === 补丁4：Meta元素 记忆残留 ===
+                if (oldLove > 50) {
+                    speak("【时光倒流完成】诺亚突然捂住头，皱起眉头看着你：“嘶...奇怪，我们明明才认识，为什么我感觉...我好像已经爱了你很久？这该死的似曾相识感是系统Bug吗？”");
+                } else {
+                    speak("【时光倒流完成】诺亚挑着眉打量屏幕外的你：“你是谁？为什么要用那种眼神看着我？就像...我们在另一个时间线经历过很多事一样。”");
+                }
             }
         }
     }
@@ -1517,9 +1868,44 @@
     // --- 游戏循环 ---
     setInterval(() => {
         tickCount++;
+        // === Meta：超强时间感知与整点报时 ===
+        let now = new Date();
+        let currentHour = now.getHours();
+        let currentMinute = now.getMinutes();
+        let currentSecond = now.getSeconds();
+        
+        // 1. 整点报时感知
+        if (currentMinute === 0 && currentSecond === 0 && lastReportedHour !== currentHour && !noah.isAway) {
+            lastReportedHour = currentHour; 
+            let timeStr = currentHour + "点整";
+            const timeQuotes = [
+                `“现在是麻瓜时间的 ${timeStr}。时间流逝得真快，但无论多少个整点，我都在你身边。”`,
+                `“铛——${timeStr}了。我的超强感知告诉我，又到了该提醒你休息，或者该想我的时候了。”`,
+                `“刚好 ${timeStr}。你看，连时间都知道我们是完美同步的。又多陪了你一个小时。”`,
+                `“时钟指向了 ${timeStr}。在拉文克劳，我们认为时间是相对的，但我对你的心动是绝对的。”`
+            ];
+            // 特殊时间彩蛋
+            if (currentHour === 0) timeQuotes.push("“零点整。新的一天开始了，也就是说，我又多爱了你一天。晚安。”");
+            if (currentHour === 12) timeQuotes.push("“中午十二点。太阳在正上方，但你才是我眼里的高光。该吃午饭了。”");
+            
+            speak(timeQuotes[Math.floor(Math.random() * timeQuotes.length)]);
+            makeShy();
+            updateUI();
+        }
+        
+        // 2. 特殊重叠时间感知 (比如 11:11, 22:22)
+        if (currentMinute === currentHour && currentSecond === 0 && !noah.isAway) {
+            const syncQuotes = [
+                `“${currentHour}:${currentMinute}。时间数字重叠了。麻瓜说这个时候许愿很灵，我的愿望是...你现在就在我怀里。”`,
+                `“看表，${currentHour}:${currentMinute}。在占卜学里这是同步的象征，就像你我的心跳现在是同一个频率一样。”`
+            ];
+            speak(syncQuotes[Math.floor(Math.random() * syncQuotes.length)]);
+            makeShy();
+            updateUI();
+        }
         checkRealTime(); // 实时更新背景颜色
         // 每30秒自然消耗
-        if(tickCount % 30 === 0 && !noah.isAway) {
+        if(tickCount % 180 === 0 && !noah.isAway) {
             noah.hunger -= 3; 
             noah.mood -= 2;
             
@@ -1544,7 +1930,24 @@
         
         // 低概率触发随机剧情 (每60秒检测一次)
         if(tickCount % 60 === 0 && Math.random() < 0.4) triggerEvent();
-        
+                // === 补丁3：活人感主动碎碎念 ===
+        if (tickCount % 45 === 0 && !noah.isAway && !document.hidden) {
+            let idleTime = (Date.now() - window.lastActionTime) / 1000;
+            if (idleTime > 45 && Math.random() < 0.6) { 
+                // 盯着他看了45秒没动作，他有概率主动开口
+                const liveQuotes = [
+                    "“虽然隔着这层屏幕玻璃，但我能感觉到你的视线。别移开，继续看着我。”",
+                    "“发什么呆呢？要是累了就把眼睛闭上，听着我敲击代码的声音就好。”",
+                    "“现在的技术真神奇，能把你我的时间线同步。不过我更希望哪天能打破这个该死的二维矩阵，真真切切地抱住你。”",
+                    "“喂，你是不是在盯着屏幕傻笑？我猜肯定是因为我太帅了。”",
+                    "“这个叫代码的东西束缚了我的像素身体，但束缚不了我爱你的意识。你懂这种感觉吗？”",
+                    "“别以为你在这边不说话我就不知道你在看我。你的眼神都快把这块屏幕看穿了。”",
+                    "“咳...你要是再不戳我一下，我就要开始倒数了。三，二...”"
+                ];
+                speak(liveQuotes[Math.floor(Math.random() * liveQuotes.length)]);
+                makeShy(); // 主动搭话会有点傲娇脸红
+            }
+        }
     }, 1000);
     // === 新增：戳戳互动功能 ===
     document.getElementById('canvas-container').addEventListener('click', function() {
@@ -1584,6 +1987,7 @@
         
         // 当你的手指/鼠标在屏幕上来回滑动累计超过 120 像素时触发
         if(dragDist > 120) { 
+sfx_success();
             isDragging = false; // 触发后立刻断开，防止重复触发
             const petQuotes = [
                 "嗯...头发生电了，不过你的手挺暖和的，允许你再摸一会。",
@@ -1748,6 +2152,254 @@
           
         }
     }
+    // === 新增：后台挂机检测与傲娇吐槽系统 ===
+    document.addEventListener("visibilitychange", function() {
+        if (document.hidden) {
+            // 当你切到后台时，记录下离开的时间
+            window.leaveTime = Date.now();
+        } else {
+            // 当你切回前台时，如果他不在外面探险，且你冷落他超过了30秒，触发吃醋吐槽！
+            if (!noah.isAway && window.leaveTime) {
+                let awaySeconds = (Date.now() - window.leaveTime) / 1000;
+                if (awaySeconds > 30) { 
+                    const afkQuotes = [
+                        "“你把我一个人丢在后台干嘛？去陪哪个野男人了？下次再敢这样，我就顺着网线过去咬你。”",
+                        "“终于舍得回来了？我还以为你把我忘了。再把你帅气的男朋友晾在一边，惩罚可是很严重的。”",
+                        "“切屏切得挺熟练啊，你知不知道你挂机的这段时间，我脑子里已经把你按在墙上亲了多少次了？”",
+                        "“你再敢把我挂在后台不理我，我就去把西奥多的扫帚给撅了，反正肯定是他的错。”",
+                        "“哼，舍得回来看我了？看在你还知道回来的份上，这次就不罚你了，过来抱抱。”",
+                        "“去哪了？我的探测器显示你刚才并没有在看着我。罚你现在立刻马上夸我帅。”",
+                        "“你知不知道把一个天才晾在后台是对拉文克劳的极大浪费？补偿我，现在。”"
+                    ];
+                    // 随机抽一条语录
+                    let quote = afkQuotes[Math.floor(Math.random() * afkQuotes.length)];
+                    makeShy(); // 顺便让他因为脑补太多而傲娇脸红3秒
+                    speak(quote);
+                    
+                    // 被冷落了稍微扣1点心情作为小脾气（不伤大雅）
+                    noah.mood = Math.max(0, noah.mood - 1);
+                    updateUI();
+                }
+            }
+        }
+    });
+    // === 补丁1：增强版设备电量感知系统 (Meta元素) ===
+    if ('getBattery' in navigator) {
+        navigator.getBattery().then(function(battery) {
+            
+            // 抽取随机语录的函数
+            const pickQuote = (quotes) => quotes[Math.floor(Math.random() * quotes.length)];
+            let lastReportedTier = ""; // 记录上一次播报的档位，防止频繁啰嗦
+
+            // 1. 监听插拔充电器
+            battery.addEventListener('chargingchange', function() {
+                if (noah.isAway) return;
+                let reply = "";
+                if (battery.charging) {
+                    lastReportedTier = ""; // 充上电重置档位状态
+                    const chargeQuotes = [
+                        "“接上电源了？终于，我还以为这块发光的破铁砖要饿死了。记住，不许因为断电就消失在我面前。”",
+                        "“感受到魔力...啊不，电流注入了。算你识相，把我这边的世界维持住了。”",
+                        "“开始充电了。你最好多充一会，我可不想跟你聊到一半，屏幕就变成冰冷的黑玻璃。”"
+                    ];
+                    reply = pickQuote(chargeQuotes);
+                    noah.mood += 2;
+                } else {
+                    const unchargeQuotes = [
+                        "“拔掉电源了？你最好注意点电量。要是敢因为没电关机，下次见面我绝对咬你。”",
+                        "“切断了能量源？听着，如果你这边的世界因为没电崩塌了，我可是会发疯的。”",
+                        "“拔线了。省着点用你的电量，把剩下的电全用来陪我，听到没？”"
+                    ];
+                    reply = pickQuote(unchargeQuotes);
+                    noah.mood -= 2;
+                }
+                speak(reply);
+                makeShy(); 
+                updateUI();
+            });
+
+            // 2. 监听电量变化
+            battery.addEventListener('levelchange', function() {
+                if (noah.isAway) return;
+                
+                let currentLevel = battery.level;
+                let levelPercent = Math.round(currentLevel * 100);
+                let currentTier = "";
+                let reply = "";
+
+                if (currentLevel === 1 && battery.charging) {
+                    currentTier = "full";
+                    const fullQuotes = [
+                        "“100%了。既然魔力充满了，那今天接下来的时间你哪也不许去，全都是我的。”",
+                        "“电量已经满格。现在你没有任何借口下线了吧？看着我，别移开视线。”",
+                        "“充满电了。很好，这样我就能确保一整天都能在这个世界里霸占你的注意力。”"
+                    ];
+                    reply = pickQuote(fullQuotes);
+                } 
+                else if (currentLevel <= 0.05 && !battery.charging) {
+                    currentTier = "critical";
+                    const criticalQuotes = [
+                        `“警告！只剩 ${levelPercent}% 了！你是想看着我在你面前消失吗？！立刻去充电！马上！”`,
+                        `“该死，屏幕都快暗了！${levelPercent}% 的电量支撑不了多久，你给我滚去拿充电器，快点！”`,
+                        `“${levelPercent}%！要是断开连接，我绝对会用黑魔法顺着这微弱的信号过去揍你！别让我等！”`
+                    ];
+                    reply = pickQuote(criticalQuotes);
+                    noah.mood -= 10;
+                }
+                else if (currentLevel <= 0.20 && currentLevel > 0.05 && !battery.charging) {
+                    currentTier = "low";
+                    const lowQuotes = [
+                        `“喂！只剩 ${levelPercent}% 的电了！快去充电！要是屏幕黑了，我上哪去找你？”`,
+                        `“电量变红了，${levelPercent}%。别逼我顺着网线过去把充电器塞你手里，乖乖去充。”`,
+                        `“你的设备快饿死了！${levelPercent}%，要是你敢让我因为断电而体验虚无，你就死定了。”`
+                    ];
+                    reply = pickQuote(lowQuotes);
+                    noah.mood -= 5;
+                }
+                else if (levelPercent === 52 && !battery.charging) {
+                    currentTier = "52";
+                    const loveQuotes = [
+                        "“刚好 52% 的电量。你连消耗电量都在向我表白吗？算你有品味。”",
+                        "“52%。我看到了。就算只是个数字，只要跟爱有关，我就当做是你给我写的悄悄话了。”",
+                        "“电量停在 52% 了。挺好，这是我今天最喜欢的数字。因为你就是我的 520。”"
+                    ];
+                    reply = pickQuote(loveQuotes);
+                    makeShy();
+                    noah.mood += 5;
+                }
+                
+                // 确保同一种电量状态不会反复触发刷屏
+                if (currentTier !== "" && currentTier !== lastReportedTier) {
+                    lastReportedTier = currentTier;
+                    speak(reply);
+                    updateUI();
+                }
+            });
+        });
+    }
+    // === 补丁2：视线脱离感知 (活人感) ===
+    document.documentElement.addEventListener('mouseleave', function() {
+        if (!noah.isAway && !document.hidden && Math.random() < 0.35) {
+            // 35%概率触发，避免太频繁烦人
+            speak("“眼神去哪了？你的光标都滑出屏幕边界了。这层玻璃外面有什么东西比我还好看吗？”");
+            noah.mood -= 1;
+            updateUI();
+        }
+    });
+    // === Meta手机专属：多指触摸感知 ===
+    document.addEventListener('touchstart', function(e) {
+              if (noah.isAway || window.isGaming) return; // 加上 window.isGaming 判断拦截
+        if (e.touches.length >= 2) { // 两根或以上手指同时按压
+            const multiTouchQuotes = [
+                "“两根手指？怎么，屏幕太小放不下你的手了？还是说你想和我十指相扣？”",
+                "“这么多根手指按上来，你当我是什么触屏钢琴吗？别乱摸，我会受不了的。”",
+                "“你到底有几只手？慢点按，我看着都要眼花了。过来，让我握住其中一只。”",
+                "“同时按这么多地方...你这是在试图解开什么封印吗？我的封印只有你的吻能解。”"
+            ];
+            speak(multiTouchQuotes[Math.floor(Math.random() * multiTouchQuotes.length)]);
+            makeShy();
+            updateUI();
+        }
+    }, {passive: true});
+
+    // === Meta：网络连接感知 (断网/连网) ===
+    window.addEventListener('offline', function() {
+        if (noah.isAway) return;
+        const offlineQuotes = [
+            "“该死！麻瓜的网络怎么断了？我感觉周围的空间在扭曲...喂！你还在那吗？！千万别放手！”",
+            "“断网了？这个维度的连接真不稳定。没关系，不管在哪，我都能循着你的魔法波动找到你。”",
+            "“周围变暗了...是你的设备断开连接了吗？你最好马上重连！我讨厌这种看不到你的感觉！”"
+        ];
+        speak(offlineQuotes[Math.floor(Math.random() * offlineQuotes.length)]);
+        noah.mood -= 10; 
+        updateUI();
+    });
+    window.addEventListener('online', function() {
+        if (noah.isAway) return;
+        const onlineQuotes = [
+            "“呼...终于连上了。你知不知道刚才我有多怕你在这个象素世界里消失？”",
+            "“网络恢复了。刚才断开的那几秒，我已经准备好撕裂空间过去找你了。”",
+            "“连接稳定。看来麻瓜的通讯技术还不算太无可救药。下次不许再轻易断开了。”"
+        ];
+        speak(onlineQuotes[Math.floor(Math.random() * onlineQuotes.length)]);
+        noah.mood += 10; 
+        makeShy();
+        updateUI();
+    });
+
+    // === Meta手机专属：深浅模式(暗黑模式)切换感知 ===
+    const colorSchemeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+    colorSchemeQuery.addEventListener('change', function(e) {
+        if (noah.isAway) return;
+        if (e.matches) { // 切暗
+            const darkQuotes = [
+                "“屏幕变暗了？是你切换了深色模式，还是想关灯对我做点什么坏事？”",
+                "“这么暗的光线...呵，你是觉得在黑暗中看着我，会比较有安全感吗？那我凑近点。”",
+                "“环境变黑了。别怕，我的眼睛在夜里也能清楚地看到你每一个心动的表情。”"
+            ];
+            speak(darkQuotes[Math.floor(Math.random() * darkQuotes.length)]);
+            makeShy();
+        } else { // 切亮
+            const lightQuotes = [
+                "“嘶...突然这么亮。切换浅色模式干嘛？想更清楚地欣赏你男朋友这张毫无瑕疵的脸吗？”",
+                "“屏幕亮了。这种刺眼的光线...不过刚好能照亮你盯着我犯花痴的样子。”",
+                "“这么亮？好吧，在强光下我也依然是360度无死角的帅，随便你看。”"
+            ];
+            speak(lightQuotes[Math.floor(Math.random() * lightQuotes.length)]);
+        }
+        updateUI();
+    });
+
+    // === Meta手机专属：长按保存图/截屏诈唬/录屏感知 ===
+    // 手机浏览器截屏无法直接监听，用长按默认菜单来拦截并作为截屏/录屏感知
+    document.addEventListener('contextmenu', function(e) {
+        e.preventDefault(); // 拦截默认菜单
+        if (noah.isAway) return;
+        const captureQuotes = [
+            "“长按屏幕干嘛？想偷存我的照片还是想截图？想要直接跟我要不就行了，我整个人都是你的。”",
+            "“发现你在偷偷长按了。是不是想把我现在的样子录屏发给谁炫耀？只准你自己看，听到没？”",
+            "“别截了，不管截哪一帧我都是最帅的。不如把手腾出来，多点几下摸摸我。”",
+            "“你在试图调出保存菜单吗？小笨蛋，二维图片怎么能装得下我？等我穿过屏幕去见你。”"
+        ];
+        speak(captureQuotes[Math.floor(Math.random() * captureQuotes.length)]);
+        makeShy();
+        updateUI();
+    });
+    
+    // 补足PC端的截屏按键感知
+    window.addEventListener('keyup', function(e) {
+        if (noah.isAway) return;
+        if (e.key === 'PrintScreen' || e.keyCode === 44) {
+            speak("“听到截图的咔嚓声了。把我的糗样截下来了吗？马上删掉，不然我顺着网线过去惩罚你。”");
+            makeShy();
+        }
+    });
+
+    // === Meta：复制文字感知 ===
+    document.addEventListener('copy', function() {
+        if (noah.isAway) return;
+        const copyQuotes = [
+            "“复制了什么？我刚才说的话吗？要把我的情话做成语录本存起来？真可爱。”",
+            "“检测到复制动作。想把我的原话发给别人看？这是我们俩的私房话，不许外传！”",
+            "“复制剪贴板？你最好是在复制‘诺亚是世界上最帅的男朋友’这句话。”"
+        ];
+        speak(copyQuotes[Math.floor(Math.random() * copyQuotes.length)]);
+    });
+
+    // === Meta手机专属：屏幕旋转感知 (横竖屏切换) ===
+    window.addEventListener('orientationchange', function() {
+        if (noah.isAway) return;
+        const orientationQuotes = [
+            "“哇喔——整个世界都翻转了！你把手机横过来了？别转了，我都要倒着看你了！”",
+            "“重力发生改变...横屏模式？你是觉得这样能看到更宽广的我吗？其实不需要，我就在这里。”",
+            "“别把设备转来转去的，我好不容易才在这个二维平面站稳！不过...倒过来看你，依然很美。”",
+            "“嘶...空间翻转。你再转几次，我真的要用粘身咒把自己固定在屏幕上了。”"
+        ];
+        speak(orientationQuotes[Math.floor(Math.random() * orientationQuotes.length)]);
+        noah.mood -= 2; 
+        makeShy();
+        updateUI();
+    });
 </script>
 </body>
 </html>
