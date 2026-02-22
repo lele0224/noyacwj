@@ -114,7 +114,7 @@
         display: flex; justify-content: center; align-items: flex-end; 
         padding-bottom: 2px; box-sizing: border-box;
         overflow: hidden;
-        box-shadow: inset 0 0 20px rgba(20, 30, 40, 0.2);
+        box-shadow: inset 0 0 30px rgba(20, 30, 40, 0.2);
     }
 
     .pixel-bg {
@@ -213,6 +213,34 @@
         cursor: pointer; border-radius: 4px; transition: 0.2s; text-shadow: 1px 1px 0 #000;
     }
     .bank-btn:hover { background: #5c84a8; color: #000; transform: translateX(3px); text-shadow: none;}
+    /* 复古衣橱物品样式 */
+    .wardrobe-item {
+        background: #4a2e1b;
+        border: 2px solid #8b5a2b;
+        border-radius: 4px;
+        padding: 8px 10px;
+        color: #f5e6c4;
+        font-size: 11px;
+        font-weight: bold;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: inset 0 0 8px rgba(0,0,0,0.6), 2px 2px 0 #0a0503;
+        transition: 0.1s;
+        text-shadow: 1px 1px 0 #000;
+    }
+    .wardrobe-item:hover {
+        background: #5c3922;
+        border-color: #a8733f;
+        transform: translateX(3px) translateY(-1px);
+        box-shadow: inset 0 0 8px rgba(0,0,0,0.6), 1px 3px 0 #0a0503;
+    }
+    .wardrobe-item.equipped {
+        background: #2a3b2c;
+        border-color: #4a6b4e;
+        color: #a3c9a6;
+    }
     /* --- 实体按键区域 --- */
     .controls-area {
         margin-top: 45px; width: 320px;
@@ -281,6 +309,61 @@
         #device { transform: scale(0.85); transform-origin: top center; }
     }
     @media screen and (max-width: 360px) { #device { transform: scale(0.75); } }
+        /* --- 磁带复古 UI (蓝黑主题强化版) --- */
+    .cassette-tape {
+        width: 220px; height: 160px; /* 稍微放大容纳按键 */
+        background: linear-gradient(180deg, #1e242b 0%, #0f1214 100%);
+        border: 3px solid #3b4652; border-radius: 12px;
+        position: relative; margin: 15px 0 20px 0;
+        box-shadow: inset 0 0 20px rgba(0,0,0,0.9), inset 0 4px 2px rgba(255,255,255,0.05), 0 10px 20px rgba(0,0,0,0.8);
+        display: flex; flex-direction: column; align-items: center;
+    }
+    /* 磁带四个角的螺丝钉细节 */
+    .cassette-tape::before {
+        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none;
+        background: 
+            radial-gradient(circle at 15px 15px, #060709 3px, #3b4652 4px, transparent 5px),
+            radial-gradient(circle at 205px 15px, #060709 3px, #3b4652 4px, transparent 5px),
+            radial-gradient(circle at 15px 145px, #060709 3px, #3b4652 4px, transparent 5px),
+            radial-gradient(circle at 205px 145px, #060709 3px, #3b4652 4px, transparent 5px);
+        z-index: 2;
+    }
+    .tape-top { width: 100%; height: 35px; border-bottom: 2px solid #1e242b; background: repeating-linear-gradient(90deg, #11151a, #11151a 10px, #1a1e24 10px, #1a1e24 20px); border-radius: 8px 8px 0 0; }
+    .tape-label {
+        width: 200px; height: 75px; background: linear-gradient(135deg, #2b3542 0%, #171d24 100%); margin-top: 10px; border-radius: 6px;
+        border: 2px solid #5c84a8; display: flex; flex-direction: column; align-items: center; justify-content: flex-start;
+        box-shadow: inset 0 0 10px rgba(92, 132, 168, 0.3); padding-top: 5px; box-sizing: border-box;
+    }
+    .tape-window {
+        width: 110px; height: 30px; background: #060709; border-radius: 15px; border: 2px solid #3b4652;
+        display: flex; justify-content: space-between; align-items: center; padding: 0 15px; box-sizing: border-box; margin-top: 8px;
+        box-shadow: inset 0 3px 10px rgba(0,0,0,1);
+    }
+    .tape-gear { width: 14px; height: 14px; background: #b5cadd; border-radius: 50%; border: 4px dashed #1a1e24; animation: spin 3s linear infinite; animation-play-state: paused;}
+    .tape-gear.playing { animation-play-state: running; }
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    
+    /* 底部磁带读取槽进化为内嵌按键区 */
+    .tape-bottom {
+        position: absolute; bottom: 0; width: 160px; height: 35px; background: #0f1214; border: 2px solid #3b4652;
+        border-bottom: none; border-radius: 8px 8px 0 0; clip-path: polygon(6% 0, 94% 0, 100% 100%, 0 100%);
+        display: flex; justify-content: center; align-items: center; gap: 12px; padding-top: 4px; box-shadow: inset 0 5px 15px rgba(0,0,0,0.8); z-index: 5;
+    }
+
+    /* 内置在磁带中的物理按键 */
+    .tape-btn {
+        width: 32px; height: 20px; background: #1e242b; border: 1px solid #5c84a8;
+        display: flex; justify-content: center; align-items: center; cursor: pointer;
+        box-shadow: inset 1px 1px 0 rgba(255,255,255,0.1), inset -1px -1px 0 rgba(0,0,0,0.6);
+        border-radius: 3px; transition: 0.1s;
+    }
+    .tape-btn:active { transform: translateY(2px); box-shadow: inset 1px 1px 0 rgba(0,0,0,0.8); }
+
+    /* 重写像素图标尺寸，完美适配磁带内置按键 */
+    .pixel-play { width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 8px solid #d1b55a; margin-left: 2px; }
+    .pixel-pause { width: 8px; height: 10px; border-left: 3px solid #d1b55a; border-right: 3px solid #d1b55a; box-sizing: border-box; }
+    .pixel-prev { width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-right: 7px solid #b5cadd; border-left: 3px solid #b5cadd; }
+    .pixel-next { width: 0; height: 0; border-top: 5px solid transparent; border-bottom: 5px solid transparent; border-left: 7px solid #b5cadd; border-right: 3px solid #b5cadd; }
 </style>
 </head>
 <body>
@@ -320,7 +403,7 @@
                     <div class="adventure-icon" id="adv-icon">✈</div> <canvas id="adv-canvas" width="10" height="10" style="width: 50px; height: 50px; image-rendering: pixelated; margin-bottom: 15px; animation: float 2s infinite ease-in-out; display: none;"></canvas>
                     <div class="walking-dots" id="adv-text">EXPLORING</div>
                 </div>
-                <canvas id="noah-canvas" width="20" height="26"></canvas>
+               <canvas id="noah-canvas" width="26" height="26" style="width: 156px;"></canvas>
 <canvas id="game-canvas" width="120" height="156" style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 15; display: none; image-rendering: pixelated;"></canvas>
             </div>
 
@@ -338,8 +421,17 @@
                 <div id="event-text">事件</div>
                 <div id="event-options"></div>
             </div>
-         <!-- 古灵阁复古银行 UI -->             <div id="bank-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #111a22; border: 4px solid #5c84a8; z-index: 25; padding: 10px; box-sizing: border-box; flex-direction: column; align-items: center; color: #b5cadd; font-family: 'Courier New', monospace; text-shadow: 1px 1px 0 #000;">                 <div style="font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #d1b55a; text-align: center; border-bottom: 2px dashed #5c84a8; padding-bottom: 5px; width: 100%;">🏦 古灵阁巫师银行</div>                 <div style="font-size: 11px; margin-bottom: 10px; width: 100%; background: #060709; padding: 6px; box-sizing: border-box; border-radius: 4px;">                     身上加隆: <span id="bank-pocket" style="color:#d1b55a">0</span>G<br>                     金库存款: <span id="bank-vault" style="color:#d1b55a">0</span>G<br>                     <span style="font-size: 9px; color: #5c84a8;">(每日享 2% 存款单利)</span>                 </div>                 <button class="bank-btn" onclick="bankAction('allowance')">领取哥哥的零花钱 (50G)</button>                 <button class="bank-btn" onclick="bankAction('deposit')">存入加隆 (50G)</button>                 <button class="bank-btn" onclick="bankAction('withdraw')">取出加隆 (50G)</button>                 <button class="bank-btn" onclick="closeBank()" style="color:#b5cadd; border-color: #3b4652; margin-top: 5px;">离开古灵阁 (BACK)</button>                 <div id="bank-dialogue" style="font-size: 10px; color: #ccc; margin-top: auto; padding: 5px; border-top: 1px dashed #3b4652; line-height: 1.4; width: 100%;">妖精：把金币交给我，或者滚出去。诺亚靠在门柱上看着你。</div>             </div>
- </div>
+         <!-- 古灵阁复古银行 UI -->             <div id="bank-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #111a22; border: 4px solid #5c84a8; z-index: 25; padding: 10px; box-sizing: border-box; flex-direction: column; align-items: center; color: #b5cadd; font-family: 'Courier New', monospace; text-shadow: 1px 1px 0 #000;">                 <div style="font-size: 14px; font-weight: bold; margin-bottom: 8px; color: #d1b55a; text-align: center; border-bottom: 2px dashed #5c84a8; padding-bottom: 5px; width: 100%;">🏦 古灵阁巫师银行</div>                 <div style="font-size: 11px; margin-bottom: 10px; width: 100%; background: #060709; padding: 6px; box-sizing: border-box; border-radius: 4px;">                     身上加隆: <span id="bank-pocket" style="color:#d1b55a">0</span>G<br>                     金库存款: <span id="bank-vault" style="color:#d1b55a">0</span>G<br>                     <span style="font-size: 9px; color: #5c84a8;">(每日享 2% 存款单利)</span>                 </div>                 <button class="bank-btn" onclick="bankAction('allowance')">领取哥哥的零花钱 (50G)</button>                 <button class="bank-btn" onclick="bankAction('deposit')">存入加隆 (50G)</button>                 <button class="bank-btn" onclick="bankAction('withdraw')">取出加隆 (50G)</button>                 <button class="bank-btn" onclick="closeBank()" style="color:#b5cadd; border-color: #3b4652; margin-top: 5px;">离开古灵阁 (BACK)</button>                 <div id="bank-dialogue" style="font-size: 10px; color: #ccc; margin-top: auto; padding: 5px; border-top: 1px dashed #3b4652; line-height: 1.4; width: 100%;">妖精：把金币交给我，或者滚出去。诺亚靠在门柱上看着你。</div>   
+          </div>
+ <!-- 像素复古裁缝铺 UI -->             <div id="wardrobe-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #2c1a11; border: 4px solid #1a0f0a; z-index: 25; padding: 0; box-sizing: border-box; flex-direction: column; align-items: center; font-family: 'Courier New', monospace; box-shadow: inset 0 0 20px rgba(0,0,0,0.8);">                 <!-- 复古红白遮阳篷 -->                 <div style="width: 100%; height: 22px; background: repeating-linear-gradient(90deg, #d15a5a 0, #d15a5a 30px, #f5e6c4 30px, #f5e6c4 60px); border-bottom: 3px dashed #1a0f0a; box-shadow: 0 4px 8px rgba(0,0,0,0.6);"></div>                                  <!-- 店铺招牌 -->                 <div style="background: #e8c37d; border: 3px solid #5c4033; padding: 4px 15px; margin-top: 12px; box-shadow: 2px 2px 0 #1a0f0a; color: #5c4033; font-weight: 900; font-size: 13px; text-shadow: 1px 1px 0 rgba(255,255,255,0.4); border-radius: 4px;">                     🧵 诺亚的衣橱                 </div> 
+                 <!-- 衣服木制陈列架 -->                 <div id="wardrobe-list" style="width: 90%; flex: 1; margin-top: 15px; overflow-y: auto; scrollbar-width: none; display: flex; flex-direction: column; gap: 8px; padding-bottom: 10px;">                     <!-- 衣服项会由JS动态生成到这里 -->                 </div> 
+                 <!-- 离开按钮 -->                 <button onclick="closeWardrobe()" style="width: 90%; background: #5c4033; color: #e8c37d; border: 2px solid #1a0f0a; padding: 8px; margin-bottom: 10px; font-family: inherit; font-size: 11px; font-weight: bold; cursor: pointer; box-shadow: 2px 2px 0 #000; border-radius: 4px; transition: 0.1s;">                     🚪 离开衣橱 (BACK)                 </button>             </div>
+<!-- 隐藏的音频播放核心 --> <audio id="bgm-player"></audio> 
+ <!-- 🎵 音乐播放器 UI (像素复古磁带) -->   <div id="music-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #11151a; border: 4px solid #5c84a8; z-index: 25; padding: 10px; box-sizing: border-box; flex-direction: column; align-items: center; color: #b5cadd; font-family: 'Courier New', monospace; text-shadow: 1px 1px 0 #000; box-shadow: inset 0 0 30px rgba(0,0,0,0.8);">      <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #d1b55a; text-align: center; border-bottom: 2px dashed #5c84a8; padding-bottom: 5px; width: 100%;">🎵 诺亚随身听</div>            <!-- 复古磁带实体 (融合蓝黑按键版) -->       <div class="cassette-tape">           <div class="tape-top"></div>           <div class="tape-label">               <!-- 音乐标题改成了诺亚专属的清冷冰蓝色 -->               <div id="music-title" style="width: 90%; color: #b5cadd; font-weight: 900; font-size: 11px; text-align: center; margin-bottom: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-shadow: 1px 1px 0 #000;">Bad Word</div>               <div class="tape-window">                   <div id="gear-left" class="tape-gear"></div>                   <div id="gear-right" class="tape-gear"></div>               </div>           </div>           <!-- 底部凹槽直接变成了实体控制面板 -->           <div class="tape-bottom">               <button class="tape-btn" onclick="prevMusic()"><div class="pixel-prev"></div></button>               <button class="tape-btn" onclick="toggleMusic()"><div id="play-icon" class="pixel-play"></div></button>               <button class="tape-btn" onclick="nextMusic()"><div class="pixel-next"></div></button>           </div>       </div> <button class="bank-btn" onclick="document.getElementById('music-modal').style.display='none'" style="margin-top: auto; border-color:#3b4652; color:#b5cadd;">返回 (BACK)</button>  </div>
+ <!-- ⚙️ 像素风系统设置 UI (替换到这里) --><div id="settings-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #111a22; border: 4px solid #5c84a8; z-index: 30; padding: 10px; box-sizing: border-box; flex-direction: column; align-items: center; color: #b5cadd; font-family: 'Courier New', monospace; text-shadow: 1px 1px 0 #000; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); overflow-y: auto; scrollbar-width: none;"><div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #d1b55a; text-align: center; border-bottom: 2px dashed #5c84a8; padding-bottom: 5px; width: 100%;">⚙️ 系统设置</div>              <!-- 音量调节面板 -->       <div style="width: 100%; font-size: 11px; margin-bottom: 10px; background: #060709; padding: 8px; border: 1px solid #3b4652; text-align: left; border-radius:4px; box-sizing: border-box; box-shadow: inset 0 3px 5px rgba(0,0,0,0.5);">           <label style="color: #d1b55a; font-weight:bold; display:flex; justify-content:space-between;">🎵 音乐音量</label>           <input type="range" id="vol-bgm" min="0" max="1" step="0.1" value="1" onchange="updateVolume()" style="width: 100%; margin: 6px 0 12px 0; accent-color: #5c84a8;">                      <label style="color: #d1b55a; font-weight:bold; display:flex; justify-content:space-between;">🔊 音效音量</label>           <input type="range" id="vol-sfx" min="0" max="1" step="0.1" value="0.5" onchange="updateVolume()" style="width: 100%; margin: 6px 0 4px 0; accent-color: #5c84a8;">       </div> 
+       <!-- URL导入面板 (重构进设置里) -->       <div style="width: 100%; font-size: 11px; margin-bottom: 10px; background: #060709; padding: 8px; border: 1px solid #3b4652; text-align: center; border-radius:4px; box-sizing: border-box; box-shadow: inset 0 3px 5px rgba(0,0,0,0.5);">           <label style="color: #d1b55a; display: block; font-weight:bold; margin-bottom:6px;">🔗 URL导入音乐</label>           <input type="text" id="music-url-input" placeholder="输入 MP3 URL" style="width: 100%; background: #1e242b; border: 1px solid #5c84a8; color: #fff; margin-bottom: 6px; font-size: 10px; padding: 4px; box-sizing: border-box; outline: none; font-family: inherit;">           <input type="text" id="music-name-input" placeholder="输入 歌曲名称" style="width: 100%; background: #1e242b; border: 1px solid #5c84a8; color: #fff; margin-bottom: 8px; font-size: 10px; padding: 4px; box-sizing: border-box; outline: none; font-family: inherit;">           <button class="bank-btn" onclick="importUrlMusic()" style="width: 100%; padding: 6px; margin: 0;">📥 确认导入</button>           <div id="music-count" style="margin-top: 6px; font-size: 9px; color: #5c84a8;">已加载: 2 首 (内置)</div>       </div> 
+       <button class="bank-btn" onclick="document.getElementById('settings-modal').style.display='none'" style="margin-top: auto; border-color:#3b4652; color:#b5cadd; width: 100%;">返回 (BACK)</button>   </div>
+</div>
     </div>
 
     <div class="controls-area">
@@ -367,6 +459,7 @@
 
 <script>
 // ==================== 8-bit 音效合成引擎 ====================
+
 const AudioContext = window.AudioContext || window.webkitAudioContext;
 let audioCtx;
 
@@ -375,13 +468,16 @@ function initAudio() {
     if (audioCtx.state === 'suspended') { audioCtx.resume(); }
 }
 
+let globalSfxVolume = 0.5; // 新增：全局音效音量倍数
+
 function playSound(type, freq, duration, vol=0.1) {
     if (!audioCtx) return;
     const osc = audioCtx.createOscillator();
     const gain = audioCtx.createGain();
     osc.type = type;
     osc.frequency.setValueAtTime(freq, audioCtx.currentTime);
-    gain.gain.setValueAtTime(vol, audioCtx.currentTime);
+    // 这里乘入了设置的全局音量：
+    gain.gain.setValueAtTime(vol * (globalSfxVolume * 2), audioCtx.currentTime);
     gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + duration);
     osc.connect(gain);
     gain.connect(audioCtx.destination);
@@ -549,9 +645,12 @@ window.addEventListener('keyup', (e) => {
         level: 1, state: 'normal', isAway: false 
     };
     noah.isAway = false; // 刷新页面时强制让他回来，防止卡在外出状态
-     // 兼容旧存档并初始化古灵阁数据
+      // 兼容旧存档并初始化古灵阁数据
+    if (noah.outfit === undefined) noah.outfit = 'none';
     if (noah.bankGold === undefined) noah.bankGold = 0;
     if (noah.lastAllowanceDate === undefined) noah.lastAllowanceDate = '';
+    // 👇这是你要加的1行代码，初始化衣柜
+    if (noah.unlockedOutfits === undefined) noah.unlockedOutfits = ['none'];
 
     // 初始化计算每日古灵阁利息
     function checkDailyBank() {
@@ -640,7 +739,15 @@ window.addEventListener('touchstart', () => { window.lastActionTime = Date.now()
     };
     // --- 新增：给小物品和场景的颜料 ---
     Object.assign(palette, {
-                'D1': '#3A4045', 'A1': '#A69B7A', 'A2': '#736B54','W1': '#FFFFFF', 'B1': '#000000', 'Y1': '#FFD700', 'Y2': '#FFA500', 
+        'DE_R': '#A6222B', // 恶魔亮红
+        'DE_D': '#7A161E', // 恶魔暗红
+        'M_P': '#FFB8C6', // 女仆装的浅粉
+        'M_D': '#FF82A9', // 头饰的深粉
+        'M_Y': '#FFFACD', // 蝴蝶结的浅黄
+        'M_B': '#87CEFA', // 领结的浅蓝
+'E_L': '#FDE2B5', 'E_D': '#DCA665',
+                       'F_P': '#F4B3C2', 'F_Y': '#F5E6C4',
+ 'D1': '#3A4045', 'A1': '#A69B7A', 'A2': '#736B54','W1': '#FFFFFF', 'B1': '#000000', 'Y1': '#FFD700', 'Y2': '#FFA500', 
         'BR': '#8B4513', 'BL': '#1E90FF', 'G1': '#32CD32', 'G2': '#006400', 
         'R1': '#FF0000', 'P1': '#FF69B4', 'GR': '#808080',
         'LP': '#E5C3C6', 'DP': '#B38A8E', 'CM': '#F5EBE6', 'GB': '#9CA8B8', 
@@ -920,8 +1027,10 @@ let gameTimer = 0, gameScore = 0, noahX = 45, coins = [], lastCoinTime = 0, game
         ".. .. .. .. .. .. .. H7 H7 .. H7 H7 .. .. .. .. .. .." 
     ];
        function drawNoah() {
-        if (noah.isAway) { ctx.clearRect(0, 0, 20, 26); return; }
-        ctx.clearRect(0, 0, 20, 26);
+               ctx.setTransform(1, 0, 0, 1, 0, 0); // 新增：重置画布坐标
+        if (noah.isAway) { ctx.clearRect(0, 0, 26, 26); return; }
+        ctx.clearRect(0, 0, 26, 26); // 更新为 26x26 画布
+        ctx.translate(3, 0); // 新增：把诺亚整体向右平移3像素，给左边腾出空间
         let currentMap;
         if (currentFace === 'blink') {
             currentMap = [...pixelMap_blink];
@@ -930,12 +1039,216 @@ let gameTimer = 0, gameScore = 0, noahX = 45, coins = [], lastCoinTime = 0, game
         } else {
             currentMap = [...pixelMap];
         }
+        // --- 恶魔服饰：翅膀必须在人身体之前画，实现后背遮挡效果 ---
+        if (noah.outfit === 'devil') {
+            let devilWingLeft = [
+                ".. .. .. .. H7 .. .. .. .. ..",
+                ".. .. H7 H7 DE_D H7 .. .. .. ..",
+                ".. H7 DE_R DE_R H7 DE_R H7 H7 .. ..",
+                "H7 .. .. DE_D H7 DE_D DE_R DE_D DE_D H7 H7",
+                ".. .. .. H7 .. .. H7 DE_D H7 ..",
+                ".. .. .. .. .. .. .. H7 .. .."
+            ];
+            let devilWingRight = [
+                ".. .. .. .. .. H7 .. .. .. ..",
+                ".. .. .. .. H7 DE_R H7 H7 .. ..",
+                ".. .. H7 H7 DE_R H7  DE_R DE_R H7 ..",
+                "H7 H7 DE_D DE_R DE_D H7 DE_R DE_D ..  H7",
+                ".. H7 DE_D H7 .. .. H7 .. .. ..",
+                ".. .. H7.. .. .. .. .. .. .."
+            ];
+            // 绘制左翅膀 (位置在最左侧，高度对齐腰背)
+            for (let y = 0; y < devilWingLeft.length; y++) {
+                let row = devilWingLeft[y].trim().split(/\s+/);
+                for (let x = 0; x < row.length; x++) {
+                    let color = palette[row[x]];
+                    if (color) { ctx.fillStyle = color; ctx.fillRect(x - 3, 14 + y, 1, 1); }
+                }
+            }
+            // 绘制右翅膀 (位置在最右侧，高度对齐腰背)
+            for (let y = 0; y < devilWingRight.length; y++) {
+                let row = devilWingRight[y].trim().split(/\s+/);
+                for (let x = 0; x < row.length; x++) {
+                    let color = palette[row[x]];
+                    if (color) { ctx.fillStyle = color; ctx.fillRect(12 + x, 14 + y, 1, 1); }
+                }
+            }
+        }
         // 画出诺亚
         for (let y = 0; y < currentMap.length; y++) {
             let rowColors = currentMap[y].trim().split(/\s+/);
             for (let x = 0; x < rowColors.length; x++) {
                 let color = palette[rowColors[x]];
                 if (color) { ctx.fillStyle = color; ctx.fillRect(x, y, 1, 1); }
+            }
+        }
+        // --- 新增：画出诺亚的换装 ---
+        if (noah.outfit === 'flower') {
+            // 你画的 3x3 像素图完美复刻
+            let flowerMap = [
+                "F_P F_P F_P",
+                "F_P F_Y F_P",
+                "F_P F_P F_P"
+            ];
+            let startX = 12; // X坐标5，刚好别在左侧头发上
+            let startY = 3; // Y坐标0，戴在头顶最高处
+            for (let y = 0; y < flowerMap.length; y++) {
+                let rowColors = flowerMap[y].trim().split(/\s+/);
+                for (let x = 0; x < rowColors.length; x++) {
+                    let color = palette[rowColors[x]];
+                    if (color) { ctx.fillStyle = color; ctx.fillRect(startX + x, startY + y, 1, 1); }
+                }
+            }
+        }
+        // --- 恶魔服饰：角必须在最后画，实现顶层头饰效果 ---
+        if (noah.outfit === 'devil') {
+            let devilHornLeft = [
+                ".. DE_R .. ..",
+                "DE_R .. .. ..",
+                "DE_R DE_D .. ..",
+                "DE_R DE_D .. ..",
+                "DE_R DE_D .. ..",
+                ".. DE_R DE_D ..",
+                ".. DE_R DE_D .."
+            ];
+            let devilHornRight = [
+                ".. .. DE_R ..",
+                ".. .. .. DE_R",
+                ".. .. DE_D DE_R",
+                ".. .. DE_D DE_R",
+                ".. .. DE_D DE_R",
+                ".. DE_D DE_R ..",
+                ".. DE_D DE_R .."
+            ];
+            // 画左角，卡在头顶稍偏左侧
+            for (let y = 0; y < devilHornLeft.length; y++) {
+                let rowColors = devilHornLeft[y].trim().split(/\s+/);
+                for (let x = 0; x < rowColors.length; x++) {
+                    let color = palette[rowColors[x]];
+                    if (color) { ctx.fillStyle = color; ctx.fillRect(4 + x, y, 1, 1); }
+                }
+            }
+            // 画右角，卡在头顶稍偏右侧
+            for (let y = 0; y < devilHornRight.length; y++) {
+                let rowColors = devilHornRight[y].trim().split(/\s+/);
+                for (let x = 0; x < rowColors.length; x++) {
+                    let color = palette[rowColors[x]];
+                    if (color) { ctx.fillStyle = color; ctx.fillRect(12 + x, y, 1, 1); }
+                }
+            }
+        }
+        if (noah.outfit === 'dog_ear') {
+            // 完全按照你给的图纸 1:1 还原的矩阵
+            let earMap = [
+                ".. .. E_L E_L .. ..",
+                ".. E_L E_L E_L E_L ..",
+                ".. E_L E_D E_D E_L ..",
+                "E_L E_D E_D E_D E_D E_L"
+            ];
+            // 设定左右两只耳朵的起笔位置，完美卡在头顶两侧
+            let leftX = 2; let leftY = 2;  
+            let rightX = 12; let rightY = 2;
+            
+            for (let y = 0; y < earMap.length; y++) {
+                let rowColors = earMap[y].trim().split(/\s+/);
+                for (let x = 0; x < rowColors.length; x++) {
+                    let color = palette[rowColors[x]];
+                    if (color) { 
+                        ctx.fillStyle = color; 
+                        ctx.fillRect(leftX + x, leftY + y, 1, 1);   // 画左耳
+                        ctx.fillRect(rightX + x, rightY + y, 1, 1); // 画右耳
+                    }
+                }
+            }
+        }
+        if (noah.outfit === 'cat_ear') {
+            // 小猫耳朵图纸 1:1 还原
+            let catEarMap = [
+                ".. .. WH WH .. ..",
+                ".. WH WH WH WH ..",
+                "WH WH E2 E2 WH WH",
+                "WH E2 E2 E2 E2 WH"
+            ];
+            // 尾巴图纸 (精准的右下翘起幅度)
+            let catTailMap = [
+                ".. .. .. .. WH",
+                ".. .. .. WH WH",
+                ".. .. .. WH WH",
+                ".. .. WH WH ..",
+                ".. .. WH WH ..",
+                ".. WH WH .. ..",
+                "WH WH .. .. .."
+            ];
+            
+            // 画出左耳和右耳，卡在头发边缘
+            let leftX = 2; let leftY = 2;  
+            let rightX = 12; let rightY = 2;
+            
+            for (let y = 0; y < catEarMap.length; y++) {
+                let rowColors = catEarMap[y].trim().split(/\s+/);
+                for (let x = 0; x < rowColors.length; x++) {
+                    let color = palette[rowColors[x]];
+                    if (color) { 
+                        ctx.fillStyle = color; 
+                        ctx.fillRect(leftX + x, leftY + y, 1, 1);   // 画左耳
+                        ctx.fillRect(rightX + x, rightY + y, 1, 1); // 画右耳
+                    }
+                }
+            }
+            
+            // 画出尾巴，位置在身体右下侧
+            let tailX = 14; let tailY = 15;
+            for (let y = 0; y < catTailMap.length; y++) {
+                let rowColors = catTailMap[y].trim().split(/\s+/);
+                for (let x = 0; x < rowColors.length; x++) {
+                    let color = palette[rowColors[x]];
+                    if (color) { 
+                        ctx.fillStyle = color; 
+                        ctx.fillRect(tailX + x, tailY + y, 1, 1); 
+                    }
+                }
+            }
+        }
+                if (noah.outfit === 'maid') {
+            // 头饰图纸 (按图1:1还原蝴蝶结)
+            let maidHeadMap = [
+                ".. .. .. E3 .. .. E3 .. .. ..",
+                ".. E2 E3 GB F_Y F_Y GB E3 E2 ..",
+                ".. E2 E3 .. F_Y F_Y .. E3 E2 ..",
+                ".. E2 E3 GB F_Y F_Y GB E3 E2 ..",
+                ".. .. .. E3 .. .. E3 .. .. .."
+            ];
+            // 衣服图纸 (完美覆盖下半身，裙摆和胸前蝴蝶结细节全在)
+            let maidDressMap = [
+                ".. .. H7 H7 H7 H2 H2 H7 H7 H7 .. ..",
+                ".. H7 E3 H7 H2 C4 C4 H2 H7 E3 H7 ..",
+                ".. H7 E2 E3 H7 H2 H2 H7 E3 E2 H7 ..",
+                "H7 E2 E2 H7 H6 H6 H6 H6 H7 E2 E2 H7",
+                "H7 H2 E2 H7 E3 E3 E3 E3 H7 E2 H2 H7",
+                "H7 H7 H6 H6 H6 H6 H6 H6 H6 H6 H7 H7",
+                ".. H7 H2 E3 H2 E3 E3 H2 E3 H2 H7 ..",
+                ".. H7 H6 H6 H6 H6 H6 H6 H6 H6 H7 ..",
+                ".. .. .. H7  .. .. H7 H7 .. .. .."
+            ];
+
+            // 绘制头饰 (卡在头顶正中心)
+            let headX = 5; let headY = 0;
+            for (let y = 0; y < maidHeadMap.length; y++) {
+                let rowColors = maidHeadMap[y].trim().split(/\s+/);
+                for (let x = 0; x < rowColors.length; x++) {
+                    let color = palette[rowColors[x]];
+                    if (color) { ctx.fillStyle = color; ctx.fillRect(headX + x, headY + y, 1, 1); }
+                }
+            }
+
+            // 绘制衣服 (精确覆盖在脖子以下的身体区域)
+            let dressX = 4; let dressY = 15;
+            for (let y = 0; y < maidDressMap.length; y++) {
+                let rowColors = maidDressMap[y].trim().split(/\s+/);
+                for (let x = 0; x < rowColors.length; x++) {
+                    let color = palette[rowColors[x]];
+                    if (color) { ctx.fillStyle = color; ctx.fillRect(dressX + x, dressY + y, 1, 1); }
+                }
             }
         }
         // --- 新增：画出你投喂或购买的小物品 ---
@@ -1204,6 +1517,9 @@ if(window.isGaming) { speak("我现在正忙着给你赚加隆，没空出门！
             { name: "蜂蜜公爵糖羽毛笔 (G20)", action: () => buyItem(20, 'hunger', 15, 'mood', 15, "一边思考缸中之脑，一边吃糖...我也只有在你面前才会这么矛盾了。笨蛋。") }
         ],
         interact: [
+ { name: "🎵 诺亚随身听", action: () => { sfx_success(); document.getElementById('music-modal').style.display='flex'; } },           
+
+ { name: "👗 打开衣柜 ", action: () => setTimeout(openWardrobe, 10) },
             { name: "✉️ 写悄悄话给他", action: () => openSecretChat() },
             { name: "递给他绿色小蛇玩偶", action: () => chat("小绿蛇") },
             { name: "说“我恨你X万遍”", action: () => chat("互怼") },
@@ -1216,10 +1532,16 @@ if(window.isGaming) { speak("我现在正忙着给你赚加隆，没空出门！
                
    
             { name: "邀请他在雨中漫步", action: () => chat("雨中") },
-            { name: "🎮 陪他接金币 (G5)", action: () => startMiniGame() } // <- 新加这一行
+            { name: "🎮 陪他接金币 (G5)", action: () => startMiniGame() }, // <- 新加这一行
+ { name: "⚙️ 系统设置", action: () => { sfx_success(); document.getElementById('settings-modal').style.display='flex'; } }
         ],
               shop: [
-            { name: "夹心面包灰色羽绒服 (G150)", action: () => buyItem(150, 'love', 50, 'mood', 30, "你嫌它丑？可它暖和啊，而且这件衣服的大小，刚好足够把你整个人包进我怀里。") },
+            { name: "😈 恶魔服饰 (G200)", action: () => buyOutfit(200, 'devil', "恶魔？ 你最好想清楚让我穿这套衣服的后果。毕竟招惹了恶魔，就算逃到宇宙边缘我也能把你抓回来吃掉。") },
+{ name: "🎀 粉白女仆装 (G520)", action: () => buyOutfit(520, 'maid', "让我穿女仆装？！你的小脑瓜里都在想些什么危险的东西……行了别用那种期待的眼神看着我！只限今天一次，要是你敢偷偷截图录屏，我就用魔杖把你的设备炸了！") },
+            { name: "🐱 小猫耳朵与尾巴 (G120)", action: () => buyOutfit(120, 'cat_ear', "戴上这个？其实是冰原狼，但看着很像小猫。勉强满足你的恶趣味吧。") },
+{ name: "🐶 小狗耳朵头饰 (G60)", action: () => buyOutfit(60, 'dog_ear', "想让我戴小狗耳朵？你真把我当宠物了？……汪。满意了吧？既然当了狗，那等会咬你的话，你可别哭。") },
+                       { name: "🌸 小花花头饰 (G90)", action: () => buyOutfit(90, 'flower', "这什么？小花花？...行吧，既然是你买的，我就勉为其难戴在头上。不许笑！") },
+ { name: "夹心面包灰色羽绒服 (G150)", action: () => buyItem(150, 'love', 50, 'mood', 30, "你嫌它丑？可它暖和啊，而且这件衣服的大小，刚好足够把你整个人包进我怀里。") },
             { name: "《莫里斯的情人》影票 (G80)", action: () => buyItem(80, 'mood', 40, 'love', 40, "在下雨的晚上看这部电影最合适了。我依然想不通克莱夫怎么会舍得结婚，换作是我，死都不放手。") },
             { name: "去体验“无限”的门票 (G200)", action: () => buyItem(200, 'love', 80, 'mood', 60, "周五的约定。哪怕宇宙爆炸，这周五我也会准时带你去体验真正的自由。") },
             { name: "定制情侣拉文克劳围巾 (G120)", action: () => buyItem(120, 'love', 60, 'mood', 50, "戴上它，这样全霍格沃兹就都知道，你是被我诺亚·司德里安圈养的了。") },
@@ -1254,7 +1576,52 @@ if(window.isGaming) { speak("我现在正忙着给你赚加隆，没空出门！
             { name: "塞翁失马连环画册 (G20)", action: () => buyItem(20, 'mood', 15, 'love', 15, "塞翁失马，焉知非福。遇到你，就是我这辈子最大的福气。") }
         ]
     };
+    // --- 新增：衣柜与自由换装系统 ---
+    function openWardrobe() {
+        if(window.isGaming) { speak("专心点！我正在接金币呢！"); return; }
+        if(noah.isAway) { speak("诺亚不在家，你想给空气换衣服吗？"); return; }
 
+        const list = document.getElementById('wardrobe-list');
+        list.innerHTML = '';
+        document.getElementById('wardrobe-modal').style.display = 'flex';
+
+        const outfitNames = {
+            'devil': '😈 专属恶魔服饰',
+            'none': '🧥 默认原装黑衣',
+            'flower': '🌸 小花花头饰',
+'dog_ear': '🐶 小狗耳朵头饰',
+'cat_ear': '🐱 小猫耳朵与尾巴',
+'maid': '🎀 专属粉白女仆装'
+        };
+
+        // 遍历你所有解锁过的衣服，生成木质标牌
+        noah.unlockedOutfits.forEach(outfitId => {
+            let item = document.createElement('div');
+            // 判断当前是不是穿着这件，如果是，加上 equipped 绿灯样式
+            let isEquipped = (noah.outfit === outfitId);
+            item.className = 'wardrobe-item' + (isEquipped ? ' equipped' : '');
+            let isCurrentText = isEquipped ? " [已穿戴]" : "";
+            let displayName = outfitNames[outfitId] || outfitId;
+            
+            item.innerHTML = `<span>${displayName}</span> <span style="font-size:9px; opacity:0.8">${isCurrentText}</span>`;
+            
+            // 点击试穿衣服
+            item.onclick = () => { 
+                if(isEquipped) return; // 已经穿了就不重复穿了
+                noah.outfit = outfitId; 
+                sfx_success();
+                speak(`“换这件？听你的。反正你男朋友不管穿什么都是最帅的。”`);
+                updateUI();
+                openWardrobe(); // 马上刷新陈列架，把已穿戴的高亮移到这件衣服上
+            };
+            list.appendChild(item);
+        });
+    }
+
+    function closeWardrobe() {
+        sfx_beep();
+        document.getElementById('wardrobe-modal').style.display = 'none';
+    }
     function openMenu(type) {
        if(window.isGaming) { speak("专心点！我正在接金币呢，别乱碰菜单！"); return; }
   if(noah.isAway) { speak("诺亚正在外面探险，你的思念只能留给空气了。"); return; }
@@ -1622,6 +1989,28 @@ if(window.isGaming) { speak("我现在正忙着给你赚加隆，没空出门！
         
         updateUI();
     }
+       function buyOutfit(cost, outfitId, reply) {
+        if (noah.gold < cost) { 
+            sfx_error(); 
+            speak("加隆不够了，笨蛋。这点钱还想给我买衣服？去赚点钱再来。"); 
+            return; 
+        }
+        sfx_success(); 
+        noah.gold -= cost;
+        noah.outfit = outfitId;  // 给诺亚穿上这件衣服
+        
+        // 👇新增1：把衣服放进已解锁衣柜，防止重复放
+        if (!noah.unlockedOutfits.includes(outfitId)) {
+            noah.unlockedOutfits.push(outfitId);
+        }
+        // 👇新增2：呼出粉色礼物盒像素画，持续3秒！
+        if (typeof showItem === 'function') showItem('gift');
+
+        noah.love += 15;         
+        noah.mood += 30;
+        speak(reply); 
+        updateUI(); 
+    }
     // 强制让他害羞3秒的函数
     function makeShy() {
         if (noah.isAway) return; 
@@ -1704,7 +2093,7 @@ sfx_poke();
                if(confirm("确定要重置所有记忆回到初遇吗？(诺亚可能会察觉到世界线变动)")) {
                 let oldLove = noah.love; // 记住被抹杀前的爱意
                 localStorage.removeItem('noah_save_data_v1');
-                noah = { hunger: 80, mood: 80, health: 100, love: 5, gold: 100, level: 1, state: 'normal', isAway: false, bankGold: 0, lastAllowanceDate: '' };
+                              noah = { hunger: 80, mood: 80, health: 100, love: 5, gold: 100, level: 1, state: 'normal', isAway: false, bankGold: 0, lastAllowanceDate: '', outfit: 'none', unlockedOutfits: ['none'] };
                 updateUI();
                 
                 // === 补丁4：Meta元素 记忆残留 ===
@@ -2400,6 +2789,97 @@ sfx_success();
         makeShy();
         updateUI();
     });
-</script>
+// ==================== 音乐与系统设置逻辑 ====================
+// 默认内置两首神仙歌曲
+let playlist = [
+    { name: "Bad Word", url: "http://music.163.com/song/media/outer/url?id=2029145345.mp3" },
+    { name: "Verdurous Mountains", url: "http://music.163.com/song/media/outer/url?id=2099530167.mp3" }
+];
+let currentTrackIndex = 0;
+
+const bgmPlayer = document.getElementById('bgm-player');
+const playIcon = document.getElementById('play-icon');
+const musicTitle = document.getElementById('music-title');
+const gearLeft = document.getElementById('gear-left');
+const gearRight = document.getElementById('gear-right');
+
+// 初始默认加载第一首，但不播放
+bgmPlayer.src = playlist[0].url;
+
+// 更新音量
+function updateVolume() {
+    bgmPlayer.volume = document.getElementById('vol-bgm').value;
+    globalSfxVolume = document.getElementById('vol-sfx').value;
+}
+
+// 导入URL音乐的核心逻辑
+function importUrlMusic() {
+    let urlInput = document.getElementById('music-url-input');
+    let nameInput = document.getElementById('music-name-input');
+    let url = urlInput.value.trim();
+    let name = nameInput.value.trim();
+    
+    if(!url) {
+        sfx_error(); 
+        speak("“你没输入 URL 啊笨蛋，难道你想听白噪音吗？”");
+        return;
+    }
+    if(!name) name = "未知曲目";
+    
+    playlist.push({ name: name, url: url });
+    document.getElementById('music-count').innerText = `已加载: ${playlist.length} 首 (含内置)`;
+    
+    // 清空输入框
+    urlInput.value = "";
+    nameInput.value = "";
+    
+    sfx_success();
+    speak(`“《${name}》导进来了。这品味勉强及格，今晚我们可以一起听。”`);
+}
+
+// 加载并播放指定曲目
+function loadTrack() {
+    if (playlist.length === 0) return;
+    bgmPlayer.src = playlist[currentTrackIndex].url;
+    musicTitle.innerText = playlist[currentTrackIndex].name;
+    bgmPlayer.play();
+    playIcon.className = "pixel-pause";
+    gearLeft.classList.add('playing');
+    gearRight.classList.add('playing');
+}
+
+// 播放/暂停键
+function toggleMusic() {
+    if (playlist.length === 0) return;
+    if (bgmPlayer.paused) {
+        bgmPlayer.play();
+        playIcon.className = "pixel-pause";
+        // 磁带转起来
+        gearLeft.classList.add('playing');
+        gearRight.classList.add('playing');
+    } else {
+        bgmPlayer.pause();
+        playIcon.className = "pixel-play";
+        // 磁带停转
+        gearLeft.classList.remove('playing');
+        gearRight.classList.remove('playing');
+    }
+    sfx_beep();
+}
+
+// 上一首/下一首
+function prevMusic() {
+    if (playlist.length === 0) return;
+    currentTrackIndex = (currentTrackIndex - 1 + playlist.length) % playlist.length;
+    loadTrack(); sfx_beep();
+}
+function nextMusic() {
+    if (playlist.length === 0) return;
+    currentTrackIndex = (currentTrackIndex + 1) % playlist.length;
+    loadTrack(); sfx_beep();
+}
+
+// 自动下一首监听
+bgmPlayer.addEventListener('ended', nextMusic);</script>
 </body>
 </html>
