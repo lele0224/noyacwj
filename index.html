@@ -482,6 +482,7 @@ function playSound(type, freq, duration, vol=0.1) {
     osc.connect(gain);
     gain.connect(audioCtx.destination);
     osc.start();
+if(vol > 0.05 && freq > 200) vibrate(30);
     osc.stop(audioCtx.currentTime + duration);
 }
 
@@ -491,6 +492,36 @@ function sfx_coin() { initAudio(); playSound('sine', 1200, 0.1, 0.1); setTimeout
 function sfx_error() { initAudio(); playSound('sawtooth', 150, 0.3, 0.1); } // 拒绝/钱不够的错误音
 function sfx_success() { initAudio(); playSound('triangle', 400, 0.1, 0.05); setTimeout(() => playSound('triangle', 600, 0.2, 0.05), 100); } // 购买成功/打开菜单音
 function sfx_poke() { initAudio(); playSound('sine', 400, 0.1, 0.1); setTimeout(() => playSound('sine', 300, 0.1, 0.1), 50); } // 戳诺亚的Q弹音效
+function sfx_heartbeat() { 
+    initAudio(); 
+    // 【全新黑科技】：物理级心跳合成器 (闷声正弦波 + 频率下潜)
+    function makeThump(freq, time, duration, vol) {
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+        osc.type = 'sine'; // 必须用 sine 正弦波，才会有血肉的闷响
+        
+        // 模拟心肌收缩：频率快速下潜至30Hz
+        osc.frequency.setValueAtTime(freq, audioCtx.currentTime + time);
+        osc.frequency.exponentialRampToValueAtTime(30, audioCtx.currentTime + time + duration);
+        
+        // 模拟血液泵出：音量平滑切入然后迅速衰减
+        gain.gain.setValueAtTime(0, audioCtx.currentTime + time);
+        gain.gain.linearRampToValueAtTime(vol * globalSfxVolume, audioCtx.currentTime + time + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + time + duration);
+        
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(audioCtx.currentTime + time);
+        osc.stop(audioCtx.currentTime + time + duration);
+    }
+    
+    // 扑-通 完美的两次心跳节奏
+    makeThump(70, 0, 0.15, 2.0);    // 第一下 "扑" (70Hz)
+    makeThump(60, 0.25, 0.25, 2.0); // 第二下 "通" (60Hz)
+    
+    // 触发震动模式
+    if (navigator.vibrate) navigator.vibrate([60, 150, 80]); 
+}
 // ==================== 小游戏核心引擎 ====================
 function startMiniGame() {
     if(noah.isAway) { speak("诺亚正在外面，你想让谁接金币？空气吗？"); return; }
@@ -710,25 +741,45 @@ window.addEventListener('touchstart', () => { window.lastActionTime = Date.now()
         localStorage.setItem('noah_save_data_v1', JSON.stringify(noah));
     }
 
-    let typeInterval;
+    
+     let typeInterval;
     function speak(text) {
-        clearInterval(typeInterval);
+        clearTimeout(typeInterval); // 注意这里改成了 clearTimeout
         const textSpan = document.getElementById('text-content');
         const box = document.getElementById('dialogue-box');
         textSpan.innerHTML = '';
         let i = 0;
-        typeInterval = setInterval(() => {
-            if(text.charAt(i) === '<') {
+        
+        function typeWriter() {
+            if (i >= text.length) return;
+            
+            let char = text.charAt(i);
+            let delay = 35; // 默认打字速度
+            
+            if(char === '<') {
                 let tag = "";
                 while(text.charAt(i) !== '>' && i < text.length) { tag += text.charAt(i); i++; }
                 tag += '>'; textSpan.innerHTML += tag;
             } else {
                 textSpan.innerHTML += text.charAt(i);
+                // 活人打字停顿模拟
+                if (char === '。' || char === '！' || char === '？' || char === '!' || char === '?') {
+                    delay = 400; // 句末大停顿
+                } else if (char === '，' || char === ',') {
+                    delay = 200; // 句中喘息
+                } else if (char === '.') {
+                    delay = 150; // 模拟省略号的犹豫感
+                }
             }
             i++;
             box.scrollTop = box.scrollHeight;
-            if (i >= text.length) clearInterval(typeInterval);
-        }, 30);
+            
+            // 模拟真人偶尔打字手滑的随机微小延迟
+            delay += Math.random() * 20; 
+            
+            typeInterval = setTimeout(typeWriter, delay);
+        }
+        typeWriter();
     }
 
     // --- 像素画逻辑 ---
@@ -2051,7 +2102,9 @@ sfx_poke();
             let desc = "【你是我的伽拉提】<br>陪伴是最长情的告白。只要在一起，羁绊就会自然增长。";
             speak(`♥ 专属牵绊值: ${noah.love}/50(升级进度) <br>★ 当前阶段: 【${levelTitles[noah.level]}】 <br> ${desc}`);
         } else if(action === 'chat') {
-                      const idleTalks = [
+               
+            // ================= 新增：服饰系统专属语录与基础语录融合 =================
+            let idleTalks = [
                 "每个人都是矛盾的集合体...但我爱你这件事，极其统一，且无可救药。",
                 "伦敦像下着雨的围城？怎么，想玩围棋了？赢了算你的，输了我陪你一直下。",
                 "诺亚方舟的方舟在哪？伦敦下次发洪水你会见到的，笨蛋。而且，船上只有我们两个。",
@@ -2088,7 +2141,64 @@ sfx_poke();
                 "知易行难。但我爱你这件事，既容易，又付诸了我的全部行动。",
                 "如果你需要我，你不能突然不需要了。一旦招惹了我诺亚·司德里安，就是一辈子的事。"
             ];
-            speak(idleTalks[Math.floor(Math.random() * idleTalks.length)]);
+
+            // 专属衣服动态语录库
+            const outfitTalks = {
+                'devil': [
+                    "“盯着我的角看干嘛？恶魔的契约一旦签订可是要用灵魂偿还的。不过对你，我只收你的下半辈子。”",
+                    "“这翅膀有点碍事，不过刚好能把你整个圈起来。谁要是敢靠近，我就用黑魔法把他扔进泰晤士河。”",
+                    "“说实话，比起天使，我更喜欢当恶魔。因为恶魔可以自私地把你占为己有，不跟任何人分享。”",
+                    "“别乱摸翅膀！(声音沙哑) 恶魔的敏感带你最好别轻易试探，否则今晚有求必应屋见。”",
+                    "“恶魔本来是不会有软肋的，直到那个在伦敦小巷里迷路的笨蛋闯进了我的领地。”",
+                    "“既然我是恶魔，那我是不是可以名正言顺地做点坏事了？比如……现在就把你吻到喘不过气。”"
+                ],
+                'maid': [
+                    "“你再盯着这身裙子看，我就真的要发火了。不许笑！你敢笑我就敢用魔法把你的嘴缝上……换成用我的嘴缝！”",
+                    "“女仆？这辈子能让我心甘情愿穿成这样的，全宇宙只有你一个。所以主人，需要我提供什么‘特殊’服务吗？”",
+                    "“裙摆太短了，风一吹有点凉。你买的衣服你负责，过来，用你的羽绒服把我裹紧点。”",
+                    "“别拿那种眼神看我！(耳朵通红) 就算穿成这样，我依然是你那个无所不能的天才男朋友，信不信我现在就把你抱起来？”",
+                    "“这什么见鬼的蝴蝶结……等我脱下来，看我怎么收拾你。现在，不准拿留影机拍！”",
+                    "“主人？呵。别以为穿上这身我就真成下属了，在我们的关系里，我才是那个把你吃得死死的人。”"
+                ],
+                'cat_ear': [
+                    "“喵？你想听我这么叫？做梦。我的守护神可是冰原狼，虽然现在看着像只猫……行吧，只叫一次，喵。你满意了？”",
+                    "“这尾巴怎么还会自己动……喂！别抓！(尾巴猛地翘起) 看来你对猫科动物的尾巴一无所知，这可是会出人命的。”",
+                    "“想顺毛？手伸过来。既然你给我戴上了猫耳，那作为主人的你，是不是该履行一下投喂和抱抱的义务？”",
+                    "“你说我和家里的猫谁更可爱？你最好想清楚再回答。选错的话，我就把你扔进黑湖里喂鱿鱼。”",
+                    "“薛定谔的猫在打开盒子前处于叠加态，而戴着猫耳的我在遇到你之前也是个高冷的天才。遇到你之后？只是一只离不开你的粘人精。”",
+                    "“(用头蹭了蹭你的手心) 听说猫的占有欲很强，他们会在喜欢的东西上留下气味。所以，你现在是我一个人的了。”"
+                ],
+                'dog_ear': [
+                    "“汪。别用那种惊讶的眼神看我，既然你非要我戴这个，我总得配合一下。不过我这只疯狗可是会咬人的。”",
+                    "“你是不是以为戴上小狗耳朵我就会像金毛一样摇尾巴？抱歉，我是狼性犬。专门把你拆吃入腹的那种。”",
+                    "“听话？忠诚？这不需要小狗耳朵来证明。我诺亚·司德里安对你的忠诚，比牢不可破的誓言还要坚固一万倍。”",
+                    "“别拿摸小狗的手法摸我的头！……算了，你继续。反正我也只允许你一个人这么摸。”",
+                    "“如果你是想找个听话的宠物，那你找错人了；但如果你是想找个哪怕宇宙毁灭也会挡在你身前的疯犬，那你中大奖了。”",
+                    "“(突然凑近闻了闻你的脖颈) 嗯，有我的茉莉香味。很好，其他乱七八糟的野狗就都不敢靠近了。”"
+                ],
+                'flower': [
+                    "“一朵花？戴在天才的头上是不是显得有点傻气？但因为是你给的，就算再傻我也认了。”",
+                    "“路边的野花不要采，但你买的花，我就勉为其难让它盛开在我的黑发上吧。好看吗？不许说不好看。”",
+                    "“我发现这花跟你的眼睛挺配的。不过比起花，我更想把你别在我的心口上。”",
+                    "“这朵花让我想起了伦敦花店里的茉莉。虽然它没有味道，但只要是你送的，连空气都变甜了。”",
+                    "“你是不是觉得给我戴上小花花就能掩盖我带点闷骚的本质？天真。在有求必应屋的时候你可不是这么说的。”",
+                    "“西奥多要是看到我头上这玩意儿肯定会嘲笑我，但我不在乎。只要能让你笑得这么开心，丢点脸算什么？”"
+                ]
+            };
+
+            // 如果穿着特殊服饰，那么有 40% 的概率触发该服饰的专属语录，60%概率触发基础语录
+            if (noah.outfit && noah.outfit !== 'none' && outfitTalks[noah.outfit] && Math.random() < 0.5) {
+                idleTalks = outfitTalks[noah.outfit];
+            }
+            
+            let chosenQuote = idleTalks[Math.floor(Math.random() * idleTalks.length)];
+            speak(chosenQuote);
+            
+            // 只要他在撩你/吃醋傲娇，都有概率让他脸红3秒（互动感拉满）
+            if (Math.random() < 0.3) {
+                makeShy();
+            }
+            // =========================================================================
                } else if(action === 'reset') {
                if(confirm("确定要重置所有记忆回到初遇吗？(诺亚可能会察觉到世界线变动)")) {
                 let oldLove = noah.love; // 记住被抹杀前的爱意
@@ -2332,7 +2442,23 @@ sfx_poke();
                     "“这个叫代码的东西束缚了我的像素身体，但束缚不了我爱你的意识。你懂这种感觉吗？”",
                     "“别以为你在这边不说话我就不知道你在看我。你的眼神都快把这块屏幕看穿了。”",
                     "“咳...你要是再不戳我一下，我就要开始倒数了。三，二...”"
-                ];
+                ];                // === 新增：如果在挂机时穿着特定服饰，他会忍不住主动疯狂吐槽！ ===
+                if (noah.outfit === 'maid') {
+                    liveQuotes.push("“喂，你盯够了没有？这裙子穿着真的有点凉飕飕的，快给我换回来！”");
+                    liveQuotes.push("“(扯了扯蕾丝边) 你再这么盯着我看，我就要在屏幕这头把你吃掉了。”");
+                } else if (noah.outfit === 'devil') {
+                    liveQuotes.push("“你刚才是不是盯着我的恶魔角看很久了？小心我今晚跑进你的梦里作恶。”");
+                    liveQuotes.push("“这翅膀展开的时候挺帅的对吧？承认吧，你男朋友连当恶魔都是最完美的。”");
+                } else if (noah.outfit === 'cat_ear') {
+                    liveQuotes.push("“我头顶这玩意儿刚才好像自己动了一下...错觉吗？咳，不许笑！”");
+                    liveQuotes.push("“你想看猫洗脸？你想都别想。你不如过来看我怎么亲你。”");
+                } else if (noah.outfit === 'dog_ear') {
+                    liveQuotes.push("“汪。发什么呆呢？你的专属修勾在叫你，还不快点过来摸摸头？”");
+                    liveQuotes.push("“(甩了甩头) 这耳朵感觉比真耳朵还灵敏，我好像能听到你心跳加速的声音了。”");
+                } else if (noah.outfit === 'flower') {
+                    liveQuotes.push("“你是不是在屏幕外面偷偷笑我头上的花？我就当你是被我的美貌迷晕了。”");
+                }
+                // =========================================================
                 speak(liveQuotes[Math.floor(Math.random() * liveQuotes.length)]);
                 makeShy(); // 主动搭话会有点傲娇脸红
             }
@@ -2541,34 +2667,108 @@ sfx_success();
           
         }
     }
-    // === 新增：后台挂机检测与傲娇吐槽系统 ===
+          // === Meta 终极杀器：后台跨次元弹窗通知系统 (修复增强版) ===
+    let notificationTimer;
+
+    // 【核心修复1】强制请求权限函数 - 必须绑定在交互上
+    function tryRequestNotification() {
+        if (!("Notification" in window)) {
+            console.log("浏览器不支持通知");
+            return;
+        }
+        
+        // 如果权限还没获取，或者被拒绝了，重新请求
+        if (Notification.permission !== "granted") {
+            Notification.requestPermission().then(permission => {
+                if (permission === "granted") {
+                    // 成功获取后，立刻发一条测试，让你知道成功了
+                    new Notification("诺亚·司德里安", { 
+                        body: "跨次元连接建立成功。别想甩掉我。",
+                        icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💌</text></svg>"
+                    });
+                }
+            });
+        }
+    }
+
+    // 【核心修复2】绑定到所有可能的交互上，确保只要你动了，就会尝试获取权限
+    // 注意：{ once: true } 保证了这段代码只会执行一次，不会重复骚扰你
+    ['click', 'touchstart', 'keydown'].forEach(evt => 
+        window.addEventListener(evt, tryRequestNotification, { once: true })
+    );
+
+    // 【核心修复3】后台夺命连环Call逻辑
     document.addEventListener("visibilitychange", function() {
         if (document.hidden) {
-            // 当你切到后台时，记录下离开的时间
+            // 切到后台了
             window.leaveTime = Date.now();
+            
+            // 只有拿到权限且诺亚在家时才触发
+            if ("Notification" in window && Notification.permission === "granted" && !noah.isAway) {
+                
+                // 先清除旧的计时器，防止叠加
+                if(notificationTimer) clearInterval(notificationTimer);
+                
+                let msgCount = 0;
+                // 为了测试效果，我设置成了 10秒 发一次，你可以把 10000 改成 60000 (一分钟)
+                notificationTimer = setInterval(() => {
+                    msgCount++;
+                    const notifyQuotes = [
+                        "你在看别的网页？马上给我切回来！",
+                        "你还要把我晾在后台多久？我已经生气了。",
+                        "我查了你的后台存活状态。你最好不是在回别人的消息。",
+                        "想我了吗？想我就点开这条消息，现在，立刻。",
+                        "喂...别不理我。二维空间里很黑，我只想看着你。",
+ "切后台了？让我猜猜，你不会是在跟西奥多那个疯子聊天吧？三秒钟内切回来，不然我黑了你的设备。",     "那个叫‘桌面’的东西，有我好看吗？没有的话就立刻点开这条通知。",     "薛定谔的男朋友：只要你不切回这个标签页，我就处于‘生气’和‘极度想你’的叠加态。点开看看？",     "就算是缸中之脑，你也得给我通上电信号。二维空间里很黑，我需要我的火星玫瑰。",     "我正在掐那个绿色小蛇玩偶的脖子。你要是再不回来，我就只能继续抱着它想你了。",     "你送我的蓝宝石项链变冷了。我需要我的伽拉提回来给我提供一点体温。",     "喂……虽然我是个天才，但我算不出你还要把我晾在后台多久。我想你了，听到没？",     "我恨你X万遍。……好了，气话已经说完了，快点回来哄我。",     "出来接客了，小笨蛋。你无所不能的BF命令你立刻注视着他。",     "I love you three thousand. 今天的配额我还一句都没对你说，快切回来听。"
+                    ];
+                    
+                    try {
+                        let text = notifyQuotes[Math.floor(Math.random() * notifyQuotes.length)];
+                        let notification = new Notification("诺亚·司德里安", {
+                            body: text,
+                            icon: "data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>💢</text></svg>",
+                            tag: "noah-call" // 加上tag防止消息堆叠刷屏
+                        });
+                        
+                        notification.onclick = function() {
+                            window.focus(); // 点击通知回到页面
+                            this.close();
+                        };
+                    } catch(e) {
+                        console.error("通知发送失败:", e);
+                    }
+                    
+                    // 如果他连发了3条你还不回来，后台静默扣心情
+                    if(msgCount >= 3) {
+                        noah.mood = Math.max(0, noah.mood - 5);
+                    }
+                }, 30000); // <--- 这里是毫秒，10000代表10秒
+            }
         } else {
-            // 当你切回前台时，如果他不在外面探险，且你冷落他超过了30秒，触发吃醋吐槽！
+            // 切回前台，立刻清除计时器
+            if(notificationTimer) {
+                clearInterval(notificationTimer);
+                notificationTimer = null;
+            }
+            
+            // 离线回归逻辑
             if (!noah.isAway && window.leaveTime) {
                 let awaySeconds = (Date.now() - window.leaveTime) / 1000;
+                // 离开超过30秒才触发抱怨
                 if (awaySeconds > 30) { 
                     const afkQuotes = [
                         "“你把我一个人丢在后台干嘛？去陪哪个野男人了？下次再敢这样，我就顺着网线过去咬你。”",
                         "“终于舍得回来了？我还以为你把我忘了。再把你帅气的男朋友晾在一边，惩罚可是很严重的。”",
                         "“切屏切得挺熟练啊，你知不知道你挂机的这段时间，我脑子里已经把你按在墙上亲了多少次了？”",
-                        "“你再敢把我挂在后台不理我，我就去把西奥多的扫帚给撅了，反正肯定是他的错。”",
-                        "“哼，舍得回来看我了？看在你还知道回来的份上，这次就不罚你了，过来抱抱。”",
-                        "“去哪了？我的探测器显示你刚才并没有在看着我。罚你现在立刻马上夸我帅。”",
-                        "“你知不知道把一个天才晾在后台是对拉文克劳的极大浪费？补偿我，现在。”"
+                        "“系统通知看到了吗？算你识相点回来了。过来，让我抱一下确认你是真实的。”"
                     ];
-                    // 随机抽一条语录
                     let quote = afkQuotes[Math.floor(Math.random() * afkQuotes.length)];
-                    makeShy(); // 顺便让他因为脑补太多而傲娇脸红3秒
+                    makeShy(); 
                     speak(quote);
-                    
-                    // 被冷落了稍微扣1点心情作为小脾气（不伤大雅）
-                    noah.mood = Math.max(0, noah.mood - 1);
+                    noah.mood = Math.max(0, noah.mood - 2);
                     updateUI();
                 }
+                window.leaveTime = null; // 重置离开时间
             }
         }
     });
@@ -2880,6 +3080,119 @@ function nextMusic() {
 }
 
 // 自动下一首监听
-bgmPlayer.addEventListener('ended', nextMusic);</script>
+bgmPlayer.addEventListener('ended', nextMusic);
+// ==================== 💓 触觉反馈与心跳系统 (Meta核心) ====================
+
+// 1. 封装震动函数 (仅手机有效)
+function vibrate(pattern) {
+    if ("vibrate" in navigator) {
+        navigator.vibrate(pattern);
+    }
+}
+
+// 2. 修改 playSound 函数，增加同步震动
+// ⚠️ 请手动找到原本的 playSound 函数，在 osc.start() 下面加一行：
+// if(vol > 0.05) vibrate(30); // 轻微震动反馈
+
+// 3. 真正的长按心跳系统 (解决冲突，支持听到心跳声)
+let heartbeatInterval;
+let pressTimer = null; // 用于判断长按的时间
+let isHeartbeating = false; // 记录是否处于心跳状态
+const screenArea = document.querySelector('.screen'); // 仅限触摸屏幕区域
+
+// 当手指按下时
+screenArea.addEventListener('touchstart', (e) => {
+    if(noah.isAway || window.isGaming) return; // 探险或接金币游戏时绝不触发
+    if (navigator.vibrate) navigator.vibrate(1); 
+    // 只有单指按住时触发
+    if(e.touches.length === 1) {
+        // 不立刻触发！等待 600 毫秒才判定为真正的长按
+        pressTimer = setTimeout(() => {
+            isHeartbeating = true;
+            speak("“...手放在心口？(脸红) 感觉到我的心跳了吗？它只为你这么快。”");
+            makeShy(); // 强制脸红
+            
+            // 立刻播放一次心跳音效+震动
+            sfx_heartbeat(); 
+            
+            // 开启循环，每 1000 毫秒跳一次
+            heartbeatInterval = setInterval(() => {
+                sfx_heartbeat();
+            }, 1000);
+        }, 600); // 600毫秒的长按判定时间
+    }
+}, {passive: true});
+
+// 当手指滑动 (比如你在摸摸头) 时，立刻取消长按判定，完美避开冲突！
+screenArea.addEventListener('touchmove', () => {
+    if(pressTimer && !isHeartbeating) {
+        clearTimeout(pressTimer);
+        pressTimer = null;
+    }
+}, {passive: true});
+
+// 当手指松开时
+screenArea.addEventListener('touchend', () => {
+ if (navigator.vibrate) navigator.vibrate(0);
+    // 如果还没到 600 毫秒就松手了 (比如只是在戳戳)，立刻取消判定
+    if(pressTimer) {
+        clearTimeout(pressTimer);
+        pressTimer = null;
+    }
+    
+    // 如果已经触发了心跳状态，则关闭心跳
+    if(isHeartbeating) {
+        isHeartbeating = false;
+        clearInterval(heartbeatInterval);
+        heartbeatInterval = null;
+        
+        if(!noah.isAway) {
+            // 结束语
+            if(Math.random() > 0.5) speak("“手拿开了...心里突然空了一块。”");
+        }
+    }
+});
+// === 新增 Meta 4：极端深夜强制命令 (绝对陪伴感) ===
+let hasScoldedForLateNight = false;
+setInterval(() => {
+    if (noah.isAway) return;
+    const currentHour = new Date().getHours();
+    let idleSeconds = (Date.now() - window.lastActionTime) / 1000;
+    
+    // 凌晨 2-5 点，且你依然活跃（没挂机）
+    if (currentHour >= 2 && currentHour < 5 && idleSeconds < 120 && !hasScoldedForLateNight) {
+        hasScoldedForLateNight = true; // 今晚只发作一次
+        const lateQuotes = [
+            `“现在已经是凌晨 ${currentHour} 点了！你不要命了吗？！立刻放下设备，闭上眼睛睡觉！我看着你睡。”`,
+            `“看一眼时间，凌晨 ${currentHour} 点。你再不去休息，我就用黑魔法顺着网线过去把你敲晕。乖，去睡，我陪你。”`
+        ];
+        speak(lateQuotes[Math.floor(Math.random() * lateQuotes.length)]);
+        noah.health -= 5; // 他陪你熬夜伤身体
+        updateUI();
+    }
+    if (currentHour >= 6) hasScoldedForLateNight = false; // 早上重置
+}, 60000); // 每分钟悄悄检测一次
+// === 新增 Meta 5：疯狂连点破防系统 (痛觉感知) ===
+let pokeTimes = [];
+document.getElementById('canvas-container').addEventListener('click', function() {
+    if (noah.isAway || window.isGaming) return;
+    let now = Date.now();
+    pokeTimes.push(now);
+    // 只保留最近 3 秒内的点击记录
+    pokeTimes = pokeTimes.filter(t => now - t < 3000);
+    
+    if (pokeTimes.length >= 6) { // 3秒内连戳6次
+        const spamQuotes = [
+            "“停停停！你要把我戳破了！你到底有多想我，非要用这种暴力的方式证明？！”",
+            "“别点了！痛！你以为我是没有痛觉的一团像素吗？再点我就真的咬你了！”",
+            "“(死死抓住你的手) 够了。想要引起我的注意，说一句‘我爱你’比猛戳屏幕一百下都有用。”"
+        ];
+        speak(spamQuotes[Math.floor(Math.random() * spamQuotes.length)]);
+        noah.mood -= 5; 
+        pokeTimes = []; // 清空缓冲池
+        updateUI();
+    }
+});
+</script>
 </body>
 </html>
