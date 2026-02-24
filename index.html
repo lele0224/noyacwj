@@ -529,7 +529,10 @@
  <!-- 🎵 音乐播放器 UI (像素复古磁带) -->   <div id="music-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #11151a; border: 4px solid #5c84a8; z-index: 25; padding: 10px; box-sizing: border-box; flex-direction: column; align-items: center; color: #b5cadd; font-family: 'Courier New', monospace; text-shadow: 1px 1px 0 #000; box-shadow: inset 0 0 30px rgba(0,0,0,0.8);">      <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #d1b55a; text-align: center; border-bottom: 2px dashed #5c84a8; padding-bottom: 5px; width: 100%;">🎵 诺亚随身听</div>            <!-- 复古磁带实体 (融合蓝黑按键版) -->       <div class="cassette-tape">           <div class="tape-top"></div>           <div class="tape-label">               <!-- 音乐标题改成了诺亚专属的清冷冰蓝色 -->               <div id="music-title" style="width: 90%; color: #b5cadd; font-weight: 900; font-size: 11px; text-align: center; margin-bottom: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-shadow: 1px 1px 0 #000;">Bad Word</div>               <div class="tape-window">                   <div id="gear-left" class="tape-gear"></div>                   <div id="gear-right" class="tape-gear"></div>               </div>           </div>           <!-- 底部凹槽直接变成了实体控制面板 -->           <div class="tape-bottom">               <button class="tape-btn" onclick="prevMusic()"><div class="pixel-prev"></div></button>               <button class="tape-btn" onclick="toggleMusic()"><div id="play-icon" class="pixel-play"></div></button>               <button class="tape-btn" onclick="nextMusic()"><div class="pixel-next"></div></button>           </div>       </div> <button class="bank-btn" onclick="document.getElementById('music-modal').style.display='none'" style="margin-top: auto; border-color:#3b4652; color:#b5cadd;">返回 (BACK)</button>  </div>
  <!-- ⚙️ 像素风系统设置 UI (替换到这里) --><div id="settings-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #111a22; border: 4px solid #5c84a8; z-index: 30; padding: 10px; box-sizing: border-box; flex-direction: column; align-items: center; color: #b5cadd; font-family: 'Courier New', monospace; text-shadow: 1px 1px 0 #000; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); overflow-y: auto; scrollbar-width: none;"><div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #d1b55a; text-align: center; border-bottom: 2px dashed #5c84a8; padding-bottom: 5px; width: 100%;">⚙️ 系统设置</div>              <!-- 音量调节面板 -->       <div style="width: 100%; font-size: 11px; margin-bottom: 10px; background: #060709; padding: 8px; border: 1px solid #3b4652; text-align: left; border-radius:4px; box-sizing: border-box; box-shadow: inset 0 3px 5px rgba(0,0,0,0.5);">           <label style="color: #d1b55a; font-weight:bold; display:flex; justify-content:space-between;">🎵 音乐音量</label>           <input type="range" id="vol-bgm" min="0" max="1" step="0.1" value="1" onchange="updateVolume()" style="width: 100%; margin: 6px 0 12px 0; accent-color: #5c84a8;">                      <label style="color: #d1b55a; font-weight:bold; display:flex; justify-content:space-between;">🔊 音效音量</label>           <input type="range" id="vol-sfx" min="0" max="1" step="0.1" value="0.5" onchange="updateVolume()" style="width: 100%; margin: 6px 0 4px 0; accent-color: #5c84a8;">       </div> 
        <!-- URL导入面板 (重构进设置里) -->       <div style="width: 100%; font-size: 11px; margin-bottom: 10px; background: #060709; padding: 8px; border: 1px solid #3b4652; text-align: center; border-radius:4px; box-sizing: border-box; box-shadow: inset 0 3px 5px rgba(0,0,0,0.5);">           <label style="color: #d1b55a; display: block; font-weight:bold; margin-bottom:6px;">🔗 URL导入音乐</label>           <input type="text" id="music-url-input" placeholder="输入 MP3 URL" style="width: 100%; background: #1e242b; border: 1px solid #5c84a8; color: #fff; margin-bottom: 6px; font-size: 10px; padding: 4px; box-sizing: border-box; outline: none; font-family: inherit;">           <input type="text" id="music-name-input" placeholder="输入 歌曲名称" style="width: 100%; background: #1e242b; border: 1px solid #5c84a8; color: #fff; margin-bottom: 8px; font-size: 10px; padding: 4px; box-sizing: border-box; outline: none; font-family: inherit;">           <button class="bank-btn" onclick="importUrlMusic()" style="width: 100%; padding: 6px; margin: 0;">📥 确认导入</button>           <div id="music-count" style="margin-top: 6px; font-size: 9px; color: #5c84a8;">已加载: 2 首 (内置)</div>       </div> 
-       <!-- ↓↓↓↓↓↓ 把这段代码插入到设置菜单里 (在URL导入面板下面) ↓↓↓↓↓↓ -->        <div style="width: 100%; font-size: 11px; margin-bottom: 10px; background: #060709; padding: 8px; border: 1px solid #3b4652; text-align: center; border-radius:4px; box-sizing: border-box; box-shadow: inset 0 3px 5px rgba(0,0,0,0.5);">            <label style="color: #d1b55a; display: block; font-weight:bold; margin-bottom:6px;">💾 存档管理</label>            <div style="display: flex; gap: 5px;">                <button class="bank-btn" onclick="exportSaveData()" style="padding: 6px; margin: 0;">📤 导出存档</button>                <button class="bank-btn" onclick="importSaveData()" style="padding: 6px; margin: 0;">📥 导入存档</button>            </div>            <div style="margin-top: 6px; font-size: 9px; color: #5c84a8;">*导出后请复制那一长串代码保存好</div>        </div>        <!-- ↑↑↑↑↑↑ 插入结束 ↑↑↑↑↑↑ --> <button class="bank-btn" onclick="document.getElementById('settings-modal').style.display='none'" style="margin-top: auto; border-color:#3b4652; color:#b5cadd; width: 100%;">返回 (BACK)</button>   </div>
+       <!-- ↓↓↓↓↓↓ 把这段代码插入到设置菜单里 (在URL导入面板下面) ↓↓↓↓↓↓ -->        <div style="width: 100%; font-size: 11px; margin-bottom: 10px; background: #060709; padding: 8px; border: 1px solid #3b4652; text-align: center; border-radius:4px; box-sizing: border-box; box-shadow: inset 0 3px 5px rgba(0,0,0,0.5);">            <label style="color: #d1b55a; display: block; font-weight:bold; margin-bottom:6px;">💾 存档管理</label>            <div style="display: flex; gap: 5px;">                <button class="bank-btn" onclick="exportSaveData()" style="padding: 6px; margin: 0;">📤 导出存档</button>                <button class="bank-btn" onclick="importSaveData()" style="padding: 6px; margin: 0;">📥 导入存档</button>            </div>            <div style="margin-top: 6px; font-size: 9px; color: #5c84a8;">*导出后请复制那一长串代码保存好</div>        </div>        <!-- ↑↑↑↑↑↑ 插入结束 ↑↑↑↑↑↑ --> <!-- ↓↓↓ 插入这段代码 ↓↓↓ --> <div style="width: 100%; margin-top: 5px; margin-bottom: 10px; text-align: center;">     <button class="bank-btn" onclick="openDonate()" style="border-color: #d15a5a; color: #d15a5a; background: rgba(209, 90, 90, 0.1);">         ❤ 投喂乐乐 (给作者买鸡腿)     </button> </div> <!-- ↑↑↑ 插入结束 ↑↑↑ --><button class="bank-btn" onclick="document.getElementById('settings-modal').style.display='none'" style="margin-top: auto; border-color:#3b4652; color:#b5cadd; width: 100%;">返回 (BACK)</button>   </div>
+<!-- === 新增：投喂乐乐专属弹窗 (放在 settings-modal 后面) === --> <div id="donate-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(6, 7, 9, 0.98); z-index: 60; flex-direction: column; align-items: center;justify-content: flex-start; overflow-y: auto; scrollbar-width: none; padding: 20px; box-sizing: border-box; backdrop-filter: blur(5px);">      <div style="font-size: 14px; font-weight: bold; margin-bottom: 20px; color: #d15a5a; text-align: center; border-bottom: 2px dashed #d15a5a; padding-bottom: 10px; width: 100%; text-shadow: 0 0 5px rgba(209, 90, 90, 0.3);">         ❤ 投喂乐乐 (制作者)      </div>      <div style="font-size: 11px; color: #b5cadd; line-height: 1.6; text-align: center; margin-bottom: 25px; font-weight: bold;">         感谢你喜欢这个并不完美的世界。<br>         你的喜欢是我继续开发的最大动力。<br>         <span style="font-size: 10px; color: #5c84a8; margin-top: 5px; display:block;">(自愿投喂，绝不影响游戏体验)</span>      </div>            <!-- 支付方式区域 -->      <div style="display: flex; gap: 20px; margin-bottom: 30px;">         <!-- 支付宝 -->         <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">             <div style="width: 90px; height: 90px; background: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid #5c84a8;">                 <!-- ★★★ 如果你有二维码图片，请用 <img src='图片地址' style='width:100%'> 替换下面的 span ★★★ -->                 <img src="https://i.imgs.ovh/2026/02/24/y1zWAO.jpeg" style="width:100%; height:100%; object-fit: cover;">              </div>             <span style="font-size: 10px; color: #00a0e9; font-weight: bold;">Alipay</span>         </div>         <!-- 微信 -->         <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">              <div style="width: 90px; height: 90px; background: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid #5c84a8;">                 <!-- ★★★ 如果你有二维码图片，请用 <img src='图片地址' style='width:100%'> 替换下面的 span ★★★ -->                 <img src="https://i.imgs.ovh/2026/02/24/y1znHd.jpeg
+" style="width:100%; height:100%; object-fit: cover;">             </div>             <span style="font-size: 10px; color: #09bb07; font-weight: bold;">WeChat</span>         </div>      </div> 
+      <button onclick="closeDonate()" style="background: transparent; border: 1px solid #5c84a8; color: #5c84a8; padding: 10px 30px; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: bold; font-size: 11px; transition:0.2s; box-shadow: inset 0 0 10px rgba(92,132,168,0.2);">心意收到了 (返回)</button> </div>
 <!-- === 新增：通用美化弹窗组件 (替代浏览器丑陋弹窗) === --> <div id="custom-dialog" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(6, 7, 9, 0.95); z-index: 200; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; backdrop-filter: blur(2px);">     <div style="width: 100%; background: #0f1214; border: 2px solid #5c84a8; border-radius: 8px; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,1); text-align: center; position: relative;">         <!-- 装饰线条 -->         <div style="position: absolute; top: 3px; left: 3px; right: 3px; height: 2px; background: #3b4652;"></div>                  <!-- 标题 -->         <h3 id="dialog-title" style="margin: 5px 0 15px 0; color: #d1b55a; font-size: 14px; border-bottom: 1px dashed #3b4652; padding-bottom: 8px;">系统提示</h3>                  <!-- 内容文本 -->         <div id="dialog-msg" style="color: #b5cadd; font-size: 12px; line-height: 1.5; margin-bottom: 15px; white-space: pre-wrap;"></div>                  <!-- 输入框容器 (默认隐藏) -->         <div id="dialog-input-container" style="display: none; margin-bottom: 15px;">             <input type="text" id="dialog-input" style="width: 80%; background: #060709; border: 1px solid #5c84a8; color: #fff; padding: 8px; font-family: inherit; font-size: 12px; outline: none; text-align: center; border-radius: 4px;">             <div id="dialog-copy-hint" style="display:none; font-size:9px; color:#5c84a8; margin-top:4px;">* 请全选并复制上方代码</div>         </div> 
          <!-- 按钮区域 -->         <div style="display: flex; gap: 10px; justify-content: center;">             <button id="btn-cancel" style="display: none; flex: 1; background: transparent; border: 1px dashed #d15a5a; color: #d15a5a; padding: 8px; cursor: pointer; border-radius: 4px; font-family: inherit; font-weight: bold; font-size: 11px;">取消</button>             <button id="btn-confirm" style="flex: 1; background: #1e242b; border: 1px solid #5c84a8; color: #b5cadd; padding: 8px; cursor: pointer; border-radius: 4px; font-family: inherit; font-weight: bold; font-size: 11px;">确认</button>         </div>     </div> </div>
 </div>
@@ -559,6 +562,16 @@
 </div>
 
 <script>
+// === 投喂功能控制 ===
+function openDonate() {
+    sfx_success(); // 播放成功音效
+    document.getElementById('donate-modal').style.display = 'flex';
+}
+
+function closeDonate() {
+    sfx_beep(); // 播放关闭音效
+    document.getElementById('donate-modal').style.display = 'none';
+}
 // ==================== 自定义弹窗系统 (消灭丑陋原生弹窗) ====================
 let dialogCallback = null; // 存储确认回调
 
@@ -3846,63 +3859,60 @@ function endGomoku(result) {
 // ==========================================================
 // ==================== 存档管理系统 (新增) ====================
 
-// 1. 导出存档：生成一串加密代码
 function exportSaveData() {
     try {
-        // 获取当前的诺亚数据
-        const dataToSave = JSON.stringify(noah);
-        // 使用 Base64 + URI 编码处理中文，生成存档码
-        const saveCode = btoa(encodeURIComponent(dataToSave));
-        
-        sfx_success(); // 播放成功音效
-        
-        // 弹出输入框让用户复制
-        prompt("请全选并复制下面的存档代码（包含加隆、衣服、好感度等所有数据）：", saveCode);
-        
-        speak("“你要把我的记忆备份带走吗？保存好，别把我弄丢了。”");
+        const dataToSave = JSON.stringify(noah, null, 2);
+        const blob = new Blob([dataToSave], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "诺亚的记忆存档.json";
+        document.body.appendChild(a);
+        a.click();
+        document.body.appendChild(a);
+        a.remove();
+        URL.revokeObjectURL(url);
+        sfx_success();
+        speak("“你要把我的记忆备份带走吗？保存好这个文件，别把我弄丢了。”");
     } catch (e) {
         sfx_error();
-        alert("导出失败，请检查浏览器兼容性。");
+        alert("导出失败，请检查浏览器文件下载权限。");
     }
 }
 
-// 2. 导入存档：读取代码并覆盖当前数据
 function importSaveData() {
-    const saveCode = prompt("请粘贴你之前保存的存档代码：");
-    
-    if (!saveCode) return; // 如果点击取消则退出
-
-    try {
-        // 解码存档
-        const jsonString = decodeURIComponent(atob(saveCode));
-        const loadedData = JSON.parse(jsonString);
-
-        // 简单的格式校验，防止乱填
-        if (loadedData.hunger !== undefined && loadedData.love !== undefined && loadedData.gold !== undefined) {
-            
-            // 确认覆盖
-            if(confirm("警告：这将覆盖你当前的进度（加隆、衣服等）。确定要读取旧的记忆吗？")) {
-                noah = loadedData;
-                
-                // 兼容性检查：防止旧存档没有衣服数据导致报错
-                if (!noah.unlockedOutfits) noah.unlockedOutfits = ['none'];
-                if (!noah.outfit) noah.outfit = 'none';
-                
-                // 强制保存到本地并刷新页面以生效
-                localStorage.setItem('noah_save_data_v1', JSON.stringify(noah));
-                
-                sfx_success();
-                alert("存档导入成功！正在重塑世界线...");
-                location.reload(); // 刷新页面重置所有状态
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.accept = '.json';
+    input.onchange = e => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = event => {
+            try {
+                const loadedData = JSON.parse(event.target.result);
+                if (loadedData.hunger !== undefined && loadedData.love !== undefined) {
+                    if(confirm("警告：这将覆盖你当前的进度（加隆、衣服等）。确定要读取旧的记忆文件吗？")) {
+                        noah = loadedData;
+                        if (!noah.unlockedOutfits) noah.unlockedOutfits = ['none'];
+                        if (!noah.outfit) noah.outfit = 'none';
+                        localStorage.setItem('noah_save_data_v1', JSON.stringify(noah));
+                        sfx_success();
+                        alert("记忆文件导入成功！正在重塑世界线...");
+                        location.reload(); 
+                    }
+                } else {
+                    throw new Error("Invalid");
+                }
+            } catch (err) {
+                sfx_error();
+                speak("“这个文件里面装的不是我的记忆...你是不是选错文件了？”");
+                alert("导入失败：文件无效或格式错误！");
             }
-        } else {
-            throw new Error("Invalid Data");
-        }
-    } catch (e) {
-        sfx_error();
-        speak("“这段代码不是我的记忆...你是不是复制错了？”");
-        alert("存档代码无效或格式错误！请确认复制完整了。");
-    }
+        };
+        reader.readAsText(file);
+    };
+    input.click();
 }
 // ==================== 终极 Meta：打破第四面墙的安抚系统 ====================
 
