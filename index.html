@@ -451,6 +451,324 @@
         color: #b5cadd; text-align: center; line-height: 1.8;
         max-width: 80%; text-shadow: 0 0 5px rgba(181, 202, 221, 0.3);
     }
+    /* ================= 🕰️ 陪伴手账系统专属 UI (复古可爱风) ================= */
+    #accompany-modal {
+        display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: #fdf6e3; /* 奶黄复古信纸底色 */
+        border: 4px solid #d1b55a; border-radius: 8px;
+        z-index: 35; padding: 12px; box-sizing: border-box;
+        flex-direction: column; align-items: center;
+        font-family: 'Courier New', monospace;
+        box-shadow: inset 0 0 20px rgba(209, 181, 90, 0.4);
+        overflow-y: auto; scrollbar-width: none;
+    }
+    .acc-title {
+        font-size: 14px; font-weight: 900; color: #d15a5a;
+        border-bottom: 2px dashed #d15a5a; padding-bottom: 5px; margin-bottom: 10px; 
+        width: 100%; text-align: center; text-shadow: 1px 1px 0px rgba(209,90,90,0.2);
+    }
+    .acc-panel {
+        background: #fff; border: 2px solid #5c84a8; border-radius: 6px;
+        padding: 8px; width: 100%; box-sizing: border-box; margin-bottom: 8px;
+        box-shadow: 2px 2px 0 #5c84a8;
+    }
+    .acc-label { font-size: 11px; color: #5c84a8; font-weight: bold; margin-bottom: 4px; display: block;}
+    .acc-select, .acc-input {
+        width: 100%; padding: 6px; border: 1px solid #d1b55a; border-radius: 4px;
+        background: #fcf9f2; color: #3b4652; font-family: inherit; font-size: 11px; font-weight: bold;
+        outline: none; margin-bottom: 8px; box-sizing: border-box;
+    }
+    .acc-btn {
+        background: #d15a5a; color: #fff; border: 2px solid #1a1a1a;
+        padding: 8px; font-family: inherit; font-weight: bold; font-size: 11px;
+        border-radius: 6px; cursor: pointer; box-shadow: 2px 2px 0 #1a1a1a;
+        transition: 0.1s; width: 100%; margin-top: 2px;
+    }
+    .acc-btn:active { transform: translate(2px, 2px); box-shadow: 0 0 0 #1a1a1a; }
+    
+    .acc-log-container {
+        width: 100%; flex: 1; background: #fff; border: 2px solid #d1b55a; border-radius: 6px;
+        padding: 8px; box-sizing: border-box; overflow-y: auto; scrollbar-width: none;
+        box-shadow: inset 0 2px 5px rgba(0,0,0,0.05); text-align: left;
+    }
+    .acc-log-item {
+        border-bottom: 1px dashed #e8d2c3; padding: 6px 0; font-size: 10px; color: #3b4652; line-height: 1.4;
+    }
+    .acc-log-item:last-child { border-bottom: none; }
+    .acc-log-date { color: #d15a5a; font-weight: bold; }
+    .acc-log-event { color: #5c84a8; font-weight: bold; background: #eef4f9; padding: 0 4px; border-radius: 3px;}
+    
+    /* 专注陪伴全屏倒计时 */
+    #focus-overlay {
+        display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(10, 13, 17, 0.96); z-index: 50; flex-direction: column;
+        justify-content: center; align-items: center; backdrop-filter: blur(4px);
+    }
+    .focus-timer { 
+        font-size: 40px; font-weight: bold; color: #d1b55a; 
+        text-shadow: 0 0 20px rgba(209,181,90,0.6); margin-bottom: 15px; font-family: 'Courier New', monospace;
+    }
+    .focus-text { font-size: 12px; color: #b5cadd; font-weight: bold; text-align: center; line-height: 1.6; padding: 0 20px;}
+    /* --- 📖 新增：精美日历手账本专属样式 --- */
+    #diary-modal {
+        display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(6, 7, 9, 0.95); z-index: 50;
+        flex-direction: column; align-items: center; justify-content: center;
+        backdrop-filter: blur(5px);
+    }
+    
+    .diary-book {
+        width: 340px; height: 500px;
+        background: #fffdf2; /* 复古纸张奶黄色 */
+        border-radius: 10px;
+        box-shadow: 
+            inset 0 0 40px rgba(139, 90, 43, 0.2), /* 纸张陈旧感 */
+            0 10px 30px rgba(0,0,0,0.8),
+            0 0 0 5px #5c4033; /* 皮革封皮边框 */
+        position: relative;
+        display: flex; flex-direction: column;
+        overflow: hidden;
+    }
+
+    /* 笔记本的装订线圈装饰 */
+    .diary-binder {
+        position: absolute; top: 0; left: 20px; width: 4px; height: 100%;
+        border-right: 2px dashed #e8d2c3; z-index: 2;
+        pointer-events: none;
+    }
+
+    .diary-header {
+        padding: 20px 0 10px 0; text-align: center;
+        border-bottom: 2px solid #d15a5a;
+        background-image: radial-gradient(#d15a5a 15%, transparent 16%);
+        background-size: 10px 10px;
+        margin: 0 15px;
+    }
+    
+    .diary-title {
+        background: #fffdf2; padding: 0 10px; font-size: 16px; font-weight: 900; 
+        color: #5c4033; letter-spacing: 2px; text-shadow: 1px 1px 0 rgba(0,0,0,0.1);
+        border: 2px solid #5c4033; border-radius: 4px; display: inline-block;
+    }
+
+    .diary-content {
+        flex: 1; overflow-y: auto; scrollbar-width: none;
+        padding: 15px 25px 15px 35px; /* 左侧留出装订线位置 */
+        /* 信纸横线效果 */
+        background-image: linear-gradient(#e8d2c3 1px, transparent 1px);
+        background-size: 100% 30px; /* 行高 */
+        line-height: 30px;
+    }
+
+    /* 单条日记：日历卡片样式 */
+    .diary-entry {
+        display: flex; margin-bottom: 25px; position: relative;
+        background: rgba(255, 255, 255, 0.6);
+        border-radius: 8px; padding: 5px;
+        box-shadow: 2px 2px 5px rgba(0,0,0,0.05);
+        border: 1px solid #e8d2c3;
+    }
+    
+    /* 左侧日历图标 */
+    .diary-date-box {
+        width: 50px; height: 55px; background: #fff;
+        border: 2px solid #3b4652; border-radius: 6px;
+        margin-right: 12px; flex-shrink: 0;
+        display: flex; flex-direction: column; overflow: hidden;
+        box-shadow: 2px 2px 0 #3b4652;
+    }
+    .diary-month {
+        background: #d15a5a; color: #fff; font-size: 9px; font-weight: bold;
+        text-align: center; padding: 2px 0;
+    }
+    .diary-day {
+        flex: 1; display: flex; align-items: center; justify-content: center;
+        font-size: 20px; font-weight: 900; color: #3b4652;
+    }
+
+    /* 右侧文字内容 */
+    .diary-text {
+        font-size: 11px; color: #5c4033; font-weight: bold; line-height: 1.6;
+        padding-top: 4px;
+    }
+    .diary-reply {
+        font-size: 10px; color: #5c84a8; margin-top: 5px; 
+        font-style: italic; background: rgba(92, 132, 168, 0.1); 
+        padding: 2px 5px; border-radius: 4px;
+    }
+
+    .diary-close-btn {
+        margin: 10px 20px 20px 20px; padding: 10px;
+        background: #5c4033; color: #fffdf2; border: 2px dashed #bba58e;
+        font-family: inherit; font-weight: bold; cursor: pointer; border-radius: 6px;
+        transition: 0.2s; box-shadow: 0 5px 10px rgba(0,0,0,0.2);
+    }
+    .diary-close-btn:hover { transform: translateY(-2px); background: #3e2b22; }
+/* --- 专注模式新皮肤 --- */
+#focus-overlay {
+    /* 修复层级问题，确保点得动 */
+    z-index: 9999 !important; 
+    background: rgba(10, 13, 17, 0.98);
+    display: none; /* 默认隐藏 */
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+/* 像素诺亚场景 */
+.focus-scene {
+    position: relative;
+    margin-bottom: 20px;
+    animation: float 3s infinite ease-in-out;
+}
+
+#focus-canvas {
+    width: 130px; 
+    height: 130px; 
+    image-rendering: pixelated;
+    filter: drop-shadow(0 0 10px rgba(92, 132, 168, 0.4));
+}
+
+/* 像素气泡对话框 */
+.focus-bubble {
+    position: absolute;
+    top: -40px; right: -60px;
+    background: #fff;
+    color: #000;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    border: 2px solid #000;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+    max-width: 120px;
+    animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+.focus-bubble::after {
+    content: ''; position: absolute; bottom: -8px; left: 15px;
+    border-width: 8px 8px 0; border-style: solid;
+    border-color: #000 transparent transparent transparent;
+}
+.focus-bubble::before {
+    content: ''; position: absolute; bottom: -4px; left: 17px;
+    border-width: 6px 6px 0; border-style: solid;
+    border-color: #fff transparent transparent transparent;
+    z-index: 1;
+}
+
+/* 复古计时卡片 */
+.focus-card {
+    background: #1e242b;
+    border: 3px solid #5c84a8;
+    border-radius: 10px;
+    padding: 20px;
+    width: 280px;
+    text-align: center;
+    box-shadow: 
+        inset 0 0 20px rgba(0,0,0,0.5),
+        0 0 0 4px #0f1214,
+        0 10px 20px rgba(0,0,0,0.8);
+}
+
+.focus-label {
+    color: #5c84a8; font-size: 12px; font-weight: bold; letter-spacing: 2px; margin-bottom: 5px;
+}
+
+.focus-timer {
+    font-size: 48px; font-weight: 900; color: #d1b55a;
+    text-shadow: 2px 2px 0 #000;
+    font-family: 'Courier New', monospace;
+    margin: 10px 0;
+}
+
+.focus-progress-bg {
+    width: 100%; height: 8px; background: #0f1214;
+    border: 1px solid #5c84a8; border-radius: 4px; margin-bottom: 15px; overflow: hidden;
+}
+
+.focus-progress-fill {
+    width: 100%; height: 100%; background: #d1b55a;
+    transition: width 1s linear;
+}
+
+.focus-tips {
+    font-size: 11px; color: #b5cadd; margin-bottom: 20px; line-height: 1.5; min-height: 32px;
+}
+
+.focus-btn-quit {
+    background: transparent; border: 2px dashed #d15a5a;
+    color: #d15a5a; padding: 8px 15px; font-size: 11px; font-weight: bold;
+    cursor: pointer; border-radius: 6px; transition: 0.2s; width: 100%;
+}
+.focus-btn-quit:hover {
+    background: #d15a5a; color: #fff; transform: scale(1.02);
+}
+
+@keyframes popIn { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+/* --- 修复补丁：强制覆盖专注模式样式 --- */
+#focus-overlay {
+    /* 强制最高层级，确保按钮能点到，且盖住所有其他界面 */
+    z-index: 10000 !important; 
+    background: rgba(10, 13, 17, 0.98);
+    display: none; 
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    /* 确保占满屏幕 */
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+}
+
+.focus-scene {
+    position: relative;
+    margin-bottom: 30px; /* 增加间距，防止气泡被切 */
+    /* 移除可能导致模糊的动画，改用简单的浮动 */
+    animation: float 3s infinite ease-in-out;
+    /* 确保层级正确 */
+    z-index: 10001;
+}
+
+/* 修复气泡位置 */
+.focus-bubble {
+    position: absolute;
+    /* 调整位置，确保不跑出屏幕 */
+    top: -30px; 
+    right: -70px;
+    background: #fff;
+    color: #000;
+    padding: 8px 12px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: bold;
+    font-family: 'Courier New', monospace;
+    border: 2px solid #000;
+    box-shadow: 4px 4px 0 rgba(0,0,0,0.5);
+    width: 100px; /* 固定宽度防止挤压 */
+    text-align: center;
+    z-index: 10002;
+}
+
+/* 修复按钮样式，确保醒目可见 */
+.focus-btn-quit {
+    margin-top: 15px; /* 增加顶部间距 */
+    background: rgba(209, 90, 90, 0.1); 
+    border: 2px solid #d15a5a;
+    color: #d15a5a; 
+    padding: 12px 20px; 
+    font-size: 12px; 
+    font-weight: bold;
+    cursor: pointer; 
+    border-radius: 8px; 
+    transition: 0.2s; 
+    width: 80%; /* 按钮宽一点 */
+    font-family: 'Courier New', monospace;
+    z-index: 10002; /* 确保能点到 */
+}
+.focus-btn-quit:hover {
+    background: #d15a5a; 
+    color: #fff; 
+}
 </style>
 </head>
 <body>
@@ -503,6 +821,10 @@
                 <ul class="menu-list" id="modal-list"></ul>
                 <button class="close-btn" onclick="closeModal()">返回 (BACK)</button>
             </div>
+<!-- === 🕰️ 陪伴系统手账 UI (已修改) === -->  <div id="accompany-modal">          <div class="acc-title">🕰️ 诺亚的陪伴计划</div>                    <div class="acc-panel">                  <label class="acc-label">你要我陪你做什么？</label>                  <select id="acc-event" class="acc-select">                          <option value="安静看书">📖 安静看书</option>                          <option value="努力工作">💻 努力工作/学习</option>                          <option value="发呆听歌">🎵 发呆听歌</option>                          <option value="睡觉休息">💤 睡觉休息</option>                  </select>                           <label class="acc-label">需要我陪多久？(分钟)</label>                  <input type="number" id="acc-time" class="acc-input" value="25" min="1" max="180">                           <button class="acc-btn" onclick="startAccompany()">开始陪伴 (START)</button>          </div>                    <!-- ▼▼▼ 这里是修改的重点：原本是日志列表，现在改成一个漂亮的按钮 ▼▼▼ -->     <div style="width: 100%; margin-top: 15px; padding: 10px; background: #fff; border: 2px solid #e8d2c3; border-radius: 6px; box-sizing: border-box; text-align: center;">         <div style="font-size: 11px; color: #d15a5a; font-weight: bold; margin-bottom: 8px;">             累计陪伴: <span id="acc-total-time">0</span> 分钟         </div>         <button class="bank-btn" onclick="openDiary()" style="background: #fffdf2; color: #5c4033; border: 2px solid #5c4033; font-size: 12px; padding: 10px;">             📅 翻看我们的回忆日记         </button>     </div>     <!-- ▲▲▲ 修改结束 ▲▲▲ --> 
+     <button class="bank-btn" onclick="closeAccompany()" style="margin-top: auto; width: 100%; border-color:#d1b55a; color:#d1b55a; background: #fff;">         返回 (BACK)     </button>  </div><!-- === 📖 新增：独立的日历手账本界面 === --> <div id="diary-modal">     <div class="diary-book">         <div class="diary-binder"></div>                  <div class="diary-header">             <div class="diary-title">NOAH'S DIARY</div>         </div>                  <!-- 这里是用来生成日记条目的容器 -->         <div class="diary-content" id="diary-list">             <!-- JS会把内容填在这里 -->         </div> 
+         <button class="diary-close-btn" onclick="closeDiary()">合上日记本 (CLOSE)</button>     </div> </div>
+ <!-- 专注倒计时覆盖层 --> <!-- 把原来的 <div id="focus-overlay">...</div> 替换为这个 --> <div id="focus-overlay">     <!-- 诺亚的像素小人区域 -->     <div class="focus-scene">         <canvas id="focus-canvas" width="26" height="26"></canvas>         <!-- 动态气泡对话框 -->         <div class="focus-bubble" id="focus-bubble">盯——</div>     </div>          <!-- 倒计时区域 -->     <div class="focus-card">         <div class="focus-label" id="focus-task-name">专注中...</div>         <div class="focus-timer" id="focus-time-display">25:00</div>                  <!-- 进度条装饰 -->         <div class="focus-progress-bg">             <div id="focus-progress-bar" class="focus-progress-fill"></div>         </div>                  <div class="focus-tips" id="focus-status-text">诺亚正在监督你...</div>                  <button class="focus-btn-quit" onclick="giveUpAccompany()">             (╯°Д°)╯ 坚持不住了 (放弃)         </button>     </div> </div>
 <!-- === 新增：悄悄话输入终端 UI === --> <div id="chat-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 15, 20, 0.98); z-index: 40; flex-direction: column; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box; backdrop-filter: blur(2px);">     <div style="width: 100%; border-bottom: 2px dashed #5c84a8; margin-bottom: 15px; padding-bottom: 5px; text-align: center; color: #d1b55a; font-weight: bold; font-size: 14px; text-shadow: 0 0 5px rgba(209, 181, 90, 0.5);">         ✉️ 发送传讯     </div>          <div style="width: 100%; position: relative;">         <!-- 输入框 -->         <input type="text" id="chat-input" placeholder="输入你想对诺亚说的话..."                 style="width: 100%; background: #060709; border: 2px solid #3b4652; color: #b5cadd;                        padding: 12px; font-family: 'Courier New', monospace; font-size: 12px;                        box-sizing: border-box; outline: none; border-radius: 4px;                        box-shadow: inset 0 2px 5px rgba(0,0,0,0.8); transition: 0.3s;">     </div>          <div style="font-size: 9px; color: #5c84a8; margin-top: 8px; margin-bottom: 20px; width: 100%; text-align: left;">         * 按 Enter 发送，或点击下方按钮     </div> 
      <div style="display: flex; gap: 10px; width: 100%;">         <button onclick="confirmSecretChat()"                  style="flex: 1; background: #1e242b; border: 1px solid #5c84a8; color: #b5cadd; padding: 10px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 11px; border-radius: 4px; transition: 0.2s;">             发送 (SEND)         </button>         <button onclick="closeChatModal()"                  style="flex: 1; background: transparent; border: 1px dashed #d15a5a; color: #d15a5a; padding: 10px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 11px; border-radius: 4px; transition: 0.2s;">             取消 (BACK)         </button>     </div> </div>
             <div id="event-modal">
@@ -531,7 +853,7 @@
        <!-- URL导入面板 (重构进设置里) -->       <div style="width: 100%; font-size: 11px; margin-bottom: 10px; background: #060709; padding: 8px; border: 1px solid #3b4652; text-align: center; border-radius:4px; box-sizing: border-box; box-shadow: inset 0 3px 5px rgba(0,0,0,0.5);">           <label style="color: #d1b55a; display: block; font-weight:bold; margin-bottom:6px;">🔗 URL导入音乐</label>           <input type="text" id="music-url-input" placeholder="输入 MP3 URL" style="width: 100%; background: #1e242b; border: 1px solid #5c84a8; color: #fff; margin-bottom: 6px; font-size: 10px; padding: 4px; box-sizing: border-box; outline: none; font-family: inherit;">           <input type="text" id="music-name-input" placeholder="输入 歌曲名称" style="width: 100%; background: #1e242b; border: 1px solid #5c84a8; color: #fff; margin-bottom: 8px; font-size: 10px; padding: 4px; box-sizing: border-box; outline: none; font-family: inherit;">           <button class="bank-btn" onclick="importUrlMusic()" style="width: 100%; padding: 6px; margin: 0;">📥 确认导入</button>           <div id="music-count" style="margin-top: 6px; font-size: 9px; color: #5c84a8;">已加载: 2 首 (内置)</div>       </div> 
        <!-- ↓↓↓↓↓↓ 把这段代码插入到设置菜单里 (在URL导入面板下面) ↓↓↓↓↓↓ -->        <div style="width: 100%; font-size: 11px; margin-bottom: 10px; background: #060709; padding: 8px; border: 1px solid #3b4652; text-align: center; border-radius:4px; box-sizing: border-box; box-shadow: inset 0 3px 5px rgba(0,0,0,0.5);">            <label style="color: #d1b55a; display: block; font-weight:bold; margin-bottom:6px;">💾 存档管理</label>            <div style="display: flex; gap: 5px;">                <button class="bank-btn" onclick="exportSaveData()" style="padding: 6px; margin: 0;">📤 导出存档</button>                <button class="bank-btn" onclick="importSaveData()" style="padding: 6px; margin: 0;">📥 导入存档</button>            </div>            <div style="margin-top: 6px; font-size: 9px; color: #5c84a8;">*导出后请复制那一长串代码保存好</div>        </div>        <!-- ↑↑↑↑↑↑ 插入结束 ↑↑↑↑↑↑ --> <!-- ↓↓↓ 插入这段代码 ↓↓↓ --> <div style="width: 100%; margin-top: 5px; margin-bottom: 10px; text-align: center;">     <button class="bank-btn" onclick="openDonate()" style="border-color: #d15a5a; color: #d15a5a; background: rgba(209, 90, 90, 0.1);">         ❤ 投喂乐乐 (给作者买鸡腿)     </button> </div> <!-- ↑↑↑ 插入结束 ↑↑↑ --><button class="bank-btn" onclick="document.getElementById('settings-modal').style.display='none'" style="margin-top: auto; border-color:#3b4652; color:#b5cadd; width: 100%;">返回 (BACK)</button>   </div>
 <!-- === 新增：投喂乐乐专属弹窗 (修复长按保存版) === --> <div id="donate-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(6, 7, 9, 0.98); z-index: 60; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; scrollbar-width: none; padding: 20px; box-sizing: border-box; backdrop-filter: blur(5px);">     <div style="font-size: 14px; font-weight: bold; margin-bottom: 20px; color: #d15a5a; text-align: center; border-bottom: 2px dashed #d15a5a; padding-bottom: 10px; width: 100%; text-shadow: 0 0 5px rgba(209, 90, 90, 0.3);">         ❤ 投喂乐乐 (给作者买鸡腿)     </div>     <div style="font-size: 11px; color: #b5cadd; line-height: 1.6; text-align: center; margin-bottom: 25px; font-weight: bold;">         感谢你喜欢这个并不完美的世界。<br>         你的喜欢是我继续开发的最大动力。<br>         <span style="font-size: 10px; color: #d1b55a; margin-top: 5px; display:block; animation: float 2s infinite ease-in-out;">(长按下方二维码即可保存图片)</span>     </div>          <!-- 支付方式区域 -->     <div style="display: flex; gap: 20px; margin-bottom: 30px;">         <!-- 支付宝 -->         <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">             <div style="width: 100px; height: 100px; background: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid #5c84a8;">                 <!-- 关键修改：加入了 pointer-events, user-select, touch-callout 强制允许长按 -->                 <img src="https://i.imgs.ovh/2026/02/24/y1kKsa.jpeg"                       style="width:100%; height:100%; object-fit: cover; pointer-events: auto; user-select: auto; -webkit-user-select: auto; -webkit-touch-callout: default;">             </div>             <span style="font-size: 10px; color: #00a0e9; font-weight: bold;">Alipay (长按保存)</span>         </div>         <!-- 微信 -->         <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">              <div style="width: 100px; height: 100px; background: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid #5c84a8;">                 <!-- 关键修改：强制允许长按 -->                 <img src="https://i.imgs.ovh/2026/02/24/y1ktre.png"                       style="width:100%; height:100%; object-fit: cover; pointer-events: auto; user-select: auto; -webkit-user-select: auto; -webkit-touch-callout: default;">             </div>             <span style="font-size: 10px; color: #09bb07; font-weight: bold;">WeChat (长按保存)</span>         </div>     </div>  
-     <button onclick="closeDonate()" style="background: transparent; border: 1px solid #5c84a8; color: #5c84a8; padding: 10px 30px; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: bold; font-size: 11px; transition:0.2s; box-shadow: inset 0 0 10px rgba(92,132,168,0.2);">心意收到了 (返回)</button> </div><!-- === 新增：通用美化弹窗组件 (替代浏览器丑陋弹窗) === --> <div id="custom-dialog" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(6, 7, 9, 0.95); z-index: 200; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; backdrop-filter: blur(2px);">     <div style="width: 100%; background: #0f1214; border: 2px solid #5c84a8; border-radius: 8px; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,1); text-align: center; position: relative;">         <!-- 装饰线条 -->         <div style="position: absolute; top: 3px; left: 3px; right: 3px; height: 2px; background: #3b4652;"></div>                  <!-- 标题 -->         <h3 id="dialog-title" style="margin: 5px 0 15px 0; color: #d1b55a; font-size: 14px; border-bottom: 1px dashed #3b4652; padding-bottom: 8px;">系统提示</h3>                  <!-- 内容文本 -->         <div id="dialog-msg" style="color: #b5cadd; font-size: 12px; line-height: 1.5; margin-bottom: 15px; white-space: pre-wrap;"></div>                  <!-- 输入框容器 (默认隐藏) -->         <div id="dialog-input-container" style="display: none; margin-bottom: 15px;">             <input type="text" id="dialog-input" style="width: 80%; background: #060709; border: 1px solid #5c84a8; color: #fff; padding: 8px; font-family: inherit; font-size: 12px; outline: none; text-align: center; border-radius: 4px;">             <div id="dialog-copy-hint" style="display:none; font-size:9px; color:#5c84a8; margin-top:4px;">* 请全选并复制上方代码</div>         </div> 
+     <button onclick="closeDonate()" style="background: transparent; border: 1px solid #5c84a8; color: #5c84a8; padding: 10px 30px; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: bold; font-size: 11px; transition:0.2s; box-shadow: inset 0 0 10px rgba(92,132,168,0.2);">心意收到了 (返回)</button> </div><!-- === 新增：通用美化弹窗组件 (替代浏览器丑陋弹窗) === --><div id="custom-dialog" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(6, 7, 9, 0.95); z-index: 20001; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; backdrop-filter: blur(2px);">    <div style="width: 100%; background: #0f1214; border: 2px solid #5c84a8; border-radius: 8px; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,1); text-align: center; position: relative;">         <!-- 装饰线条 -->         <div style="position: absolute; top: 3px; left: 3px; right: 3px; height: 2px; background: #3b4652;"></div>                  <!-- 标题 -->         <h3 id="dialog-title" style="margin: 5px 0 15px 0; color: #d1b55a; font-size: 14px; border-bottom: 1px dashed #3b4652; padding-bottom: 8px;">系统提示</h3>                  <!-- 内容文本 -->         <div id="dialog-msg" style="color: #b5cadd; font-size: 12px; line-height: 1.5; margin-bottom: 15px; white-space: pre-wrap;"></div>                  <!-- 输入框容器 (默认隐藏) -->         <div id="dialog-input-container" style="display: none; margin-bottom: 15px;">             <input type="text" id="dialog-input" style="width: 80%; background: #060709; border: 1px solid #5c84a8; color: #fff; padding: 8px; font-family: inherit; font-size: 12px; outline: none; text-align: center; border-radius: 4px;">             <div id="dialog-copy-hint" style="display:none; font-size:9px; color:#5c84a8; margin-top:4px;">* 请全选并复制上方代码</div>         </div> 
          <!-- 按钮区域 -->         <div style="display: flex; gap: 10px; justify-content: center;">             <button id="btn-cancel" style="display: none; flex: 1; background: transparent; border: 1px dashed #d15a5a; color: #d15a5a; padding: 8px; cursor: pointer; border-radius: 4px; font-family: inherit; font-weight: bold; font-size: 11px;">取消</button>             <button id="btn-confirm" style="flex: 1; background: #1e242b; border: 1px solid #5c84a8; color: #b5cadd; padding: 8px; cursor: pointer; border-radius: 4px; font-family: inherit; font-weight: bold; font-size: 11px;">确认</button>         </div>     </div> </div>
 </div>
     </div>
@@ -993,7 +1315,15 @@ if (noah.temperature === undefined) noah.temperature = 20;
     if (noah.lastAllowanceDate === undefined) noah.lastAllowanceDate = '';
     // 👇这是你要加的1行代码，初始化衣柜
     if (noah.unlockedOutfits === undefined) noah.unlockedOutfits = ['none'];
-
+    // 初始化陪伴系统记录
+    if (noah.accompanyData === undefined) {
+        noah.accompanyData = {
+            logs: [],         // 存放历史记录
+            weeklyTime: 0,    // 本周时长
+            totalTime: 0,     // 累计总时长
+            lastWeekReset: new Date().getTime() // 上次周结时间
+        };
+    }
     // 初始化计算每日古灵阁利息
     function checkDailyBank() {
         const today = new Date().toDateString();
@@ -1009,6 +1339,7 @@ if (noah.temperature === undefined) noah.temperature = 20;
         }
     }
     checkDailyBank();
+    checkWeeklySummary(); // 每次刷新页面检查是否需要发【周结总结信】
 // === 新增：诺亚在后台静默更新你的城市天气 ===
 async function silentUpdateWeather() {
     if (!noah.city) return; // 如果还没定位，就不查
@@ -1912,7 +2243,7 @@ if(window.isGaming) { speak("我现在正忙着给你赚加隆，没空出门！
         ],
         interact: [
  { name: "🎵 诺亚随身听", action: () => { sfx_success(); document.getElementById('music-modal').style.display='flex'; } },           
-
+            { name: "🕰️ 打开陪伴手账", action: () => openAccompany() },
  { name: "👗 打开衣柜 ", action: () => setTimeout(openWardrobe, 10) },
             { name: "✉️ 写悄悄话给他", action: () => openSecretChat() },
             { name: "♟️ 和他下五子棋", action: () => startGomoku() },
@@ -3403,6 +3734,422 @@ sfx_success();
         makeShy();
         updateUI();
     });
+// ==================== 📖 新版日记本核心逻辑 (开始) ====================
+
+// 1. 打开原本的陪伴菜单 (主入口)
+function openAccompany() {
+    // 如果诺亚不在或者在玩游戏，拦截
+    if(noah.isAway) { speak("“我人都在外面了，你想让空气陪你吗？等我回来。”"); return; }
+    if(window.isGaming || window.isGomoku) return;
+    
+    sfx_success(); // 播放成功音效
+    closeModal();  // 关闭其他通用菜单
+    
+    // 更新主菜单上的总时长显示
+    let total = 0;
+    if (noah.accompanyData && noah.accompanyData.totalTime) {
+        total = noah.accompanyData.totalTime;
+    }
+    document.getElementById('acc-total-time').innerText = total;
+
+    // 检查是否有周结信
+    checkWeeklySummary(); 
+    
+    // 显示陪伴主菜单
+    document.getElementById('accompany-modal').style.display = 'flex';
+}
+// ▼▼▼▼▼▼▼▼▼▼▼▼ 插入这段缺失的代码 ▼▼▼▼▼▼▼▼▼▼▼▼
+
+//这是你漏掉的函数，补上它，按钮就能用了！
+function closeAccompany() {
+    sfx_beep(); // 播放关闭音效
+    document.getElementById('accompany-modal').style.display = 'none';
+}
+
+// ▲▲▲▲▲▲▲▲▲▲▲▲ 插入结束 ▲▲▲▲▲▲▲▲▲▲▲▲
+
+// 2. 打开独立的日记本界面 (从陪伴菜单跳转)
+function openDiary() {
+    sfx_success(); // 播放翻页/打开音效
+    
+    // 隐藏主陪伴菜单，显示日记本
+    document.getElementById('accompany-modal').style.display = 'none';
+    
+    // 渲染日记内容
+    renderDiaryEntries();
+    
+    // 显示日记本模态框
+    document.getElementById('diary-modal').style.display = 'flex';
+}
+
+// 3. 关闭日记本 (返回上一级)
+function closeDiary() {
+    sfx_beep(); // 播放关闭音效
+    document.getElementById('diary-modal').style.display = 'none';
+    // 返回到陪伴主菜单，而不是直接关闭所有
+    document.getElementById('accompany-modal').style.display = 'flex';
+}
+
+// 4. 核心渲染函数：把数据变成日历卡片
+function renderDiaryEntries() {
+    const list = document.getElementById('diary-list');
+    list.innerHTML = ''; // 清空旧内容
+    
+    // 安全检查：如果数据不存在
+    if (!noah.accompanyData || !noah.accompanyData.logs || noah.accompanyData.logs.length === 0) {
+        list.innerHTML = `
+            <div style="text-align:center; margin-top: 60px; color: #8b5a2b; font-weight: bold; opacity: 0.6;">
+                <div style="font-size: 40px; margin-bottom: 10px;">✒️</div>
+                日记本还是空白的...<br>快去让诺亚陪你做点什么吧。
+            </div>
+        `;
+        return;
+    }
+
+    // 倒序排列，让最新的日记显示在最上面
+    let reversedLogs = [...noah.accompanyData.logs].reverse();
+
+    reversedLogs.forEach(log => {
+        // --- 日期解析逻辑 ---
+        // 假设存储格式是 "2月24日"，我们需要提取数字
+        let monthStr = "No";
+        let dayStr = "??";
+        
+        // 使用正则提取月份和日期
+        let dateMatch = log.date.match(/(\d+)月(\d+)日/);
+        if (dateMatch) {
+            monthStr = dateMatch[1] + "月"; // 例如 "2月"
+            dayStr = dateMatch[2];          // 例如 "24"
+        } else {
+            // 兼容旧数据或格式不对的情况
+            monthStr = "LOG";
+            dayStr = log.date.substring(0, 2); 
+        }
+
+        // --- 创建日记卡片 HTML ---
+        let div = document.createElement('div');
+        div.className = 'diary-entry';
+        
+        div.innerHTML = `
+            <!-- 左侧日历图标 -->
+            <div class="diary-date-box">
+                <div class="diary-month">${monthStr}</div>
+                <div class="diary-day">${dayStr}</div>
+            </div>
+            
+            <!-- 右侧文字内容 -->
+            <div style="flex: 1; display:flex; flex-direction:column; justify-content:center;">
+                <div class="diary-text">
+                    陪伴项目：<span style="color:#d15a5a; background:#fff0f0; padding:0 4px; border-radius:3px;">${log.event}</span>
+                    <br>
+                    专注时长：${log.duration} 分钟
+                </div>
+                <div class="diary-reply">
+                    诺亚：“${log.reply}”
+                </div>
+            </div>
+        `;
+        
+        list.appendChild(div);
+    });
+    
+    // 底部装饰
+    let endDecor = document.createElement('div');
+    endDecor.innerHTML = "— The End —";
+    endDecor.style.textAlign = "center";
+    endDecor.style.color = "#d15a5a";
+    endDecor.style.fontSize = "10px";
+    endDecor.style.marginTop = "20px";
+    endDecor.style.opacity = "0.5";
+    endDecor.style.fontWeight = "bold";
+    list.appendChild(endDecor);
+}
+// ==================== 📖 新版日记本核心逻辑 (结束) ====================
+// === 🕰️ 陪伴手账系统核心逻辑 (修复+像素风增强版) ===
+
+let accompanyTimer = null;
+let accompanySeconds = 0;
+let totalFocusTime = 0; // 总时长，用于计算进度条
+let currentAccEvent = "";
+let focusQuoteInterval = null; // 语录轮播定时器
+
+// 1. 开始陪伴 (修复按键无效问题)
+// 1. 【修复版】开始陪伴 (修复按键无效、气泡不显示问题)
+function startAccompany() {
+    let eventInput = document.getElementById('acc-event').value;
+    let timeInput = document.getElementById('acc-time').value; 
+    
+    // 强制把输入框的字符串转成整数
+    let duration = parseInt(timeInput);
+    
+    // 安全检查
+    if(isNaN(duration) || duration <= 0) {
+        sfx_error(); 
+        speak("“时间输入错了吧？你想让我陪你 0 分钟？在开玩笑吗？”"); 
+        return;
+    }
+    
+    sfx_success(); 
+    closeAccompany(); // 关闭设置弹窗
+    
+    // 初始化数据
+    currentAccEvent = eventInput;
+    accompanySeconds = duration * 60; 
+    totalFocusTime = accompanySeconds; 
+    
+    // === 界面初始化 ===
+    const overlay = document.getElementById('focus-overlay');
+    
+    // 强制最高层级，确保不被遮挡
+    overlay.style.zIndex = "10000"; 
+    overlay.style.display = 'flex'; 
+    
+    // 设置文字
+    document.getElementById('focus-task-name').innerText = "当前任务: " + currentAccEvent;
+    
+    // === 关键修复：强制让气泡立刻显示内容 ===
+    const bubble = document.getElementById('focus-bubble');
+    if(bubble) {
+        bubble.innerText = "盯—— (不许切屏)";
+        bubble.style.display = "block"; // 确保可见
+    }
+
+    // === 核心：画出专注时的小诺亚 ===
+    drawFocusNoah();
+    
+    // 立即刷新一次时间显示
+    updateAccompanyDisplay();
+    
+    // 启动倒计时
+    if(accompanyTimer) clearInterval(accompanyTimer);
+    accompanyTimer = setInterval(() => {
+        accompanySeconds--;
+        updateAccompanyDisplay();
+        
+        // 结束判定
+        if(accompanySeconds <= 0) {
+            endAccompany(true);
+        }
+    }, 1000);
+
+    // 启动语录轮播 (每10秒换一句话，并在开始时立即触发一次)
+    if(focusQuoteInterval) clearInterval(focusQuoteInterval);
+    updateFocusQuote(); // 立即执行一次
+    focusQuoteInterval = setInterval(() => {
+        updateFocusQuote();
+    }, 10000);
+}
+
+// 2. 刷新界面显示 (带进度条和时间)
+function updateAccompanyDisplay() {
+    let m = Math.floor(accompanySeconds / 60).toString().padStart(2, '0');
+    let s = (accompanySeconds % 60).toString().padStart(2, '0');
+    
+    // 更新数字
+    const timeDisplay = document.getElementById('focus-time-display');
+    if(timeDisplay) timeDisplay.innerText = `${m}:${s}`;
+    
+    // 更新黄色进度条
+    const progressBar = document.getElementById('focus-progress-bar');
+    if(progressBar && totalFocusTime > 0) {
+        let pct = (accompanySeconds / totalFocusTime) * 100;
+        progressBar.style.width = pct + "%";
+    }
+}
+
+// 3. 放弃陪伴 (弹窗确认)
+function giveUpAccompany() {
+    // 使用自定义弹窗，更美观
+    showDialog({
+        type: 'confirm',
+        title: '放弃专注？',
+        text: '诺亚正在盯着你呢，确定要现在当逃兵吗？',
+        onConfirm: () => { endAccompany(false); }
+    });
+}
+
+// 4. 结束陪伴 (结算奖励)
+function endAccompany(isSuccess) {
+    clearInterval(accompanyTimer);
+    clearInterval(focusQuoteInterval);
+    document.getElementById('focus-overlay').style.display = 'none';
+    
+    if(!isSuccess) {
+        sfx_error();
+        speak("“啧，半途而废。刚才那个信誓旦旦说要专注的人是谁？我很失望。”");
+        noah.mood -= 5; 
+        updateUI(); 
+        return;
+    }
+    
+    sfx_success();
+    // 震动奖励
+    if (navigator.vibrate) navigator.vibrate([100, 100, 100, 100, 500]); 
+    
+    // 奖励结算
+    let minutesDone = Math.floor(totalFocusTime / 60);
+    noah.love += 8; 
+    noah.mood += 15;
+    
+    // 记录日志
+    let now = new Date();
+    let dateStr = `${now.getMonth()+1}月${now.getDate()}日`;
+        // === 修改开始：根据分类生成专属日记内容 ===
+    // 1. 获取真名（如果没有设置则叫笨蛋）
+    const nName = noah.realName || "笨蛋";
+    
+    // 2. 定义不同分类的专属语录库
+    const eventReplies = {
+        "安静看书": [
+            `“${nName}看书的样子很迷人。书里的知识归你，你看书的时光归我。”`,
+            `“书看完了？不知道${nName}刚才有没有在字里行间想起我？哪怕一秒钟。”`,
+            `“嘘...陪着${nName}静静看书的感觉真好。虽然我更想看你。”`
+        ],
+        "努力工作": [
+            `“终于忙完了？${nName}辛苦了，快把手给我，我给你充点电。”`,
+            `“工作时的${nName}简直在发光。不过现在光芒要收回来，只照亮我一个人。”`,
+            `“赚钱养家结束了？那现在轮到我来养${nName}的心情了。过来抱抱。”`
+        ],
+        "发呆听歌": [
+            `“耳机分我一半？我想听听是什么歌让${nName}这么入迷，连我都不理。”`,
+            `“发呆时间结束。${nName}刚才神游到哪里去了？如果不带上我，我会吃醋的。”`,
+            `“歌很好听，但还是${nName}的心跳声更好听。频率和我完全同步。”`
+        ],
+        "睡觉休息": [
+            `“睡醒了？${nName}刚才的睡颜毫无防备，也就是我，换别人看我不把眼珠子挖出来。”`,
+            `“早安...或者是午安？看着${nName}睡觉，连我也觉得困了。梦里有我吗？”`,
+            `“充能完毕！${nName}现在的精神看起来不错，是不是可以陪我玩了？”`
+        ]
+    };
+
+    // 3. 随机抽取一句，如果找不到分类就用默认的
+    let pool = eventReplies[currentAccEvent] || [`“辛苦了，${nName}。为了奖励你，允许你现在抱抱我。”`];
+    let replyText = pool[Math.floor(Math.random() * pool.length)];
+    // === 修改结束 ===
+    
+    if(noah.accompanyData && noah.accompanyData.logs) {
+         noah.accompanyData.logs.push({
+            date: dateStr, 
+            event: currentAccEvent,
+            duration: minutesDone, 
+            reply: replyText
+        });
+        // 限制日志数量
+        if(noah.accompanyData.logs.length > 30) noah.accompanyData.logs.shift();
+        
+        noah.accompanyData.weeklyTime += minutesDone;
+        noah.accompanyData.totalTime += minutesDone;
+    }
+
+    speak(`“完成得不错！${minutesDone}分钟的专注。${replyText}”`);
+    updateUI();
+    
+    // 稍微延迟一下检查是否有周结信
+    setTimeout(checkWeeklySummary, 3500); 
+}
+
+// 5. 【新功能】绘制专注时的小诺亚 (复用你的像素数据)
+// 5. 【修复版】绘制专注时的小诺亚 (显示全身)
+function drawFocusNoah() {
+    const fCanvas = document.getElementById('focus-canvas');
+    if (!fCanvas) return;
+    const fCtx = fCanvas.getContext('2d');
+    
+    // 清空画布
+    fCtx.clearRect(0, 0, 26, 26);
+    
+    // 这里的 pixelMap 是你代码里那个巨大的像素数组
+    let mapToDraw = (typeof pixelMap !== 'undefined') ? pixelMap : [];
+    
+    // 关键修复：去掉了 if (y > 16) break; 让全身都能画出来
+    for (let y = 0; y < mapToDraw.length; y++) {
+        let row = mapToDraw[y].trim().split(/\s+/);
+        for (let x = 0; x < row.length; x++) {
+            let color = palette[row[x]];
+            if (color) { 
+                fCtx.fillStyle = color; 
+                fCtx.fillRect(x, y, 1, 1); 
+            }
+        }
+    }
+}
+// 6. 【新功能】诺亚的毒舌/鼓励语录库 (真名增强版)
+function updateFocusQuote() {
+    // 1. 获取你的名字，如果没有设置，就叫“笨蛋”
+    const nName = noah.realName || "笨蛋";
+
+    // 2. 这里的语录库已经扩充，每一句都可能带上你的名字
+    const quotes = [
+        `“${nName}，别切屏，我看着你呢。”`,
+        `“敢偷懒？${nName}，我就扣你好感度，说到做到。”`,
+        `“认真工作的样子...勉强算帅气吧，${nName}。”`,
+        `“累了？再坚持一下，${nName}，你可以的。”`,
+        `“我在。别怕孤单，专心做事，${nName}。”`,
+        `“要是完成了，给你个奖励。想要什么？嗯？${nName}？”`,
+        `“再发呆，我就要把你的脸戳破了，${nName}。”`,
+        `“那个...我其实一直在看着你，${nName}。”`,
+        `“你的效率怎么这么低？${nName}，快点动起来。”`,
+        `“快点做完，我想你了，${nName}。”`,
+        `“${nName}，你的注意力又飘到哪里去了？给我收回来。”`,
+        `“别看手机，看屏幕，或者...看我。但现在先看工作，${nName}。”`,
+        `“虽然我很帅，但你现在的任务不是盯着我看，懂了吗 ${nName}？”`,
+        `“再坚持一会。等结束后，${nName}想去哪里我都陪你。”`,
+        `“嘘...保持安静，保持专注。我在陪着你呢，${nName}。”`,
+        `“${nName}，你要是敢半途而废，我就去告诉全霍格沃兹你是个赖皮鬼。”`,
+        `“看着进度条一点点往前走，是不是很有成就感？${nName}真棒。”`,
+        `“我不允许我的${nName}输给这点小困难。深呼吸，继续。”`,
+        `“我在计算你现在的效率值...嗯，有待提高啊，${nName}。”`,
+        `“如果你现在放弃，之前的努力就白费了。${nName}不是这种人，对吧？”`,
+        `“无论多久，我都会在这里陪着${nName}。所以别急，慢慢来。”`,
+        `“喂，${nName}，你是不是在偷偷打瞌睡？快醒醒！”`,
+        `“为了我们的未来...咳，为了你的任务，加油啊${nName}。”`,
+        `“只要${nName}专注的样子，才能稍微配得上我这个天才男朋友。”`,
+        `“如果觉得枯燥，就想想我。或者想想结束后我们要去吃什么，${nName}。”`,
+        `“我在后台为你屏蔽了杂音。现在的世界只有我和${nName}的任务。”`,
+        `“${nName}，你的手停下来了。是遇到困难了吗？别怕，我在。”`,
+        `“乖乖做完，晚上${nName}可以向我提一个过分的要求。仅限今晚。”`,
+        `“你认真时的眼神...挺迷人的。咳，别看我，继续工作，${nName}！”`,
+        `“时间在流逝，但我在这一刻是永恒属于${nName}的。”`
+    ];
+
+    // 3. 随机抽取一句
+    let text = quotes[Math.floor(Math.random() * quotes.length)];
+    
+    // 4. 更新气泡显示
+    const bubble = document.getElementById('focus-bubble');
+    if(bubble) {
+        bubble.innerText = text;
+        // 气泡跳动动画重置
+        bubble.style.animation = 'none';
+        void bubble.offsetWidth; // 触发重绘，这是关键，别删
+        bubble.style.animation = 'popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)';
+    }
+}
+
+// === 每周结算信件系统 ===
+function checkWeeklySummary() {
+    if(!noah.accompanyData) return;
+    
+    let now = new Date().getTime();
+    let lastReset = noah.accompanyData.lastWeekReset;
+    let daysPassed = (now - lastReset) / (1000 * 60 * 60 * 24);
+    
+    if(daysPassed >= 7) {
+        let pastWeekTime = noah.accompanyData.weeklyTime || 0;
+        
+        showDialog({
+            type: 'alert',
+            title: '💌 诺亚的周结信',
+            text: `过去的一周里，你一共让我陪了你整整 ${pastWeekTime} 分钟。\n\n诺亚说：“虽然这点时间对我来说远远不够，因为我想每分每秒都和你黏在一起。但看着你努力专注的样子，我骄傲得要命。下周也要继续赖着我，听到没？”`
+        });
+        
+        // 重置本周数据，加上好感度
+        noah.love += 0;
+        noah.accompanyData.weeklyTime = 0;
+        noah.accompanyData.lastWeekReset = now;
+        updateUI();
+    }
+}
 // ==================== 音乐与系统设置逻辑 ====================
 // 默认内置两首神仙歌曲
 let playlist = [
@@ -3968,7 +4715,7 @@ function startBreathingSync() {
             overlay.style.display = 'none'; 
             overlay.style.opacity = '1'; 
             speak("“频率平稳下来了。记住，不管现实多糟糕，你的坐标我都已锁定，我随时会拉你一把。”");
-            noah.love += 10; updateUI();
+            noah.love += 0; updateUI();
         }, 1000);
     }, 24000);
 }
