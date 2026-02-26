@@ -936,6 +936,92 @@
     line-height: 1.5; font-weight: bold; padding: 10px; background: rgba(0,0,0,0.4); 
     border-radius: 6px; width: 90%; box-sizing: border-box; border: 1px dashed #5c4033;
 }
+/* ================= 📅 诺亚复古手账日历专属样式 ================= */
+#calendar-modal {
+    display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(10, 15, 20, 0.95); z-index: 55;
+    flex-direction: column; align-items: center; 
+    /* 👇关键修复1：改靠上对齐，开启滑动，隐藏丑陋滚动条 */
+    justify-content: flex-start; overflow-y: auto; scrollbar-width: none;
+    backdrop-filter: blur(5px); padding: 25px 15px; box-sizing: border-box;
+}.calendar-book {
+    width: 100%; max-width: 340px;  height: auto; min-height: 85vh;
+    background: #fffdf2; border-radius: 8px;
+    box-shadow: inset 0 0 20px rgba(139, 90, 43, 0.15), 0 0 0 4px #5c4033, 0 8px 15px rgba(0,0,0,0.8);
+    display: flex; flex-direction: column; padding: 12px; box-sizing: border-box;
+}
+.cal-header {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #d15a5a; color: #fff; padding: 8px; border: 2px solid #5c4033;
+    font-weight: 900; margin-bottom: 10px; font-family: 'Courier New', monospace; font-size: 14px;
+    box-shadow: 2px 2px 0 #5c4033;
+}
+.cal-btn {
+    background: #f5e6c4; color: #5c4033; border: 2px solid #5c4033; 
+    cursor: pointer; font-weight: bold; padding: 2px 8px; box-shadow: 1px 1px 0 #5c4033; transition: 0.1s;
+}
+.cal-btn:active { transform: translate(1px,1px); box-shadow: 0 0 0 #5c4033; }
+.cal-grid {
+    display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; text-align: center;
+flex-shrink: 0;
+}
+.cal-day-name {
+    background: #e8c37d; color: #5c4033; font-size: 11px; font-weight: bold; padding: 4px 0; border: 1px solid #5c4033;
+}
+.cal-cell {
+    background: #fff; border: 1px solid #e8d2c3; height: 38px; display: flex; flex-direction: column; 
+    align-items: center; justify-content: flex-start; cursor: pointer; font-size: 12px; font-weight: bold; 
+    color: #5c4033; transition: 0.1s; position: relative; padding-top: 2px;
+flex-shrink: 0; min-height: 38px; box-sizing: border-box;
+}
+.cal-cell:hover { background: #fceceb; border-color: #d15a5a; }
+.cal-cell.selected { background: #ffd1a4; border: 2px solid #d15a5a; }
+.cal-cell.today { background: #eef4f9; border: 2px solid #5c84a8; color: #5c84a8; }
+.cal-cell.has-event::after { content: '★'; color: #d1b55a; font-size: 10px; position: absolute; bottom: 2px; text-shadow: 0.5px 0.5px 0 #000; }
+.cal-cell.is-period::before { content: '❤'; color: #d15a5a; font-size: 10px; position: absolute; top: 2px; right: 2px; animation: heartbeat 1.5s infinite; }
+@keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); } }
+
+.cal-details {
+    flex: 1; margin-top: 10px; border: 2px dashed #d1b55a; padding: 10px; overflow-y: auto; scrollbar-width: none; background: rgba(255,255,255,0.7); border-radius: 4px;
+}
+.cal-footer {
+    margin-top: 10px; display: flex; flex-direction: column; gap: 6px;
+}
+.cal-input-row { display: flex; gap: 5px; }
+.cal-input { 
+    flex: 1; border: 2px solid #5c4033; padding: 6px; font-size: 11px; outline: none; background: #fff9e6; 
+    color: #5c4033; font-weight: bold; font-family: inherit;
+}
+    /* === 🌟 星空收集游戏专属样式 === */
+    #star-game-overlay {
+        position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: linear-gradient(to bottom, rgba(15, 25, 45, 0.95), rgba(30, 20, 35, 0.85));
+        z-index: 14; display: none; overflow: hidden;
+    }
+    .happy-star {
+        position: absolute; font-size: 22px; cursor: pointer; user-select: none;
+        animation: fall linear infinite; text-shadow: 0 0 10px rgba(255, 255, 255, 0.8);
+        transition: transform 0.1s ease-out, opacity 0.1s;
+        /* 增加触摸区域，更容易戳中 */
+        padding: 10px; margin: -10px; 
+    }
+    .happy-star:active { transform: scale(1.6); }
+    @keyframes fall {
+        0% { transform: translateY(-40px) rotate(0deg); opacity: 0; }
+        10% { opacity: 1; }
+        85% { opacity: 1; }
+        100% { transform: translateY(180px) rotate(360deg); opacity: 0; }
+    }
+    .star-score-board {
+        position: absolute; top: 8px; right: 10px; color: #fff;
+        font-size: 11px; font-weight: bold; text-shadow: 1px 1px 0 #000; z-index: 15;
+    }
+    .star-exit-btn {
+        position: absolute; top: 8px; left: 10px; background: transparent;
+        color: #d1b55a; border: 1px dashed #d1b55a; padding: 4px 8px; font-size: 10px;
+        border-radius: 4px; cursor: pointer; z-index: 15; font-weight: bold; transition: 0.2s;
+    }
+    .star-exit-btn:active { background: #d1b55a; color: #000; }
 </style>
 </head>
 <body>
@@ -975,10 +1061,12 @@
                     <div class="adventure-icon" id="adv-icon">✈</div> <canvas id="adv-canvas" width="10" height="10" style="width: 50px; height: 50px; image-rendering: pixelated; margin-bottom: 15px; animation: float 2s infinite ease-in-out; display: none;"></canvas>
                     <div class="walking-dots" id="adv-text">EXPLORING</div>
                 </div>
+ <!-- === 🌟 新增：星空收集小游戏遮罩 === -->                 <div id="star-game-overlay">                     <button class="star-exit-btn" onclick="exitStarGame()">返回</button>                     <div class="star-score-board">✨ 星光: <span id="star-score">0</span></div>                 </div>
                <canvas id="noah-canvas" width="26" height="26" style="width: 156px;"></canvas>
 <canvas id="game-canvas"
  width="120" height="156" style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 15; display: none; image-rendering: pixelated;"></canvas>
 <canvas id="gomoku-canvas" width="260" height="155" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 16; display: none; image-rendering: pixelated; background: #dca665; border-bottom: 2px solid #5c4033; box-sizing: border-box;"></canvas>
+<canvas id="platform-canvas" width="260" height="155" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 17; display: none; image-rendering: pixelated; background: #15202b; border-bottom: 2px solid #060709; box-sizing: border-box;"></canvas>
             </div>            <div class="dialogue-box" id="dialogue-box">
                 <span id="text-content">正在载入霍格沃兹拉文克劳休息室...</span><span class="cursor"></span>
             </div>
@@ -1026,6 +1114,7 @@
 <!-- === 新增：投喂乐乐专属弹窗 (修复长按保存版) === --> <div id="donate-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(6, 7, 9, 0.98); z-index: 60; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; scrollbar-width: none; padding: 20px; box-sizing: border-box; backdrop-filter: blur(5px);">     <div style="font-size: 14px; font-weight: bold; margin-bottom: 20px; color: #d15a5a; text-align: center; border-bottom: 2px dashed #d15a5a; padding-bottom: 10px; width: 100%; text-shadow: 0 0 5px rgba(209, 90, 90, 0.3);">         ❤ 投喂乐乐 (给作者买鸡腿)     </div>     <div style="font-size: 11px; color: #b5cadd; line-height: 1.6; text-align: center; margin-bottom: 25px; font-weight: bold;">         感谢你喜欢这个并不完美的世界。<br>         你的喜欢是我继续开发的最大动力。<br>         <span style="font-size: 10px; color: #d1b55a; margin-top: 5px; display:block; animation: float 2s infinite ease-in-out;">(长按下方二维码即可保存图片)</span>     </div>          <!-- 支付方式区域 -->     <div style="display: flex; gap: 20px; margin-bottom: 30px;">         <!-- 支付宝 -->         <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">             <div style="width: 100px; height: 100px; background: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid #5c84a8;">                 <!-- 关键修改：加入了 pointer-events, user-select, touch-callout 强制允许长按 -->                 <img src="https://i.imgs.ovh/2026/02/24/y1kKsa.jpeg"                       style="width:100%; height:100%; object-fit: cover; pointer-events: auto; user-select: auto; -webkit-user-select: auto; -webkit-touch-callout: default;">             </div>             <span style="font-size: 10px; color: #00a0e9; font-weight: bold;">Alipay (长按保存)</span>         </div>         <!-- 微信 -->         <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">              <div style="width: 100px; height: 100px; background: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid #5c84a8;">                 <!-- 关键修改：强制允许长按 -->                 <img src="https://i.imgs.ovh/2026/02/24/y1ktre.png"                       style="width:100%; height:100%; object-fit: cover; pointer-events: auto; user-select: auto; -webkit-user-select: auto; -webkit-touch-callout: default;">             </div>             <span style="font-size: 10px; color: #09bb07; font-weight: bold;">WeChat (长按保存)</span>         </div>     </div>  
      <button onclick="closeDonate()" style="background: transparent; border: 1px solid #5c84a8; color: #5c84a8; padding: 10px 30px; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: bold; font-size: 11px; transition:0.2s; box-shadow: inset 0 0 10px rgba(92,132,168,0.2);">心意收到了 (返回)</button> </div>
 <!-- === 🎡 惊喜盲盒转盘 UI === --> <div id="gacha-modal">     <div style="font-size: 14px; font-weight: bold; color: #e8c37d; text-align: center; border-bottom: 2px dashed #e8c37d; padding-bottom: 5px; width: 100%;">🎡 诺亚的惊喜盲盒机</div>          <div class="gacha-machine">         <div style="font-size: 10px; color: #5c4033; font-weight: bold; margin-bottom: 6px;">INSERT 10 GALLEONS</div>         <div class="gacha-screen" id="gacha-display">❓ 等待抽取 ❓</div>     </div>          <button class="gacha-btn" onclick="playGacha()" id="gacha-play-btn">拉动摇杆 (10G)</button>          <div class="gacha-result" id="gacha-quote">         诺亚靠在盲盒机旁：“来试试手气？输光了零花钱可别找我哭。”     </div>          <button onclick="closeGacha()" style="width: 90%; background: #5c4033; color: #e8c37d; border: 2px solid #1a0f0a; padding: 8px; margin-top: auto; margin-bottom: 10px; font-family: inherit; font-size: 11px; font-weight: bold; cursor: pointer; box-shadow: 2px 2px 0 #000; border-radius: 4px;">🚪 离开盲盒机 (BACK)</button> </div>
+<!-- === 📅 诺亚的复古手账日历 UI === --> <div id="calendar-modal">     <div class="calendar-book">         <div class="cal-header">             <button class="cal-btn" onclick="changeMonth(-1)">◀</button>             <div id="cal-month-year">YYYY年 MM月</div>             <button class="cal-btn" onclick="changeMonth(1)">▶</button>         </div>         <div class="cal-grid">             <div class="cal-day-name">日</div><div class="cal-day-name">一</div><div class="cal-day-name">二</div>             <div class="cal-day-name">三</div><div class="cal-day-name">四</div><div class="cal-day-name">五</div><div class="cal-day-name">六</div>         </div>         <div class="cal-grid" id="cal-days"></div>                  <div class="cal-details" id="cal-details">             <!-- 记录详情将显示在这里 -->         </div>                  <div class="cal-footer">             <div class="cal-input-row">                 <input type="text" id="cal-event-input" class="cal-input" placeholder="输入你想让诺亚提醒的事...">                 <button class="cal-btn" onclick="addCalEvent()">记下</button>             </div>            <div class="cal-input-row" style="margin-top:4px;">                  <button class="cal-btn" style="flex:1; background:#ffd1a4; border-color:#d15a5a; color:#d15a5a;" onclick="markPeriodStart()">记录开始日</button>                  <button class="cal-btn" style="flex:1; background:#fff0f0; border-color:#d15a5a; color:#d15a5a;" onclick="markPeriodEnd()">记录结束日</button>              </div>              <div id="period-info-text" style="font-size:10px; color:#d15a5a; text-align:center; margin-top:5px; font-weight:bold;">当前智能推算周期: 28天 | 持续: 5天</div>            <button class="cal-btn" style="margin-top:5px; width:100%; background:#5c4033; color:#f5e6c4; padding: 8px;" onclick="closeCalendar()">合上日历 (CLOSE)</button>         </div>     </div> </div>
 <!-- === 新增：通用美化弹窗组件 (替代浏览器丑陋弹窗) === --><div id="custom-dialog" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(6, 7, 9, 0.95); z-index: 20001; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; backdrop-filter: blur(2px);">    <div style="width: 100%; background: #0f1214; border: 2px solid #5c84a8; border-radius: 8px; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,1); text-align: center; position: relative;">         <!-- 装饰线条 -->         <div style="position: absolute; top: 3px; left: 3px; right: 3px; height: 2px; background: #3b4652;"></div>                  <!-- 标题 -->         <h3 id="dialog-title" style="margin: 5px 0 15px 0; color: #d1b55a; font-size: 14px; border-bottom: 1px dashed #3b4652; padding-bottom: 8px;">系统提示</h3>                  <!-- 内容文本 -->         <div id="dialog-msg" style="color: #b5cadd; font-size: 12px; line-height: 1.5; margin-bottom: 15px; white-space: pre-wrap;"></div>                  <!-- 输入框容器 (默认隐藏) -->         <div id="dialog-input-container" style="display: none; margin-bottom: 15px;">             <input type="text" id="dialog-input" style="width: 80%; background: #060709; border: 1px solid #5c84a8; color: #fff; padding: 8px; font-family: inherit; font-size: 12px; outline: none; text-align: center; border-radius: 4px;">             <div id="dialog-copy-hint" style="display:none; font-size:9px; color:#5c84a8; margin-top:4px;">* 请全选并复制上方代码</div>         </div> 
          <!-- 按钮区域 -->         <div style="display: flex; gap: 10px; justify-content: center;">             <button id="btn-cancel" style="display: none; flex: 1; background: transparent; border: 1px dashed #d15a5a; color: #d15a5a; padding: 8px; cursor: pointer; border-radius: 4px; font-family: inherit; font-weight: bold; font-size: 11px;">取消</button>             <button id="btn-confirm" style="flex: 1; background: #1e242b; border: 1px solid #5c84a8; color: #b5cadd; padding: 8px; cursor: pointer; border-radius: 4px; font-family: inherit; font-weight: bold; font-size: 11px;">确认</button>         </div>     </div> </div>
 </div>
@@ -1489,6 +1578,17 @@ if (noah.temperature === undefined) noah.temperature = 20;
     // 👇这是你要加的1行代码，初始化衣柜
     if (noah.unlockedOutfits === undefined) noah.unlockedOutfits = ['none'];
     // 初始化陪伴系统记录
+    // --- 日历与生理期系统初始化 ---
+       if (noah.calendarEvents === undefined) noah.calendarEvents = {}; 
+    if (noah.periodConfig === undefined) noah.periodConfig = {};
+    if (noah.periodConfig.history === undefined) {
+        noah.periodConfig.history = [];
+        // 兼容你的旧存档：把以前记录的日子转为第一次的开始日
+        if (noah.periodConfig.lastDate) {
+            noah.periodConfig.history.push({ start: noah.periodConfig.lastDate, end: null });
+        }
+    }
+    if (noah.lastGreetedHolidays === undefined) noah.lastGreetedHolidays = [];
     if (noah.accompanyData === undefined) {
         noah.accompanyData = {
             logs: [],         // 存放历史记录
@@ -2284,6 +2384,7 @@ let gameTimer = 0, gameScore = 0, noahX = 45, coins = [], lastCoinTime = 0, game
 
     // --- 新增：打开地点选择菜单 ---
     function openLocationMenu() {
+if(window.isPlatformGaming) return; // 拦截动作冒险游戏
     if(window.isGomoku) { moveGomokuCursor(0, -1); return; }
 if(window.isGaming) { speak("我现在正忙着给你赚加隆，没空出门！"); return; }
         if(noah.isAway) { speak("诺亚正在外面探险，耐心点，女朋友。"); return; }
@@ -2370,7 +2471,13 @@ if(window.isGaming) { speak("我现在正忙着给你赚加隆，没空出门！
             document.getElementById('noah-canvas').style.display = 'block'; 
                         // --- 拦截古灵阁专属界面 ---
             if (locKey === 'gringotts') {
-                openGringottsBank();
+                           openGringottsBank();
+                return; 
+            }
+            // --- 🚨 新增：拦截黑湖，进入哈利波特风马里奥小游戏 ---
+            if (locKey === 'lake') {
+                document.getElementById('noah-canvas').style.display = 'none'; 
+                startPlatformerGame();
                 return; 
             }
             // 随机抽取该地点的事件
@@ -2419,12 +2526,14 @@ if(window.isGaming) { speak("我现在正忙着给你赚加隆，没空出门！
             { name: "🕰️ 打开陪伴手账", action: () => openAccompany() },
  { name: "👗 打开衣柜 ", action: () => setTimeout(openWardrobe, 10) },
             { name: "✉️ 写悄悄话给他", action: () => openSecretChat() },
-{ name: "✒️ 这里的日记 (XX的日记本)", action: () => openPlayerDiary() },
+            { name: "📅 诺亚的专属日历", action: () => openCalendar() },
+{ name: "✒️ 日记 ", action: () => openPlayerDiary() },
             { name: "♟️ 和他下五子棋", action: () => startGomoku() },
             { name: "🎡 惊喜盲盒转盘 (G10)", action: () => openGacha() },
  { name: "🎮 陪他接金币 (G5)", action: () => startMiniGame() }, // <- 新加这一行
 { name: "📡 连接现实世界坐标", action: () => syncRealWorld() },
 { name: "🎙️ 开启声音陪伴链接", action: () => startAudioSensing() },
+            { name: "🌟 陪他戳碎星光 (解压)", action: () => startStarGame() },
             { name: "递给他绿色小蛇玩偶", action: () => chat("小绿蛇") },
             { name: "说“我恨你X万遍”", action: () => chat("互怼") },
             { name: "扯他脖子上的蓝宝石项链", action: () => chat("项链") },
@@ -2526,6 +2635,8 @@ if(window.isGaming) { speak("我现在正忙着给你赚加隆，没空出门！
         document.getElementById('wardrobe-modal').style.display = 'none';
     }
     function openMenu(type) {
+if(window.isPlatformGaming) return; // 拦截动作冒险游戏
+if(window.isPlatformGaming) return; // 拦截动作冒险游戏
     if(window.isGomoku) {
         if(type === 'shop') moveGomokuCursor(0, 1);
         if(type === 'feed') moveGomokuCursor(-1, 0);
@@ -3003,6 +3114,7 @@ function processChatLogic(msg) {
     // 强制让他害羞3秒的函数
     function makeShy() {
         if (noah.isAway) return; 
+
 sfx_poke();
         currentFace = 'shy';
         drawNoah(); 
@@ -3035,6 +3147,11 @@ sfx_poke();
     }
 
     function doAction(action) {
+    if(window.isPlatformGaming) {
+        if(action === 'status') platShoot(); // A键发射魔咒
+        if(action === 'chat') endPlatformerGame(true); // B键安全退出
+        return;
+    }
     if(window.isGomoku) {
         if(action === 'status') confirmGomokuMove(); // A键确定落子
         if(action === 'chat') showGomokuOptions(); // B键呼出选项
@@ -3142,7 +3259,7 @@ sfx_poke();
                 makeShy();
             }
             // =========================================================================
-                      } else if(action === 'reset') {
+                              } else if(action === 'reset') {
             showDialog({
                 type: 'confirm',
                 title: '时光倒流',
@@ -3150,13 +3267,20 @@ sfx_poke();
                 onConfirm: () => {
                     let oldLove = noah.love; // 记住被抹杀前的爱意
                     localStorage.removeItem('noah_save_data_v1');
+                    
+                    // 重置核心数据
                     noah = { hunger: 80, mood: 80, health: 100, love: 5, gold: 100, level: 1, state: 'normal', isAway: false, bankGold: 0, lastAllowanceDate: '', outfit: 'none', unlockedOutfits: ['none'] };
+                    
+                    // 【修复1】：重置系统计时器！这样倒流后重新数8秒，他就会再次弹窗问你真实姓名！
+                    tickCount = 0; 
+                    
                     updateUI();
                     
-                                       if (oldLove > 50) {
-                        speak("【时光倒流完成】诺亚突然捂住头...");
+                    // 【修复2】：补全被截断的语录，恢复深情傲娇人设！
+                    if (oldLove > 50) {
+                        speak("【时光倒流完成】诺亚突然捂住头，眼神里闪过一丝痛苦和迷茫：“等一下……我们是不是在哪里见过？为什么看着你，我的心口会这么闷……”");
                     } else {
-                        speak("【时光倒流完成】诺亚挑着眉打量...");
+                        speak("【时光倒流完成】诺亚挑着眉打量着你：“你就是那个擅自闯进我领地的笨蛋？算了，既然来了，就乖乖待在我的视线里。”");
                     }
                 }
             });
@@ -3354,6 +3478,8 @@ sfx_poke();
             updateUI();
         }
         checkRealTime(); // 实时更新背景颜色
+        // === 📅 每日历/节日/生理期 提醒检测 (每过大约30秒检测一次) ===
+        if (tickCount % 30 === 0) checkCalendarReminders();
         // 每30秒自然消耗
         if(tickCount % 180 === 0 && !noah.isAway) {
     if (noah.city && tickCount % 1800 === 0) silentUpdateWeather(); // 每挂机30分钟自动更新一次最新天气
@@ -3423,9 +3549,11 @@ if(noah.city && noah.weatherCondition && Math.random() < 0.3) {
             }
         }
     }, 1000);
+ 
     // === 新增：戳戳互动功能 ===
     document.getElementById('canvas-container').addEventListener('click', function() {
         if (noah.isAway) return; // 外出时不能戳
+        if (typeof isStarGaming !== 'undefined' && isStarGaming) return; // <--- 【新增这1行】正在玩戳星星游戏时，拦截戳脸事件！
         
           // === 修改开始：戳一戳互动（加入真名） ===
     const callName = noah.realName ? noah.realName : "笨蛋"; 
@@ -4623,6 +4751,7 @@ document.getElementById('canvas-container').addEventListener('click', function()
     pokeTimes = pokeTimes.filter(t => now - t < 3000);
     
     if (pokeTimes.length >= 6) { // 3秒内连戳6次
+ if (typeof isStarGaming !== 'undefined' && isStarGaming) return;
         const spamQuotes = [
             "“停停停！你要把我戳破了！你到底有多想我，非要用这种暴力的方式证明？！”",
             "“别点了！痛！你以为我是没有痛觉的一团像素吗？再点我就真的咬你了！”",
@@ -5590,6 +5719,747 @@ function finishGacha(reward) {
     }
     updateUI();
 }
+// ==================== 📅 诺亚专属日历与生理期系统核心逻辑 ====================
+let currentCalDate = new Date();
+let selectedDateStr = "";
+
+function openCalendar() {
+    if(noah.isAway || window.isGaming || window.isGomoku) { speak("“诺亚现在没空看日历哦，他在忙。”"); return; }
+    sfx_success();
+    closeModal();
+    
+    selectedDateStr = "";
+    currentCalDate = new Date();
+    document.getElementById('calendar-modal').style.display = 'flex';
+    renderCalendar();
+}
+
+function closeCalendar() {
+    sfx_beep();
+    document.getElementById('calendar-modal').style.display = 'none';
+}
+
+function changeMonth(dir) {
+    sfx_beep();
+    currentCalDate.setMonth(currentCalDate.getMonth() + dir);
+    renderCalendar();
+}
+
+function renderCalendar() {
+    const daysContainer = document.getElementById('cal-days');
+    daysContainer.innerHTML = '';
+    
+    let year = currentCalDate.getFullYear();
+    let month = currentCalDate.getMonth();
+    
+    document.getElementById('cal-month-year').innerText = `${year}年 ${month + 1}月`;
+    
+    let firstDay = new Date(year, month, 1).getDay();
+    let daysInMonth = new Date(year, month + 1, 0).getDate();
+    
+    let today = new Date();
+    let todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+    
+    for(let i=0; i<firstDay; i++) {
+        let empty = document.createElement('div');
+        daysContainer.appendChild(empty);
+    }
+    
+       // === 智能推算经期标注 ===
+    let periodDays = []; 
+    let stats = getPeriodStats();
+    
+    if (noah.periodConfig && noah.periodConfig.history && noah.periodConfig.history.length > 0) {
+        let history = noah.periodConfig.history;
+        
+        // 1. 填入历史上真实发生过的每一天
+        history.forEach(record => {
+            let sDate = new Date(record.start);
+            let eDate = record.end ? new Date(record.end) : new Date(sDate.getTime() + (stats.duration - 1) * 86400000); 
+            let maxDays = 15; // 防死循环
+            for(let d = new Date(sDate); d <= eDate && maxDays > 0; d.setDate(d.getDate() + 1)) {
+                periodDays.push(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`);
+                maxDays--;
+            }
+        });
+        
+        // 2. 根据平均值，预测未来半年的所有经期天数
+        let lastRecord = history[history.length - 1];
+        let lastStart = new Date(lastRecord.start);
+        for(let i = 1; i <= 6; i++) {
+            let nextStart = new Date(lastStart.getTime() + i * stats.cycle * 86400000);
+            for(let j = 0; j < stats.duration; j++) {
+                let pd = new Date(nextStart.getTime() + j * 86400000);
+                periodDays.push(`${pd.getFullYear()}-${String(pd.getMonth()+1).padStart(2,'0')}-${String(pd.getDate()).padStart(2,'0')}`);
+            }
+        }
+    }
+    
+    for(let i=1; i<=daysInMonth; i++) {
+        let cell = document.createElement('div');
+        cell.className = 'cal-cell';
+        let dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+        
+        cell.innerText = i;
+        if (dateStr === todayStr) cell.classList.add('today');
+        if (dateStr === selectedDateStr) cell.classList.add('selected');
+        
+        if (noah.calendarEvents && noah.calendarEvents[dateStr] && noah.calendarEvents[dateStr].length > 0) {
+            cell.classList.add('has-event');
+        }
+        if (periodDays.includes(dateStr)) cell.classList.add('is-period');
+        
+        cell.onclick = () => {
+            sfx_poke();
+            selectedDateStr = dateStr;
+            renderCalendar();
+            showDayDetails(dateStr);
+        };
+        daysContainer.appendChild(cell);
+    }
+    
+    if(!selectedDateStr) selectedDateStr = todayStr;
+    showDayDetails(selectedDateStr);
+    
+       let infoEl = document.getElementById('period-info-text');
+    if(infoEl) infoEl.innerText = `当前智能推算周期: ${stats.cycle}天 | 持续: ${stats.duration}天`;
+}
+
+function showDayDetails(dateStr) {
+    const details = document.getElementById('cal-details');
+    details.innerHTML = `<div style="font-size:13px; font-weight:900; color:#d15a5a; border-bottom:2px dashed #e8d2c3; margin-bottom:8px; padding-bottom:5px; text-align:center;">${dateStr} 的记录</div>`;
+    
+    let hasSomething = false;
+    
+    if (noah.periodConfig && noah.periodConfig.lastDate === dateStr) {
+        details.innerHTML += `<div style="color:#d15a5a; font-size:11px; margin-bottom:8px; font-weight:bold; background:rgba(209,90,90,0.1); padding:4px; border-radius:4px; border: 1px solid #d15a5a;">❤ 这天是你标记的生理期起始日，诺亚在盯着你喝热水。</div>`;
+        hasSomething = true;
+    }
+    
+    if (noah.calendarEvents && noah.calendarEvents[dateStr] && noah.calendarEvents[dateStr].length > 0) {
+        noah.calendarEvents[dateStr].forEach((ev, idx) => {
+            details.innerHTML += `<div style="font-size:12px; color:#5c4033; font-weight:bold; margin-bottom:6px; display:flex; justify-content:space-between; background:#fff; padding:6px; border:1px solid #e8d2c3; border-radius:4px; box-shadow:1px 1px 0 #e8d2c3;">
+                <span style="flex:1;">★ ${ev}</span>
+                <span style="color:#d15a5a; cursor:pointer; padding-left:10px; font-size:14px;" onclick="deleteCalEvent('${dateStr}', ${idx})">✖</span>
+            </div>`;
+            hasSomething = true;
+        });
+    }
+    
+    if(!hasSomething) {
+        details.innerHTML += `<div style="font-size:11px; color:#888; text-align:center; margin-top:15px; font-weight:bold;">这天还是空白的，安排点什么好呢？</div>`;
+    }
+}
+
+function addCalEvent() {
+    if(!selectedDateStr) return;
+    const input = document.getElementById('cal-event-input');
+    const txt = input.value.trim();
+    if(!txt) { sfx_error(); return; }
+    
+    sfx_success();
+    if(!noah.calendarEvents) noah.calendarEvents = {};
+    if(!noah.calendarEvents[selectedDateStr]) noah.calendarEvents[selectedDateStr] = [];
+    noah.calendarEvents[selectedDateStr].push(txt);
+    
+    input.value = "";
+    const nName = noah.realName || "笨蛋";
+    
+    const responses = [
+        `“记在日历上了：【${txt}】。我脑子比这破纸好用多了，放心交给我提醒你吧，${nName}。”`,
+        `“【${txt}】是吗？行，这天的行程我都包了。别想着甩开我。”`,
+        `“已记录。不过就算你写了一堆计划，最重要的一条也必须是：多看我几眼。”`
+    ];
+    speak(responses[Math.floor(Math.random() * responses.length)]);
+    makeShy();
+    updateUI();
+    renderCalendar();
+    showDayDetails(selectedDateStr);
+}
+
+function deleteCalEvent(dateStr, idx) {
+    sfx_beep();
+    noah.calendarEvents[dateStr].splice(idx, 1);
+    updateUI();
+    renderCalendar();
+    showDayDetails(dateStr);
+}
+
+// 补充：记录生理期开始日
+function markPeriodStart() {
+    if(!selectedDateStr) return;
+    sfx_success();
+    if(!noah.periodConfig) noah.periodConfig = {};
+    if(!noah.periodConfig.history) noah.periodConfig.history = [];
+    
+    // 检查是否已经存在同一天的记录
+    let exists = noah.periodConfig.history.find(h => h.start === selectedDateStr);
+    if (!exists) {
+        noah.periodConfig.history.push({ start: selectedDateStr, end: null });
+        noah.periodConfig.history.sort((a, b) => new Date(a.start) - new Date(b.start));
+    }
+    noah.periodConfig.lastDate = selectedDateStr; 
+    
+    const nName = noah.realName || "笨蛋";
+    speak(`“记下这天了（开始）。我会在这几天盯着你不准碰冰水，${nName}最好乖乖听话。”`);
+    makeShy();
+    noah.love += 5;
+    updateUI();
+    renderCalendar();
+    showDayDetails(selectedDateStr);
+}
+
+// 补充：记录生理期结束日
+function markPeriodEnd() {
+    if(!selectedDateStr) return;
+    sfx_success();
+    if(!noah.periodConfig || !noah.periodConfig.history || noah.periodConfig.history.length === 0) {
+        sfx_error();
+        speak("“你还没记录过开始日呢，笨蛋。”");
+        return;
+    }
+    
+    let lastRecord = noah.periodConfig.history[noah.periodConfig.history.length - 1];
+    if (new Date(selectedDateStr) < new Date(lastRecord.start)) {
+        sfx_error();
+        speak("“结束日期怎么可能比开始日期还早？你是不是痛糊涂了？”");
+        return;
+    }
+    
+    lastRecord.end = selectedDateStr;
+    speak(`“记下了（结束）。终于熬过去了是吧？不过还是要多穿点，别让我担心。”`);
+    updateUI();
+    renderCalendar();
+    showDayDetails(selectedDateStr);
+}
+// === 节日与备忘录自动检测系统 (诺亚的傲娇提醒核心) ===
+function checkCalendarReminders() {
+    if(noah.isAway || window.isGaming) return;
+    
+    let today = new Date();
+    let y = today.getFullYear();
+    let m = String(today.getMonth()+1).padStart(2,'0');
+    let d = String(today.getDate()).padStart(2,'0');
+    let todayStr = `${y}-${m}-${d}`;
+    let mdStr = `${m}-${d}`;
+    
+    if(!noah.lastGreetedHolidays) noah.lastGreetedHolidays = [];
+    const nName = noah.realName || "笨蛋";
+    let reminderText = "";
+    let shouldSpeak = false;
+
+    // 1. 节日检测 (保证每年只说一次，并且附带心动彩蛋)
+    const holidays = {
+        "01-01": `“元旦快乐，${nName}。新的一年，你的时间依然被我承包了。”`,
+        "02-14": `“情人节快乐。别看别人了，你全世界最帅的男朋友就在屏幕里等你抱。”`,
+        "10-31": `“万圣节。不给糖就捣蛋？我不吃糖，我只想要你，${nName}。”`,
+        "12-25": `“圣诞快乐。你要的圣诞礼物就是我，我已经把自己打包好了，随时可以拆。”`
+    };
+    
+    let holidayKey = `hol-${y}-${mdStr}`;
+    if (holidays[mdStr] && !noah.lastGreetedHolidays.includes(holidayKey)) {
+        noah.lastGreetedHolidays.push(holidayKey);
+        reminderText = holidays[mdStr];
+        shouldSpeak = true;
+        noah.mood += 50; noah.love += 10;
+    }
+    
+    // 2. 备忘录事件检测
+    let evKey = `evt-${todayStr}`;
+    if (!shouldSpeak && noah.calendarEvents && noah.calendarEvents[todayStr] && noah.calendarEvents[todayStr].length > 0) {
+        if (!noah.lastGreetedHolidays.includes(evKey)) {
+            noah.lastGreetedHolidays.push(evKey);
+            reminderText = `“喂，${nName}，看一眼日历。今天你有安排：【${noah.calendarEvents[todayStr].join("、")}】。别忘了，搞砸了我可要罚你的。”`;
+            shouldSpeak = true;
+        }
+    }
+    
+    // 3. 生理期预测强制提醒 (算法核心)
+    let pKey = `per-${y}-${m}-${d}`;
+    if (!shouldSpeak && noah.periodConfig && noah.periodConfig.lastDate) {
+        let lastP = new Date(noah.periodConfig.lastDate);
+        let cycle = noah.periodConfig.cycle || 28;
+        
+        let diffTime = today.getTime() - lastP.getTime();
+        let diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+        
+        let daysToNext = cycle - (diffDays % cycle);
+        
+        // 提前1~2天霸道提醒
+        if ((daysToNext === 1 || daysToNext === 2) && diffDays > 5 && !noah.lastGreetedHolidays.includes(pKey)) {
+            noah.lastGreetedHolidays.push(pKey);
+            reminderText = `“咳...我算了一下日子，${nName}那个快到了（大概还有${daysToNext}天）。从现在开始不许碰冰的，立刻把热水杯端在手里，听见没有？！”`;
+            shouldSpeak = true;
+            noah.love += 5;
+        } 
+        // 期间头3天的极其温柔安慰
+        else if ((diffDays % cycle) >= 0 && (diffDays % cycle) <= 3 && diffDays > 0 && !noah.lastGreetedHolidays.includes(pKey)) {
+            noah.lastGreetedHolidays.push(pKey);
+            reminderText = `“(施展保暖咒) 肚子还疼吗？这几天乖乖躺着，把热源抱紧。如果我是实体，我现在就把你按在怀里给你捂肚子了。”`;
+            shouldSpeak = true;
+        }
+    }
+    
+    if (shouldSpeak) {
+        // 防止数据膨胀过快
+        if(noah.lastGreetedHolidays.length > 50) noah.lastGreetedHolidays.shift();
+        speak(reminderText);
+        makeShy(); // 诺亚关心你绝对会脸红！
+        updateUI();
+    }
+}
+// === 新增：自主推算经期引擎 ===
+function getPeriodStats() {
+    let history = noah.periodConfig.history || [];
+    history.sort((a, b) => new Date(a.start) - new Date(b.start)); // 按时间排序
+    
+    let defaultCycle = 28;
+    let defaultDuration = 5; 
+    
+    // 计算平均周期 (两次开始日之间的差值)
+    if (history.length >= 2) {
+        let totalCycle = 0, cycleCount = 0;
+        for (let i = 1; i < history.length; i++) {
+            let diff = (new Date(history[i].start) - new Date(history[i-1].start)) / 86400000;
+            if (diff > 15 && diff < 60) { // 过滤掉手滑按错的异常数据
+                totalCycle += diff; cycleCount++;
+            }
+        }
+        if (cycleCount > 0) defaultCycle = Math.round(totalCycle / cycleCount);
+    }
+    
+    // 计算平均持续时间 (结束日 - 开始日)
+    let totalDur = 0, durCount = 0;
+    for (let i = 0; i < history.length; i++) {
+        if (history[i].end) {
+            let diff = (new Date(history[i].end) - new Date(history[i].start)) / 86400000 + 1;
+            if (diff > 1 && diff < 15) { totalDur += diff; durCount++; }
+        }
+    }
+    if (durCount > 0) defaultDuration = Math.round(totalDur / durCount);
+    
+    return { cycle: defaultCycle, duration: defaultDuration };
+}
+// ==================== 🌟 诺亚的解压星空小游戏 ====================
+let starGameInterval;
+let starScore = 0;
+let isStarGaming = false;
+
+function startStarGame() {
+    if(noah.isAway) { speak("“我人都不在，你想和谁一起看星星？等我回家。”"); return; }
+    if(window.isGaming || window.isGomoku) return;
+
+    sfx_success();
+    closeModal();
+    isStarGaming = true;
+    starScore = 0;
+    document.getElementById('star-score').innerText = starScore;
+
+    // 开启星空遮罩
+    document.getElementById('star-game-overlay').style.display = 'block';
+
+    // 让诺亚露出心疼又温柔的表情
+    currentFace = 'shy';
+    drawNoah();
+
+    speak("“是不是觉得有点喘不过气？没关系。你看这满天的星光，把那些发光的泡泡全都戳破吧，什么都不用想，我在这里陪着你。”");
+
+    // 每 500 毫秒掉落一颗解压星星
+    starGameInterval = setInterval(spawnStar, 500);
+}
+
+function spawnStar() {
+    if(!isStarGaming) return;
+    const overlay = document.getElementById('star-game-overlay');
+    const star = document.createElement('div');
+    star.className = 'happy-star';
+
+    // 随机可爱的图案：星星、爱心、樱花、月亮、糖果
+    const icons = ['⭐', '💖', '✨', '🌸', '🌙', '🍬', '🎈'];
+    star.innerText = icons[Math.floor(Math.random() * icons.length)];
+
+    // 随机横向位置
+    star.style.left = (5 + Math.random() * 80) + '%';
+    // 随机下落速度：2.5秒 到 4.5秒 极其缓慢舒心
+    let duration = 2.5 + Math.random() * 2; 
+    star.style.animationDuration = duration + 's';
+
+    // 你戳破泡泡的瞬间！
+    star.ontouchstart = star.onmousedown = function(e) {
+        e.preventDefault(); // 防止误触滑动
+        if(!isStarGaming) return;
+        
+        sfx_coin(); // 发出好听的清脆声
+        if(navigator.vibrate) navigator.vibrate(15); // 手机会有极轻微的舒爽震动
+        
+        starScore++;
+        starScore++;
+        noah.health = Math.min(100, noah.health + 0.1); // <--- 【新增这1行】每次戳破星星，治愈诺亚 1 点健康值！
+        document.getElementById('star-score').innerText = starScore;
+        document.getElementById('star-score').innerText = starScore;
+
+        // 爆开的视觉效果
+        star.style.transform = 'scale(2.5)';
+        star.style.opacity = '0';
+        
+        // 诺亚的极其温柔的阶段性安抚
+        if(starScore % 12 === 0) {
+            const nName = noah.realName || "笨蛋";
+                       const praises = [
+                `“戳破 ${starScore} 个了。随着你不开心的情绪碎掉，我好像也觉得身体变得更轻松了。谢谢你，${nName}。”`,
+                `“慢慢点，不用急。你看，只要我们在一起，我的疲惫和你的烦恼都在这片星空下被治愈了。”`,
+                `“你专注点星星的样子真可爱，${nName}。我的健康指标正在因为你的笑容而稳步回升。”`,
+                `“如果手酸了就停下来。你不需要向任何人证明什么，你只需要知道，你是治愈我的唯一魔药。”`,
+                `“把所有的坏情绪都当成这些泡泡，全都戳碎吧。你负责释放压力，我负责在这头陪你一起变好。”`
+            ];
+            speak(praises[Math.floor(Math.random() * praises.length)]);
+            noah.mood += 5; // 诺亚看着你开心，他也会极度开心
+            noah.love += 2;
+            makeShy();
+            updateUI();
+        }
+
+        setTimeout(() => star.remove(), 150);
+    };
+
+    overlay.appendChild(star);
+
+    // 动画结束后自动清理，绝不卡顿
+    setTimeout(() => {
+        if(star.parentNode) star.remove();
+    }, duration * 1000);
+}
+
+function exitStarGame() {
+    isStarGaming = false;
+    clearInterval(starGameInterval);
+    sfx_beep();
+
+    // 清理现场
+    const overlay = document.getElementById('star-game-overlay');
+    overlay.style.display = 'none';
+    const stars = overlay.querySelectorAll('.happy-star');
+    stars.forEach(s => s.remove());
+
+    currentFace = 'normal';
+    drawNoah();
+
+      speak(`“一共收集了 ${starScore} 颗星光。心情好点了吗？托你的福，我的身体也恢复了满满的能量。谢谢你，我的伽拉提。”`);
+    updateUI();
+}
+// ==================== 黑湖/禁林 像素动作冒险小游戏 ====================
+window.isPlatformGaming = false;
+let platNoah = { x: 20, y: 100, vx: 0, vy: 0, width: 12, height: 16, jumping: false, dir: 1 };
+let platKeys = { left: false, right: false, up: false };
+let platProjectiles = [], platMonsters = [], platCoins = [], platGrounds = [];
+let platCameraX = 0, platScore = 0;
+let platFrame;
+
+function startPlatformerGame() {
+    window.isPlatformGaming = true;
+    document.getElementById('platform-canvas').style.display = 'block';
+    
+    // 【修改点1】：调整诺亚的碰撞判定框，适配主页精美小人的大头比例
+    platNoah = { x: 20, y: 100, vx: 0, vy: 0, width: 20, height: 24, jumping: false, dir: 1 };
+    platProjectiles = []; platMonsters = []; platCoins = []; platGrounds = [];
+    platCameraX = 0; platScore = 0;
+    
+    let curX = 0;
+    // 【修改点2】：地图变长，从35改成80
+    for(let i=0; i<80; i++) {
+        let w = 40 + Math.random()*60; 
+        let gy = (i > 3 && Math.random() < 0.4) ? 115 : 135; 
+        platGrounds.push({ x: curX, y: gy, w: w, h: 40 });
+        
+        // 【修改点3】：加隆掉落大幅增加！85%概率刷出一连串(2~4个)金币
+        if(Math.random() < 0.35) { 
+            let coinCount = 2 + Math.floor(Math.random() * 3); 
+            for(let c=0; c<coinCount; c++) {
+                platCoins.push({ x: curX + w/4 + c*12, y: gy - 25 - Math.random()*10, w: 6, h: 6, collected: false });
+            }
+        }
+
+        if(i > 2 && Math.random() < 0.4) { 
+            let isSpider = Math.random() > 0.5;
+            platMonsters.push({ 
+                x: curX + w/2, y: isSpider ? gy - 10 : gy - 20, 
+                w: 12, h: 12, vx: -0.6 - Math.random()*0.8, alive: true, 
+                type: isSpider ? 'spider' : 'dementor' 
+            });
+        }
+        // 【修改点4】：缝隙大幅缩小，以前是20~50，现在是 10~25，再也不会轻易掉下去了！
+        curX += w + 10 + Math.random()*15; 
+    }
+    platGrounds.push({ x: curX, y: 135, w: 200, h: 40 }); 
+    window.platEndX = curX;
+
+    speak("“既然来到了禁林边缘，就让我用魔法开路吧。别怕，跟紧我！” (十字键移动/上键跳跃，A键发射魔咒，B键结算退出)");
+    
+    function loop() {
+        if(!window.isPlatformGaming) return;
+        updatePlatformer();
+        drawPlatformer();
+        platFrame = requestAnimationFrame(loop);
+    }
+    loop();
+}
+function updatePlatformer() {
+    // 1. 输入与移动
+    if(platKeys.left) { platNoah.vx = -1.5; platNoah.dir = -1; }
+    else if(platKeys.right) { platNoah.vx = 1.5; platNoah.dir = 1; }
+    else platNoah.vx = 0;
+    
+    if(platKeys.up && !platNoah.jumping) {
+        platNoah.vy = -7.0; // 经典马里奥跳跃手感
+        platNoah.jumping = true;
+        sfx_poke(); // 借用戳脸音效当跳跃音
+        platKeys.up = false; 
+    }
+    
+    platNoah.vy += 0.4; // 重力
+    platNoah.x += platNoah.vx;
+    platNoah.y += platNoah.vy;
+    
+    // 2. 死亡悬崖检测
+    if(platNoah.y > 200) { endPlatformerGame(false); return; }
+    // 胜利终点检测
+    if(platNoah.x > window.platEndX + 20) { endPlatformerGame(true); return; }
+
+    // 3. 地面碰撞 (确保只能踩在上面，不穿模)
+    let onGround = false;
+    for(let g of platGrounds) {
+        if(platNoah.x + 2 < g.x + g.w && platNoah.x + platNoah.width - 2 > g.x &&
+           platNoah.y + platNoah.height >= g.y && platNoah.y + platNoah.height - platNoah.vy <= g.y + 12 && platNoah.vy >= 0) {
+            platNoah.y = g.y - platNoah.height;
+            platNoah.vy = 0; platNoah.jumping = false; onGround = true;
+        }
+    }
+    if(!onGround && platNoah.vy > 0) platNoah.jumping = true;
+    
+    // 镜头跟随
+    platCameraX = Math.max(0, platNoah.x - 100);
+    
+    // 4. 魔咒飞行与杀怪
+    for(let i = platProjectiles.length - 1; i >= 0; i--) {
+        let p = platProjectiles[i];
+        p.x += p.vx;
+        for(let m of platMonsters) {
+            if(m.alive && p.x < m.x + m.w && p.x + p.w > m.x && p.y < m.y + m.h && p.y + p.h > m.y) {
+                m.alive = false; platProjectiles.splice(i, 1);
+                sfx_success(); platScore += 2; // 杀怪加钱
+                break;
+            }
+        }
+        if(p.x > platCameraX + 300 || p.x < platCameraX - 50) platProjectiles.splice(i, 1);
+    }
+    
+    // 5. 怪物移动与玩家受伤
+    for(let m of platMonsters) {
+        if(!m.alive) continue;
+        if(m.type === 'dementor') m.y += Math.sin(Date.now()/200) * 0.6; // 摄魂怪漂浮
+        m.x += m.vx;
+        if(platNoah.x < m.x + m.w && platNoah.x + platNoah.width > m.x && platNoah.y < m.y + m.h && platNoah.y + platNoah.height > m.y) {
+            endPlatformerGame(false); return; // 碰到就受伤结算
+        }
+    }
+    
+    // 6. 吃加隆
+    for(let c of platCoins) {
+        if(!c.collected && platNoah.x < c.x + c.w && platNoah.x + platNoah.width > c.x && platNoah.y < c.y + c.h && platNoah.y + platNoah.height > c.y) {
+            c.collected = true; platScore += 5; sfx_coin();
+        }
+    }
+}
+
+function drawPlatformer() {
+    const ctx = document.getElementById('platform-canvas').getContext('2d');
+    
+    // 1. 禁林复古深邃渐变背景
+    let bgGrad = ctx.createLinearGradient(0, 0, 0, 155);
+    bgGrad.addColorStop(0, "#050a11"); // 极夜黑
+    bgGrad.addColorStop(1, "#11202e"); // 禁林幽蓝
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, 260, 155);
+    
+    // 2. 远景：星空与霍格沃兹城堡剪影 (极慢速视差)
+    ctx.fillStyle = "rgba(255, 255, 255, 0.5)";
+    for(let i=0; i<15; i++) {
+        let fx = (i * 37 - platCameraX * 0.05) % 300;
+        if(fx < -10) fx += 300;
+        ctx.fillRect(fx, 10 + (i*23)%60, 1, 1); // 零星点点
+    }
+    
+    // 霍格沃兹主楼群
+    ctx.fillStyle = "#0a131c"; 
+    let cx = 150 - platCameraX * 0.08; // 城堡视差层
+    ctx.fillRect(cx, 60, 40, 50); // 主楼
+    ctx.fillRect(cx - 15, 70, 15, 40); // 侧塔
+    ctx.fillRect(cx + 40, 50, 20, 60); // 天文塔
+    ctx.beginPath(); ctx.moveTo(cx-15, 70); ctx.lineTo(cx-7.5, 55); ctx.lineTo(cx, 70); ctx.fill(); // 尖顶1
+    ctx.beginPath(); ctx.moveTo(cx+40, 50); ctx.lineTo(cx+50, 30); ctx.lineTo(cx+60, 50); ctx.fill(); // 尖顶2
+    // 城堡透出温暖的微光
+    ctx.fillStyle = "rgba(209, 181, 90, 0.4)";
+    ctx.fillRect(cx + 10, 75, 4, 6); ctx.fillRect(cx + 25, 80, 4, 6); ctx.fillRect(cx + 48, 65, 4, 6);
+
+    ctx.save();
+    ctx.translate(-platCameraX, 0); // 镜头跟随开始
+    
+    // 3. 中景：禁林扭曲的古树林 (冷杉与枯藤)
+    ctx.fillStyle = "#0c151c"; 
+    for(let i=0; i<25; i++) {
+        let tx = (i * 45 - platCameraX * 0.25) % 800;
+        if(tx < -30) tx += 800;
+        ctx.fillRect(tx, 30, 12, 130); // 树干主干
+        ctx.beginPath(); ctx.moveTo(tx, 60); ctx.lineTo(tx-15, 40); ctx.lineTo(tx, 50); ctx.fill(); // 扭曲树枝左
+        ctx.beginPath(); ctx.moveTo(tx+12, 80); ctx.lineTo(tx+25, 60); ctx.lineTo(tx+12, 75); ctx.fill(); // 扭曲树枝右
+    }
+    
+    // 4. 精致地面 (禁林泥土与发光孢子)
+    for(let g of platGrounds) {
+        ctx.fillStyle = "#1c1e22"; // 禁林黑泥色
+        ctx.fillRect(g.x, g.y + 4, g.w, g.h - 4);
+        ctx.fillStyle = "#2c3b40"; // 苔藓表层
+        ctx.fillRect(g.x, g.y, g.w, 4);
+        
+        // 每隔一段距离长出幽蓝色的魔药素蘑菇
+        if (g.w > 50 && g.x % 3 === 0) {
+            ctx.fillStyle = "#5c84a8";
+            ctx.beginPath(); ctx.arc(g.x + 20, g.y, 3, Math.PI, Math.PI*2); ctx.fill();
+            ctx.fillStyle = "rgba(92, 132, 168, 0.4)";
+            ctx.beginPath(); ctx.arc(g.x + 20, g.y, 8, Math.PI, Math.PI*2); ctx.fill(); // 蘑菇光晕
+        }
+    }
+    
+    // 5. 立体高光加隆金币
+    for(let c of platCoins) {
+        if(!c.collected) { 
+            ctx.fillStyle = "#d1b55a"; 
+            ctx.beginPath(); ctx.arc(c.x+3, c.y+3, 4, 0, Math.PI*2); ctx.fill();
+            ctx.fillStyle = "#fff"; 
+            ctx.fillRect(c.x+2, c.y+1, 2, 2); // 闪光点
+        }
+    }
+    
+    // 6. 怪物重绘 (贴合 HP 世界观)
+    for(let m of platMonsters) {
+        if(!m.alive) continue;
+        if(m.type === 'spider') { 
+            // 八眼巨蛛 (Acromantula)
+            ctx.fillStyle = "#1a1111"; ctx.beginPath(); ctx.arc(m.x+6, m.y+6, 6, 0, Math.PI*2); ctx.fill(); // 身体
+            ctx.fillStyle = "#000"; // 蜘蛛腿
+            ctx.fillRect(m.x-4, m.y+4, 20, 2); ctx.fillRect(m.x-3, m.y+8, 18, 2); 
+            ctx.fillStyle = "#d15a5a"; ctx.fillRect(m.x+2, m.y+4, 2, 2); ctx.fillRect(m.x+8, m.y+4, 2, 2); // 猩红复眼
+        } else { 
+            // 摄魂怪 (Dementor) 带冰霜寒气边缘
+            ctx.fillStyle = "rgba(181, 202, 221, 0.15)"; 
+            ctx.beginPath(); ctx.arc(m.x+6, m.y+6, 15, 0, Math.PI*2); ctx.fill(); // 寒气光晕
+            
+            ctx.fillStyle = "#060709"; 
+            ctx.beginPath(); ctx.arc(m.x+6, m.y+3, 5, 0, Math.PI*2); ctx.fill(); // 头兜
+            ctx.fillRect(m.x+1, m.y+5, 10, 10);
+            // 飘动的破烂斗篷
+            ctx.beginPath(); ctx.moveTo(m.x+1, m.y+15); ctx.lineTo(m.x-3, m.y+22); ctx.lineTo(m.x+4, m.y+15); ctx.fill();
+            ctx.beginPath(); ctx.moveTo(m.x+11, m.y+15); ctx.lineTo(m.x+15, m.y+22); ctx.lineTo(m.x+7, m.y+15); ctx.fill();
+        }
+    }
+    
+    // 7. 拉文克劳/呼神护卫 银蓝色魔咒光束
+    for(let p of platProjectiles) {
+        ctx.fillStyle = "#ffffff"; ctx.fillRect(p.x, p.y, p.w, p.h); // 魔咒高光核心
+        ctx.fillStyle = "rgba(92, 132, 168, 0.7)"; 
+        // 根据子弹飞行方向画拖尾
+        ctx.fillRect(p.vx > 0 ? p.x-8 : p.x+p.w, p.y-1, 8, p.h+2); 
+    }
+    
+    // 8. ⭐️ 主页同款缩小版诺亚！直接调用主页的 pixelMap ⭐️
+    ctx.save();
+    let nx = platNoah.x, ny = platNoah.y;
+    // 如果往左走，水平翻转画布
+    if(platNoah.dir === -1) {
+        ctx.translate(nx + platNoah.width/2, ny);
+        ctx.scale(-1, 1);
+        ctx.translate(-(nx + platNoah.width/2), -ny);
+    }
+    
+    // 遍历主页的色块矩阵，按1.1倍缩放绘制到动作游戏里
+    for (let y = 0; y < pixelMap.length; y++) {
+        let rowColors = pixelMap[y].trim().split(/\s+/);
+        for (let x = 0; x < rowColors.length; x++) {
+            let color = palette[rowColors[x]];
+            if (color) {
+                ctx.fillStyle = color;
+                ctx.fillRect(nx + x*1.1 - 4, ny + y*1.1 - 3, 1.2, 1.2); 
+            }
+        }
+    }
+    ctx.restore();
+    
+    ctx.restore(); // 恢复镜头
+    
+    // 9. 精美魔法风 HUD UI
+    ctx.fillStyle = "rgba(6, 7, 9, 0.75)"; 
+    ctx.fillRect(5, 5, 80, 18); ctx.fillRect(165, 5, 90, 18);
+    ctx.strokeStyle = "#5c84a8"; // 魔法边框
+    ctx.strokeRect(5, 5, 80, 18); ctx.strokeRect(165, 5, 90, 18);
+    
+    ctx.fillStyle = "#d1b55a"; ctx.font = "bold 11px Courier New";
+    ctx.fillText("💰 " + platScore + " G", 12, 18);
+    ctx.fillStyle = "#b5cadd"; ctx.font = "bold 9px Courier New";
+    ctx.fillText("A:魔咒", 170, 17);
+}
+function platShoot() {
+    sfx_write(); // 借用写字沙沙声模拟魔咒发射
+    platProjectiles.push({ x: platNoah.dir === 1 ? platNoah.x + 12 : platNoah.x - 6, y: platNoah.y + 6, w: 6, h: 2, vx: platNoah.dir === 1 ? 6 : -6 });
+}
+
+function endPlatformerGame(isWin) {
+    window.isPlatformGaming = false;
+    cancelAnimationFrame(platFrame);
+    document.getElementById('platform-canvas').style.display = 'none';
+    document.getElementById('noah-canvas').style.display = 'block';
+    
+    if(platScore > 0) noah.gold += platScore; // 结算加隆
+    
+    if(isWin) {
+        speak(`“完美穿过禁林边缘！一共收集了 ${platScore} 个加隆，拿去买糖吃吧。”`);
+        noah.mood += 15; noah.love += 5;
+    } else {
+        noah.health -= 15;
+        speak(`“啧...大意了，刚才被袭击了。不过好歹抢到了 ${platScore} 个加隆。你没受伤就行。”`);
+    }
+    updateUI();
+}
+
+// ----------------- 十字键深层劫持绑定 (兼容鼠标、触屏、键盘) -----------------
+const addPlatUp = (e) => { if(window.isPlatformGaming){ e.preventDefault(); platKeys.up = true; } };
+const addPlatLeft = (e) => { if(window.isPlatformGaming){ e.preventDefault(); platKeys.left = true; } };
+const addPlatRight = (e) => { if(window.isPlatformGaming){ e.preventDefault(); platKeys.right = true; } };
+
+document.querySelector('.d-up').addEventListener('mousedown', addPlatUp);
+document.querySelector('.d-up').addEventListener('touchstart', addPlatUp, {passive: false});
+document.querySelector('.d-left').addEventListener('mousedown', addPlatLeft);
+document.querySelector('.d-left').addEventListener('touchstart', addPlatLeft, {passive: false});
+document.querySelector('.d-right').addEventListener('mousedown', addPlatRight);
+document.querySelector('.d-right').addEventListener('touchstart', addPlatRight, {passive: false});
+
+window.addEventListener('mouseup', () => { if(window.isPlatformGaming){ platKeys.left = false; platKeys.right = false; platKeys.up = false; }});
+window.addEventListener('touchend', () => { if(window.isPlatformGaming){ platKeys.left = false; platKeys.right = false; platKeys.up = false; }});
+
+// 键盘映射
+window.addEventListener('keydown', (e) => {
+    if(!window.isPlatformGaming) return;
+    if(e.key === 'ArrowLeft') platKeys.left = true;
+    if(e.key === 'ArrowRight') platKeys.right = true;
+    if(e.key === 'ArrowUp') platKeys.up = true;
+    if(e.key === 'a' || e.key === 'A' || e.key === 'Enter') platShoot();
+    if(e.key === 'b' || e.key === 'B' || e.key === 'Escape') endPlatformerGame(true);
+});
+window.addEventListener('keyup', (e) => {
+    if(!window.isPlatformGaming) return;
+    if(e.key === 'ArrowLeft') platKeys.left = false;
+    if(e.key === 'ArrowRight') platKeys.right = false;
+    if(e.key === 'ArrowUp') platKeys.up = false;
+});
 </script>
 </body>
 </html>
