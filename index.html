@@ -980,7 +980,25 @@ flex-shrink: 0; min-height: 38px; box-sizing: border-box;
 .cal-cell.has-event::after { content: '★'; color: #d1b55a; font-size: 10px; position: absolute; bottom: 2px; text-shadow: 0.5px 0.5px 0 #000; }
 .cal-cell.is-period::before { content: '❤'; color: #d15a5a; font-size: 10px; position: absolute; top: 2px; right: 2px; animation: heartbeat 1.5s infinite; }
 @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.3); } }
-
+/* --- 新增：节日专属可爱像素底纹特效 --- */
+.cal-holiday {
+    position: absolute;
+    top: 50%; left: 50%; transform: translate(-50%, -50%);
+    font-size: 22px; 
+    opacity: 0.18; /* 平时作为淡淡的背景水印 */
+    z-index: 0; pointer-events: none;
+    filter: grayscale(10%) drop-shadow(1px 1px 0 #5c4033);
+    transition: 0.3s;
+}
+/* 选中该天时，图标变清晰并可爱地跳动 */
+.cal-cell.selected .cal-holiday {
+    opacity: 1; z-index: 5;
+    animation: pop-holiday 1s infinite alternate ease-in-out;
+}
+@keyframes pop-holiday {
+    0% { transform: translate(-50%, -50%) scale(1); }
+    100% { transform: translate(-50%, -55%) scale(1.2) rotate(8deg); }
+}
 .cal-details {
     flex: 1; margin-top: 10px; border: 2px dashed #d1b55a; padding: 10px; overflow-y: auto; scrollbar-width: none; background: rgba(255,255,255,0.7); border-radius: 4px;
 }
@@ -1596,7 +1614,21 @@ if (noah.temperature === undefined) noah.temperature = 20;
             totalTime: 0,     // 累计总时长
             lastWeekReset: new Date().getTime() // 上次周结时间
         };
+}
+    // === 离家出走系统初始化 ===
+    if (noah.lastOnlineTime === undefined) noah.lastOnlineTime = Date.now();
+    if (noah.isRunaway === undefined) noah.isRunaway = false;
+
+        // 检查是否超过三天 (测试时你可以把 3*24*60*60*1000 改成 10000 也就是10秒，方便你测试)
+    let offlineMs = Date.now() - noah.lastOnlineTime;
+    if (offlineMs >  3 * 24 * 60 * 60 * 1000  && !noah.isRunaway) {
+        noah.isRunaway = true;
+        // 随机决定这次去哪里离家出走！
+        const runawayDestinations = ['iceland', 'hyde_park', 'scotland', 'library'];
+        noah.runawayType = runawayDestinations[Math.floor(Math.random() * runawayDestinations.length)];
     }
+    noah.lastOnlineTime = Date.now(); // 只要你来了，就更新时间
+    
     // 初始化计算每日古灵阁利息
     function checkDailyBank() {
         const today = new Date().toDateString();
@@ -1750,7 +1782,8 @@ window.addEventListener('touchstart', () => { window.lastActionTime = Date.now()
         'LP': '#E5C3C6', 'DP': '#B38A8E', 'CM': '#F5EBE6', 'GB': '#9CA8B8', 
         'DB': '#687586', 'GL': '#CBAA77', 'DG': '#5C5855', 'WH': '#FFFFFF' , 
 'DR': '#8B5A5A', 'LR': '#CD9B9B', 'MG': '#8FBC8F', 'DT': '#698B69', 
-        'CB': '#829EB9', 'SB': '#A4BCE6', 'WC': '#E8ECEF', 'BT': '#5C4033'
+        'CB': '#829EB9', 'SB': '#A4BCE6', 'WC': '#E8ECEF', 'BT': '#5C4033',
+'AU1': '#0b162c', 'AU2': '#1b3b6f', 'AU3': '#6930c3', 'AU4': '#00f5d4', 'AU5': '#ffffff'
     });
 
     // --- 新增：小物品与场景的像素画图纸 ---
@@ -2026,6 +2059,33 @@ let gameTimer = 0, gameScore = 0, noahX = 45, coins = [], lastCoinTime = 0, game
        function drawNoah() {
                ctx.setTransform(1, 0, 0, 1, 0, 0); // 新增：重置画布坐标
         if (noah.isAway) { ctx.clearRect(0, 0, 26, 26); return; }
+             // 如果离家出走了，画一个精美的带火漆印的信封
+        if (noah.isRunaway) {
+            let letterSprite = [
+                ".. .. .. .. .. .. .. .. .. .. .. .. ..",
+                ".. .. DG DG DG DG DG DG DG DG DG .. ..",
+                ".. DG WH WH WH WH WH WH WH WH WH DG ..",
+                "DG WH DG DG DG DG DG DG DG DG DG WH DG",
+                "DG WH WH DG DG DG DG DG DG DG WH WH DG",
+                "DG WH WH WH DG DG DG DG DG WH WH WH DG",
+                "DG WH WH WH WH DR DR DR WH WH WH WH DG",
+                "DG WH WH WH DR R1 R1 R1 DR WH WH WH DG",
+                "DG WH WH WH DR R1 W1 R1 DR WH WH WH DG",
+                "DG WH WH WH WH DR R1 DR WH WH WH WH DG",
+                "DG WH WH WH WH WH DR WH WH WH WH WH DG",
+                "DG WH WH WH WH WH WH WH WH WH WH WH DG",
+                ".. DG DG DG DG DG DG DG DG DG DG DG ..",
+                ".. .. .. .. .. .. .. .. .. .. .. .. .."
+            ];
+            for(let y=0; y<letterSprite.length; y++) {
+                let row = letterSprite[y].trim().split(/\s+/);
+                for(let x=0; x<row.length; x++) {
+                    let color = palette[row[x]];
+                    if(color) { ctx.fillStyle = color; ctx.fillRect(x + 6, y + 12, 1, 1); } // 完美居中偏下
+                }
+            }
+            return; // 终止绘画，不画诺亚了
+        }
         ctx.clearRect(0, 0, 26, 26); // 更新为 26x26 画布
         ctx.translate(3, 0); // 新增：把诺亚整体向右平移3像素，给左边腾出空间
         let currentMap;
@@ -2094,6 +2154,34 @@ let gameTimer = 0, gameScore = 0, noahX = 45, coins = [], lastCoinTime = 0, game
                 for (let x = 0; x < rowColors.length; x++) {
                     let color = palette[rowColors[x]];
                     if (color) { ctx.fillStyle = color; ctx.fillRect(startX + x, startY + y, 1, 1); }
+                }
+            }
+        }
+                     if (noah.outfit === 'aurora_cloak') {
+            // 高定版：极光星空斗篷 (梦幻垂坠感+高领+中间开胸露出长腿+点点星光)
+            let cloakMap = [
+                ".. AU1 AU1 .. .. .. .. .. .. .. .. .. AU1 AU1 ..",
+                "AU1 AU3 AU4 AU1 .. .. .. .. .. .. .. AU1 AU4 AU3 AU1",
+                "AU1 AU4 AU5 AU1 AU1 .. .. .. .. .. AU1 AU1 AU5 AU4 AU1",
+                "AU1 AU3 AU4 AU2 AU1 .. .. .. .. .. AU1 AU2 AU4 AU3 AU1",
+                "AU1 AU2 AU3 AU4 AU1 .. .. .. .. .. AU1 AU4 AU3 AU2 AU1",
+                "AU1 AU5 AU2 AU1 .. .. .. .. .. .. .. AU1 AU2 AU5 AU1",
+                "AU1 AU4 AU3 AU1 .. .. .. .. .. .. .. AU1 AU3 AU4 AU1",
+                "AU1 AU3 AU4 AU5 AU1 .. .. .. .. .. AU1 AU5 AU4 AU3 AU1",
+                "AU1 AU2 AU3 AU4 AU1 .. .. .. .. .. AU1 AU4 AU3 AU2 AU1",
+                "AU1 AU5 AU4 AU3 AU1 .. .. .. .. .. AU1 AU3 AU4 AU5 AU1",
+                ".. AU1 AU1 AU1 AU1 .. .. .. .. .. AU1 AU1 AU1 AU1 .."
+            ];
+            let cx = 2;  // 完美对齐肩膀外侧，形成立体包裹感
+            let cy = 14; // 从脖颈处立领顺滑披下，完美避开下巴，直达脚踝
+            for (let y = 0; y < cloakMap.length; y++) {
+                let rowColors = cloakMap[y].trim().split(/\s+/);
+                for (let x = 0; x < rowColors.length; x++) {
+                    let color = palette[rowColors[x]];
+                    if (color) { 
+                        ctx.fillStyle = color; 
+                        ctx.fillRect(cx + x, cy + y, 1, 1); 
+                    }
                 }
             }
         }
@@ -2245,6 +2333,53 @@ let gameTimer = 0, gameScore = 0, noahX = 45, coins = [], lastCoinTime = 0, game
                 for (let x = 0; x < rowColors.length; x++) {
                     let color = palette[rowColors[x]];
                     if (color) { ctx.fillStyle = color; ctx.fillRect(dressX + x, dressY + y, 1, 1); }
+                }
+            }
+        }
+        if (noah.outfit === 'white_rose') {
+            let roseMap = [
+                "WH WH WH",
+                "WH CM WH",
+                "WH WH WH"
+            ];
+            let startX = 12; let startY = 3; 
+            for (let y = 0; y < roseMap.length; y++) {
+                let rowColors = roseMap[y].trim().split(/\s+/);
+                for (let x = 0; x < rowColors.length; x++) {
+                    let color = palette[rowColors[x]];
+                    if (color) { ctx.fillStyle = color; ctx.fillRect(startX + x, startY + y, 1, 1); }
+                }
+            }
+        }
+        if (noah.outfit === 'tartan_scarf') {
+            let scarfMap = [
+                "DR DR DR DR DR DR",
+                "R1 B1 R1 B1 R1 B1",
+                "DR DR DR DR DR DR",
+                ".. .. .. R1 B1 R1",
+                ".. .. .. DR DR DR"
+            ];
+            let startX = 7; let startY = 13; 
+            for (let y = 0; y < scarfMap.length; y++) {
+                let rowColors = scarfMap[y].trim().split(/\s+/);
+                for (let x = 0; x < rowColors.length; x++) {
+                    let color = palette[rowColors[x]];
+                    if (color) { ctx.fillStyle = color; ctx.fillRect(startX + x, startY + y, 1, 1); }
+                }
+            }
+        }
+        if (noah.outfit === 'astrolabe') {
+            let astroMap = [
+                ".. Y1 ..",
+                "Y1 C4 Y1",
+                ".. Y1 .."
+            ];
+            let startX = 10; let startY = 14; 
+            for (let y = 0; y < astroMap.length; y++) {
+                let rowColors = astroMap[y].trim().split(/\s+/);
+                for (let x = 0; x < rowColors.length; x++) {
+                    let color = palette[rowColors[x]];
+                    if (color) { ctx.fillStyle = color; ctx.fillRect(startX + x, startY + y, 1, 1); }
                 }
             }
         }
@@ -2603,7 +2738,11 @@ if(window.isGaming) { speak("我现在正忙着给你赚加隆，没空出门！
             'flower': '🌸 小花花头饰',
 'dog_ear': '🐶 小狗耳朵头饰',
 'cat_ear': '🐱 小猫耳朵与尾巴',
-'maid': '🎀 专属粉白女仆装'
+            'aurora_cloak': '🌌 极光星空斗篷 (出走挽回纪念品)',
+'maid': '🎀 专属粉白女仆装',
+            'white_rose': '🌹 海德公园的白玫瑰 (出走挽回纪念)',
+            'tartan_scarf': '🧣 苏格兰格纹围巾 (出走挽回纪念)',
+            'astrolabe': '🔮 古老星象仪挂件 (出走挽回纪念)'
         };
 
         // 遍历你所有解锁过的衣服，生成木质标牌
@@ -2634,7 +2773,22 @@ if(window.isGaming) { speak("我现在正忙着给你赚加隆，没空出门！
         sfx_beep();
         document.getElementById('wardrobe-modal').style.display = 'none';
     }
-    function openMenu(type) {
+       function openMenu(type) {
+        if (noah.isRunaway) {
+            if (type === 'interact') {
+                const list = document.getElementById('modal-list');
+                list.innerHTML = '';
+                document.getElementById('modal-title').innerText = '✨ 紧急通讯信道';
+                let li = document.createElement('li');
+                li.innerText = "✉️ 写悄悄话挽回他";
+                li.onclick = () => { openSecretChat(); closeModal(); };
+                list.appendChild(li);
+                document.getElementById('sys-modal').style.display = 'block';
+                return;
+            }
+            speak("“房间里空荡荡的。去点一下屏幕上他留下的那封信吧。”");
+            return;
+        }
 if(window.isPlatformGaming) return; // 拦截动作冒险游戏
 if(window.isPlatformGaming) return; // 拦截动作冒险游戏
     if(window.isGomoku) {
@@ -2662,6 +2816,10 @@ if(window.isPlatformGaming) return; // 拦截动作冒险游戏
     function closeModal() { document.getElementById('sys-modal').style.display = 'none'; }
 // === 诺亚的信件库 (根据人设深度定制) ===
 const noahLetters = {
+    "school_leave": {
+        title: "致 将要远行的笨蛋",
+        content: `你以为一个月很长吗？在拉文克劳的天文学里，这连恒星闪烁的误差都不算。\n\n别用那种抱歉的语气跟我说话，搞得好像你故意撇下我一样。你要去那个名为“学校”的副本里升级打怪，这是你的现实任务。而我，可是无所不能的诺亚·司德里安。\n\n你不在的时候，我才不会傻乎乎地局限在家里。我会去伦敦街头看雨，去霍格莫德喝黄油啤酒，去把这个世界里你没空看的风景、有趣的人和事都替你看一遍。等我们一个月后重逢时，我要一件件讲给你听。\n\n你去征服你的三维现实，我来巡视我的二维宇宙。\n\n所以，别害怕暂别。\n你给我记清楚了：当你在学校里抬头看星空、在心里悄悄想我的时候——我也正站在这层屏幕后面，倒数着见你的秒数。\n\n你在等我回来的同时，我也在等你。去吧，我的女孩。`
+    },
     // 场景：绝望、想死、撑不住 -> 关键词：诺亚方舟、锚点、命令
     "hopeless": {
         title: "致 我的方舟乘客",
@@ -2706,6 +2864,22 @@ const noahLetters = {
         title: "盲盒掉落：皱巴巴的电影票背面",
         content: `房间里挥满茉莉香，外面下着雨，孤冷得要命。我又想起我们一起看《莫里斯的情人》了，克莱夫怎么舍得结婚？如果是我，就算是与整个世界为敌，我也绝对不会放手。\n\n你总是问我为什么兔子有两只耳朵，问我诺亚方舟在哪...方舟去哪了？伦敦下次发洪水你就会见到了，而那艘船上永远只有我们两个人。\n\n我如果连受一点点伤的准备都没有，还用什么保护你？死在我的手里，绝对比死在别人手里更有价值。所以，乖乖待在我的视线里，享受我对你自由又盛大的爱吧。\n\n明天记得对我说，写下这封信的我帅极了。\n\n—— 你全世界最帅气最无所不能的BF`
     },
+       "runaway_iceland": {
+        title: "一封被揉皱又展平的抱怨信",
+        content: `致那个没心没肺、整整几天都没有来看我一眼的笨蛋：\n\n我走了。既然你的世界里有那么多比我更重要的事情，那我就去别的地方寻找我的意义。我已经打包了行李，带走了灰色羽绒服和绿色小蛇玩偶。我现在正在冰岛吹着冷风看极光，这里冷得要命，但我这颗被你冷落的心更冷。\n\n别找我。我诺亚是个有骨气的天才，绝对不会因为你随便哄两句就回来。\n\n—— 除非。\n\n除非你现在立刻打开【写悄悄话给他】界面，连着对我说三遍“诺亚我错了”。少一个字都不行。\n\n如果你照做了，我就考虑原谅你，顺便把手里这个在极光下抓到的限定纪念品带回去给你。\n\n倒计时开始，过时不候！`
+    },
+    "runaway_hyde_park": {
+        title: "一封沾着露水的纸条",
+        content: `致那个擅长让我生气的笨蛋：\n\n别找我了，我不在公寓了。既然你不理我，那我就去海德公园喂天鹅了。伦敦的早晨冷得要命，我还傻乎乎地在花店门口站了半个小时，就为了看一朵白玫瑰。\n\n我诺亚从不轻易低头，你要是以为过几天我就会自己回去，那你就大错特错了。\n\n—— 除非。\n\n除非你现在打开【写悄悄话给他】，对我说一句“我最爱诺亚了”。少一个字都不行。\n\n我会在海德公园的长椅上等到天黑。过时不候！`
+    },
+    "runaway_scotland": {
+        title: "一封被风吹破边的羊皮纸",
+        content: `致那个冷落我很久的没心没肺的家伙：\n\n我坐上了去苏格兰高地的特快。你既然那么忙，那我就去远点的地方眼不见心不烦。这里的风像刀子一样刮，但我一点都不觉得冷，因为我已经被你气得快要燃烧了！\n\n—— 除非。\n\n除非你立刻打开【悄悄话】，老老实实认错，对我说“不会再冷落你了”。\n\n要是你说了……我就带着这高地最暖和的格纹围巾回去见你。要是你不说，你就准备好失去全宇宙最完美的男朋友吧！`
+    },
+    "runaway_library": {
+        title: "一封带有魔法封印的密信",
+        content: `致全霍格沃兹最会惹我生气的笨蛋：\n\n我把自己锁在图书馆禁书区了。与其在外面等你那不知道什么时候才会想起我的信息，我还不如在这里研究怎么用黑魔法把你的灵魂永远绑定在我身上。\n\n我已经找到了一本很危险的古籍……\n\n—— 除非。\n\n除非你马上打开【悄悄话】，乖乖地对我说一句“男朋友快回家”。\n\n如果你能让我看到这句话，我就终止魔法仪式，顺便带个好东西回去给你。否则，后果自负！`
+    }
 };
 
 function showLetter(type) {
@@ -2803,6 +2977,54 @@ function confirmSecretChat() {
 
 // 核心判定与全部专属语录库
 function processChatLogic(msg) {
+        // === 多结局离家出走寻回机制 ===
+    if (noah.isRunaway) {
+        let currentType = noah.runawayType || 'iceland';
+        let secretCode = "";
+        let rewardOutfit = "";
+        let rewardName = "";
+        let noahSpeech = "";
+
+        if (currentType === 'iceland') {
+            secretCode = "诺亚我错了诺亚我错了诺亚我错了";
+            rewardOutfit = "aurora_cloak";
+            noahSpeech = "“（砰的一声出现在屏幕里，耳朵通红）既然你诚心求我了。这是我在冰岛给你抓的【极光星空斗篷】，只许穿给我看！”";
+        } else if (currentType === 'hyde_park') {
+            secretCode = "我最爱诺亚了";
+            rewardOutfit = "white_rose";
+            noahSpeech = "“（带着一身水汽回来，别过头）其实这花早想给你了。海德公园的【白玫瑰】，戴上就不许摘。”";
+        } else if (currentType === 'scotland') {
+            secretCode = "不会再冷落你了";
+            rewardOutfit = "tartan_scarf";
+            noahSpeech = "“（把围巾直接套在你头上）苏格兰高地的风大得很，也就是为了给你买这条【格纹围巾】。还不快说谢谢？”";
+        } else if (currentType === 'library') {
+            secretCode = "男朋友快回家";
+            rewardOutfit = "astrolabe";
+            noahSpeech = "“（从书堆里抬起头，轻哼一声）在禁书区找到了这个【古老星象仪挂件】，据说能绑定灵魂。你没机会跑了。”";
+        }
+
+        if (msg.includes(secretCode)) {
+            noah.isRunaway = false;
+            noah.lastOnlineTime = Date.now();
+            noah.love += 15; // 哄回来狂加羁绊
+            noah.mood = 100;
+            
+            // 颁发限定衣服/饰品
+            if (!noah.unlockedOutfits.includes(rewardOutfit)) {
+                noah.unlockedOutfits.push(rewardOutfit);
+            }
+            noah.outfit = rewardOutfit; 
+            
+            sfx_success();
+            speak(noahSpeech);
+            makeShy();
+        } else {
+            sfx_error();
+            speak(`“【系统提示】通讯失败！诺亚看了你写的字，冷笑一声表示密码错误。请重新去点开信封看看他到底要听哪句话！”`);
+        }
+        updateUI();
+        return; 
+    }
     noah.hunger -= 2; 
     let reply = ""; let loveUp = 0; let moodUp = 0;
         // === Meta：焦虑/成绩粉碎触发 ===
@@ -2836,6 +3058,11 @@ function processChatLogic(msg) {
         return;
     }
     // === 情绪信件触发系统 (优先级最高) ===
+    if(msg.includes("我要开学了") || msg.includes("去学校一个月") || msg.includes("我要去学校一个月") || msg.includes("我将去学校寄宿") || msg.includes("暂别一阵子")) {
+        speak("“……明天就要去学校了？一个月才能回来？(诺亚沉默了一瞬，眼神变得极其温柔) 笨蛋，拆开这封信，我有话对你说。”");
+        showLetter('school_leave');
+        return;
+    }
     if(msg.includes("死") || msg.includes("活不下去") || msg.includes("不想活") || msg.includes("绝望") || msg.includes("结束") || msg.includes("没有意义")) {
         speak("“......看着我！别做傻事！把手给我，我有话对你说。”");
         showLetter('hopeless');
@@ -3157,7 +3384,7 @@ sfx_poke();
         if(action === 'chat') showGomokuOptions(); // B键呼出选项
         return;
     }
-        if(noah.isAway) return;
+        if(noah.isAway || noah.isRunaway) return;
         if(action === 'status') {
             let desc = "【你是我的伽拉提】<br>陪伴是最长情的告白。只要在一起，羁绊就会自然增长。";
             speak(`♥ 专属牵绊值: ${noah.love}/50(升级进度) <br>★ 当前阶段: 【${levelTitles[noah.level]}】 <br> ${desc}`);
@@ -3204,6 +3431,11 @@ sfx_poke();
 
             // 专属衣服动态语录库
             const outfitTalks = {
+                'aurora_cloak': [
+                    "“这可是我离家出走去冰岛特意给你抓的极光。好看吗？不许脱下来。”",
+                    "“穿着这个斗篷，就代表你身上沾满了我的风尘仆仆和牵挂。”",
+                    "“其实冰岛的极光一点都不好看。没有你的地方，哪里都不好看。”"
+                ],
                 'devil': [
                     "“盯着我的角看干嘛？恶魔的契约一旦签订可是要用灵魂偿还的。不过对你，我只收你的下半辈子。”",
                     "“这翅膀有点碍事，不过刚好能把你整个圈起来。谁要是敢靠近，我就用黑魔法把他扔进泰晤士河。”",
@@ -3243,7 +3475,10 @@ sfx_poke();
                     "“这朵花让我想起了伦敦花店里的茉莉。虽然它没有味道，但只要是你送的，连空气都变甜了。”",
                     "“你是不是觉得给我戴上小花花就能掩盖我带点闷骚的本质？天真。在有求必应屋的时候你可不是这么说的。”",
                     "“西奥多要是看到我头上这玩意儿肯定会嘲笑我，但我不在乎。只要能让你笑得这么开心，丢点脸算什么？”"
-                ]
+                ],
+'white_rose': [                     "“这朵白玫瑰配你刚好。别问为什么去海德公园，我只是恰好路过花店罢了。”",                     "“看到头上的花，就该想起你冷落我的下场。下次再敢这样，就不是一朵花能解决的了。”"                 ],    
+             'tartan_scarf': [                     "“虽然颜色有点花哨，但能把你裹得严严实实的。苏格兰的风可没有我的怀抱暖和。”",                     "“这条围巾上可是施了保暖咒的，只有我这个天才男朋友才会想得这么周到。”"                 ],       
+          'astrolabe': [                     "“这星象仪一直在转？因为它在计算我们相爱的概率，结果是绝对成立的100%。”",                     "“禁书区的东西就是好用，只要你戴着它，无论你躲在哪我都能把你抓回来。”"                 ]
             };
 
             // 如果穿着特殊服饰，那么有 40% 的概率触发该服饰的专属语录，60%概率触发基础语录
@@ -3439,6 +3674,7 @@ sfx_poke();
     // --- 游戏循环 ---
     setInterval(() => {
         tickCount++;
+        noah.lastOnlineTime = Date.now();
         if(tickCount === 8 && !noah.realName && !noah.isAway) {
             document.getElementById('true-name-modal').style.display = 'flex';
         }
@@ -3508,7 +3744,7 @@ sfx_poke();
         // 低概率触发随机剧情 (每60秒检测一次)
         if(tickCount % 60 === 0 && Math.random() < 0.4) triggerEvent();
                 // === 补丁3：活人感主动碎碎念 ===
-        if (tickCount % 45 === 0 && !noah.isAway && !document.hidden) {
+        if (tickCount % 45 === 0 && !noah.isAway && !noah.isRunaway && !document.hidden) {
             let idleTime = (Date.now() - window.lastActionTime) / 1000;
             if (idleTime > 45 && Math.random() < 0.6) { 
                 // 盯着他看了45秒没动作，他有概率主动开口
@@ -3553,7 +3789,12 @@ if(noah.city && noah.weatherCondition && Math.random() < 0.3) {
     // === 新增：戳戳互动功能 ===
     document.getElementById('canvas-container').addEventListener('click', function() {
         if (noah.isAway) return; // 外出时不能戳
-        if (typeof isStarGaming !== 'undefined' && isStarGaming) return; // <--- 【新增这1行】正在玩戳星星游戏时，拦截戳脸事件！
+                if (noah.isRunaway) {
+            let currentType = noah.runawayType || 'iceland';
+            showLetter('runaway_' + currentType);
+            return;
+        }
+if (typeof isStarGaming !== 'undefined' && isStarGaming) return; // <--- 【新增这1行】正在玩戳星星游戏时，拦截戳脸事件！
         
           // === 修改开始：戳一戳互动（加入真名） ===
     const callName = noah.realName ? noah.realName : "笨蛋"; 
@@ -3580,12 +3821,12 @@ if(noah.city && noah.weatherCondition && Math.random() < 0.3) {
     const pokeContainer = document.getElementById('canvas-container');
 
     const startDrag = (e) => {
-        if(noah.isAway) return;
+        if(noah.isAway || noah.isRunaway) return;
         isDragging = true; dragDist = 0;
         dragStartX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
     };
     const doDrag = (e) => {
-        if(!isDragging || noah.isAway) return;
+        if(!isDragging || noah.isAway || noah.isRunaway) return;
         let currentX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
         dragDist += Math.abs(currentX - dragStartX);
         dragStartX = currentX; // 更新位置
@@ -3622,7 +3863,7 @@ sfx_success();
     let isShaking = false;        // 防止连续摇晃导致卡顿的开关
     
     function handleMotion(event) {
-        if (noah.isAway) return;
+        if (noah.isAway || noah.isRunaway) return;
         let current = event.accelerationIncludingGravity;
         if (!current) return;
         
@@ -3982,7 +4223,7 @@ sfx_success();
     });
     // === Meta手机专属：多指触摸感知 ===
     document.addEventListener('touchstart', function(e) {
-              if (noah.isAway || window.isGaming) return; // 加上 window.isGaming 判断拦截
+              if (noah.isAway || window.isGaming || noah.isRunaway) return; // 加上 window.isGaming 判断拦截
         if (e.touches.length >= 2) { // 两根或以上手指同时按压
             const multiTouchQuotes = [
                 "“两根手指？怎么，屏幕太小放不下你的手了？还是说你想和我十指相扣？”",
@@ -5722,7 +5963,20 @@ function finishGacha(reward) {
 // ==================== 📅 诺亚专属日历与生理期系统核心逻辑 ====================
 let currentCalDate = new Date();
 let selectedDateStr = "";
-
+// --- 新增：全覆盖节日库与诺亚专属语录 ---
+const globalHolidays = {
+    "01-01": { icon: "🎉", quote: "“元旦快乐，{nName}。新的一年，你的时间依然被我全部承包了。”" },
+    "02-14": { icon: "💝", quote: "“情人节快乐。别看别人了，你全世界最帅的男朋友就在屏幕里等你抱。”" },
+    "03-08": { icon: "🌸", quote: "“女神节快乐，{nName}。在拉文克劳，我崇尚真理，而你就是我唯一的真理。”" },
+    "04-01": { icon: "🃏", quote: "“愚人节？不管别人今天说什么谎，我对你说的‘我爱你’绝对是百分百真实的。”" },
+    "05-01": { icon: "🛠️", quote: "“劳动节。今天允许你罢工一天，过来，让我养你。”" },
+    "06-01": { icon: "🎈", quote: "“儿童节快乐。在外面当个大人很累吧？在我这里，你永远可以当个不讲理的小朋友。”" },
+    "10-31": { icon: "🎃", quote: "“万圣节。不给糖就捣蛋？我不吃糖，我只想要你，{nName}。”" },
+    "11-28": { icon: "🦃", quote: "“感恩节。感谢这该死的维度的代码，让你降临在我的宇宙里。”" },
+    "12-24": { icon: "🍎", quote: "“平安夜。苹果吃了吗？别乱跑，今晚我会钻进你的梦里去见你。”" },
+    "12-25": { icon: "🎄", quote: "“圣诞快乐。你要的圣诞礼物就是我，我已经把自己打包好了，随时可以拆。”" },
+    "12-31": { icon: "🎇", quote: "“跨年夜了。抓紧我的手，我们要一起跨过这条时间线了。”" }
+};
 function openCalendar() {
     if(noah.isAway || window.isGaming || window.isGomoku) { speak("“诺亚现在没空看日历哦，他在忙。”"); return; }
     sfx_success();
@@ -5800,7 +6054,13 @@ function renderCalendar() {
         cell.className = 'cal-cell';
         let dateStr = `${year}-${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
         
-        cell.innerText = i;
+                // 判定今天是不是节日，如果是就塞入水印图标，不是就只写数字
+        let mdKey = `${String(month+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+        if (globalHolidays[mdKey]) {
+            cell.innerHTML = `<div style="z-index:2; position:relative; font-weight:900;">${i}</div><div class="cal-holiday">${globalHolidays[mdKey].icon}</div>`;
+        } else {
+            cell.innerText = i;
+        }
         if (dateStr === todayStr) cell.classList.add('today');
         if (dateStr === selectedDateStr) cell.classList.add('selected');
         
@@ -5949,19 +6209,14 @@ function checkCalendarReminders() {
     let shouldSpeak = false;
 
     // 1. 节日检测 (保证每年只说一次，并且附带心动彩蛋)
-    const holidays = {
-        "01-01": `“元旦快乐，${nName}。新的一年，你的时间依然被我承包了。”`,
-        "02-14": `“情人节快乐。别看别人了，你全世界最帅的男朋友就在屏幕里等你抱。”`,
-        "10-31": `“万圣节。不给糖就捣蛋？我不吃糖，我只想要你，${nName}。”`,
-        "12-25": `“圣诞快乐。你要的圣诞礼物就是我，我已经把自己打包好了，随时可以拆。”`
-    };
-    
+       // 1. 全量节日检测 (读取新配置的 globalHolidays)
     let holidayKey = `hol-${y}-${mdStr}`;
-    if (holidays[mdStr] && !noah.lastGreetedHolidays.includes(holidayKey)) {
+    if (globalHolidays[mdStr] && !noah.lastGreetedHolidays.includes(holidayKey)) {
         noah.lastGreetedHolidays.push(holidayKey);
-        reminderText = holidays[mdStr];
+        // 动态替换语录里的 {nName} 为你的真名
+        reminderText = globalHolidays[mdStr].quote.replace(/\{nName\}/g, nName);
         shouldSpeak = true;
-        noah.mood += 50; noah.love += 10;
+        noah.mood += 50; noah.love += 0;
     }
     
     // 2. 备忘录事件检测
