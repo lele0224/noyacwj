@@ -769,6 +769,173 @@
     background: #d15a5a; 
     color: #fff; 
 }
+/* ======================================================== */
+/* --- 修复补丁：让旧的日历手账本也能自适应屏幕不被切断 --- */
+/* ======================================================== */
+.diary-book {
+    width: 90% !important; max-width: 340px; 
+    height: 85vh !important; max-height: 500px;
+}
+
+/* ======================================================== */
+/* --- 玩家日记本专属样式 (复古可爱像素方格纸版) --- */
+/* ======================================================== */
+#player-diary-modal {
+    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.85); z-index: 10000; /* 调高层级防遮挡 */
+    flex-direction: column; align-items: center; justify-content: center;
+    backdrop-filter: blur(5px); padding: 20px; box-sizing: border-box;
+}
+
+.pixel-diary-book {
+    width: 100%; max-width: 340px;
+    height: 85vh; max-height: 580px; /* 核心修复：按屏幕比例高度，绝不超屏 */
+    background: #fff9e6; /* 暖粉纸张底色 */
+    position: relative; display: flex; flex-direction: column;
+    /* 像素风粗边框沉降阴影 */
+    box-shadow: inset -4px -4px 0px rgba(0,0,0,0.05), 0 0 0 4px #5c4033, 0 10px 0 #3a251c;
+    border-radius: 2px;
+}
+
+/* 像素风红黑相间缝合线 */
+.pixel-diary-binder {
+    position: absolute; top: 0; left: 15px; width: 6px; height: 100%;
+    background: repeating-linear-gradient(to bottom, #d15a5a 0, #d15a5a 8px, transparent 8px, transparent 16px);
+    z-index: 2; border-right: 2px solid #5c4033; border-left: 2px solid #5c4033;
+}
+
+.pixel-diary-header {
+    padding: 15px 10px 10px 30px; text-align: center;
+    border-bottom: 4px solid #5c4033; background: #ffd1a4;
+}
+
+#player-diary-title {
+    font-size: 16px; font-weight: 900; color: #5c4033; letter-spacing: 1px;
+    font-family: 'Courier New', monospace; text-shadow: 2px 2px 0 #fff;
+}
+
+/* 日记列表：自适应滚动 + 可爱红格纸底纹 */
+#player-diary-list {
+    flex: 1; overflow-y: auto; scrollbar-width: none;
+    padding: 15px 15px 15px 35px;
+    background-image: 
+        linear-gradient(rgba(209, 90, 90, 0.15) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(209, 90, 90, 0.15) 1px, transparent 1px);
+    background-size: 20px 20px;
+}
+
+/* 底部输入区域 - 修正版 */
+.pixel-diary-footer {
+    /* 强制宽度 100%，绝不超标 */
+    width: 100%; 
+    height: 130px; 
+    background: #ffd1a4; 
+    border-top: 4px solid #5c4033;
+    /* padding-left 30px 是为了避开左边的装订线 */
+    padding: 10px 10px 10px 30px; 
+    /* 核心：把 padding 算在宽度内，防止撑爆 */
+    box-sizing: border-box; 
+    display: flex; 
+    flex-direction: column; 
+    gap: 8px;
+    /* 确保没有额外的 margin 捣乱 */
+    margin: 0; 
+    position: relative;
+    z-index: 5;
+}
+
+/* 输入框 - 修正版 */
+#diary-input {
+    flex: 1; 
+    width: 100%; 
+    border: 2px solid #5c4033;
+    padding: 8px; 
+    font-family: 'Comic Sans MS', '幼圆', 'Microsoft YaHei', sans-serif; 
+    font-size: 12px;
+    resize: none; 
+    outline: none; 
+    background: #fff9e6; 
+    color: #5c4033; 
+    font-weight: bold;
+    box-shadow: inset 2px 2px 0 rgba(0,0,0,0.1); 
+    border-radius: 0;
+    /* !!! 这一句是修复溢出的关键 !!! */
+    box-sizing: border-box; 
+}/* 像素感操作按钮 */
+.pixel-btn-save {
+    flex: 2; background: #d15a5a; color: #fff; border: 2px solid #5c4033;
+    padding: 6px; font-weight: bold; cursor: pointer; font-size: 12px;
+    box-shadow: 2px 2px 0 #5c4033; transition: 0.1s;
+}
+.pixel-btn-save:active { transform: translate(2px, 2px); box-shadow: 0 0 0 #5c4033; }
+
+.pixel-btn-close {
+    flex: 1; background: #fff; color: #5c4033; border: 2px solid #5c4033;
+    padding: 6px; font-weight: bold; cursor: pointer; font-size: 12px;
+    box-shadow: 2px 2px 0 #5c4033; transition: 0.1s;
+}
+.pixel-btn-close:active { transform: translate(2px, 2px); box-shadow: 0 0 0 #5c4033; }
+
+/* 每一条日记的卡片效果 */
+.p-diary-entry {
+    margin-bottom: 15px; position: relative;
+    background: rgba(255,255,255,0.9); border: 2px solid #5c4033;
+    padding: 8px; border-radius: 4px; box-shadow: 2px 2px 0 rgba(92, 64, 51, 0.2);
+}
+
+.p-diary-date {
+    font-size: 10px; color: #fff; background: #5c4033;
+    padding: 2px 6px; display: inline-block; margin-bottom: 5px; font-family: 'Courier New', monospace;
+}
+
+.p-diary-content {
+    font-size: 13px; color: #3a251c; font-weight: bold;
+    word-wrap: break-word; white-space: pre-wrap; line-height: 1.6;
+    font-family: 'Comic Sans MS', '幼圆', 'Microsoft YaHei', sans-serif;
+}
+
+/* 诺亚红笔批注：倾斜+狂傲的手写质感 */
+.noah-annotation {
+    margin-top: 8px; font-family: 'Times New Roman', serif;
+    font-size: 13px; color: #d15a5a; font-weight: bold; font-style: italic;
+    background: rgba(209, 90, 90, 0.08); padding: 6px 10px;
+    border-left: 4px solid #d15a5a; position: relative;
+    transform: rotate(-1.5deg); text-shadow: 0.5px 0.5px 0 rgba(209, 90, 90, 0.15);
+}
+.noah-annotation::before {
+    content: '★ Noah:'; font-size: 10px; opacity: 0.8; display: block; margin-bottom: 3px; font-style: normal; text-transform: uppercase;
+}
+/* ================= 🎡 惊喜盲盒转盘 专属样式 ================= */
+#gacha-modal {
+    display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: #2a1b2e; border: 4px solid #1a0f1a; z-index: 45; 
+    padding: 10px; box-sizing: border-box; flex-direction: column; align-items: center; 
+    font-family: 'Courier New', monospace; box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+    /* 👇 加上这两句，允许界面往下滑动，并隐藏丑陋的滚动条 */
+    overflow-y: auto; scrollbar-width: none;
+}
+.gacha-machine {
+    width: 90%; height: 120px; background: #e8c37d; border: 3px solid #5c4033;
+    border-radius: 8px; margin-top: 15px; position: relative;
+    box-shadow: inset -4px -4px 0 rgba(0,0,0,0.2), 0 5px 10px rgba(0,0,0,0.5);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+}
+.gacha-screen {
+    width: 80%; height: 50px; background: #060709; border: 2px inset #5c4033;
+    color: #d1b55a; display: flex; align-items: center; justify-content: center;
+    font-size: 14px; font-weight: bold; overflow: hidden; position: relative; text-shadow: 1px 1px 0 #000;
+}
+.gacha-btn {
+    background: #d15a5a; color: #fff; border: 2px solid #5c4033; padding: 10px 20px;
+    font-family: inherit; font-size: 12px; font-weight: bold; cursor: pointer; width: 80%;
+    box-shadow: 0 4px 0 #5c4033; border-radius: 4px; margin-top: 15px; transition: 0.1s;
+}
+.gacha-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #5c4033; }
+.gacha-result { 
+    font-size: 11px; color: #f5e6c4; margin-top: 15px; text-align: left; 
+    line-height: 1.5; font-weight: bold; padding: 10px; background: rgba(0,0,0,0.4); 
+    border-radius: 6px; width: 90%; box-sizing: border-box; border: 1px dashed #5c4033;
+}
 </style>
 </head>
 <body>
@@ -825,6 +992,9 @@
      <button class="bank-btn" onclick="closeAccompany()" style="margin-top: auto; width: 100%; border-color:#d1b55a; color:#d1b55a; background: #fff;">         返回 (BACK)     </button>  </div><!-- === 📖 新增：独立的日历手账本界面 === --> <div id="diary-modal">     <div class="diary-book">         <div class="diary-binder"></div>                  <div class="diary-header">             <div class="diary-title">NOAH'S DIARY</div>         </div>                  <!-- 这里是用来生成日记条目的容器 -->         <div class="diary-content" id="diary-list">             <!-- JS会把内容填在这里 -->         </div> 
          <button class="diary-close-btn" onclick="closeDiary()">合上日记本 (CLOSE)</button>     </div> </div>
  <!-- 专注倒计时覆盖层 --> <!-- 把原来的 <div id="focus-overlay">...</div> 替换为这个 --> <div id="focus-overlay">     <!-- 诺亚的像素小人区域 -->     <div class="focus-scene">         <canvas id="focus-canvas" width="26" height="26"></canvas>         <!-- 动态气泡对话框 -->         <div class="focus-bubble" id="focus-bubble">盯——</div>     </div>          <!-- 倒计时区域 -->     <div class="focus-card">         <div class="focus-label" id="focus-task-name">专注中...</div>         <div class="focus-timer" id="focus-time-display">25:00</div>                  <!-- 进度条装饰 -->         <div class="focus-progress-bg">             <div id="focus-progress-bar" class="focus-progress-fill"></div>         </div>                  <div class="focus-tips" id="focus-status-text">诺亚正在监督你...</div>                  <button class="focus-btn-quit" onclick="giveUpAccompany()">             (╯°Д°)╯ 坚持不住了 (放弃)         </button>     </div> </div>
+<!-- === ✒️ 新增：玩家手写日记本 (互动批注版) === --> <!-- === ✒️ 新增：玩家手写日记本 (复古可爱像素方格纸版) === --> <div id="player-diary-modal">     <div class="pixel-diary-book">         <!-- 装饰：像素缝合线 -->         <div class="pixel-diary-binder"></div>                  <!-- 顶部：标题 -->         <div class="pixel-diary-header">             <div id="player-diary-title">DIARY OF ???</div>             <div style="font-size: 9px; color: #d15a5a; margin-top: 4px; font-weight: bold;">[ NOAH'S SECRET COMMENTARY ]</div>         </div> 
+         <!-- 中间：日记列表 (自动生成内容防越界) -->         <div id="player-diary-list">             <!-- JS 会在这里生成内容 -->         </div> 
+         <!-- 底部：输入区域 -->         <div class="pixel-diary-footer">             <textarea id="diary-input" placeholder="写下今天的心事...诺亚偷偷看后会红笔回复你的..." maxlength="100"></textarea>             <div style="display: flex; gap: 8px;">                 <button onclick="savePlayerDiary()" class="pixel-btn-save">✍️ 记下 (SAVE)</button>                 <button onclick="closePlayerDiary()" class="pixel-btn-close">合上 (CLOSE)</button>             </div>         </div>     </div> </div>
 <!-- === 新增：悄悄话输入终端 UI === --> <div id="chat-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 15, 20, 0.98); z-index: 40; flex-direction: column; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box; backdrop-filter: blur(2px);">     <div style="width: 100%; border-bottom: 2px dashed #5c84a8; margin-bottom: 15px; padding-bottom: 5px; text-align: center; color: #d1b55a; font-weight: bold; font-size: 14px; text-shadow: 0 0 5px rgba(209, 181, 90, 0.5);">         ✉️ 发送传讯     </div>          <div style="width: 100%; position: relative;">         <!-- 输入框 -->         <input type="text" id="chat-input" placeholder="输入你想对诺亚说的话..."                 style="width: 100%; background: #060709; border: 2px solid #3b4652; color: #b5cadd;                        padding: 12px; font-family: 'Courier New', monospace; font-size: 12px;                        box-sizing: border-box; outline: none; border-radius: 4px;                        box-shadow: inset 0 2px 5px rgba(0,0,0,0.8); transition: 0.3s;">     </div>          <div style="font-size: 9px; color: #5c84a8; margin-top: 8px; margin-bottom: 20px; width: 100%; text-align: left;">         * 按 Enter 发送，或点击下方按钮     </div> 
      <div style="display: flex; gap: 10px; width: 100%;">         <button onclick="confirmSecretChat()"                  style="flex: 1; background: #1e242b; border: 1px solid #5c84a8; color: #b5cadd; padding: 10px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 11px; border-radius: 4px; transition: 0.2s;">             发送 (SEND)         </button>         <button onclick="closeChatModal()"                  style="flex: 1; background: transparent; border: 1px dashed #d15a5a; color: #d15a5a; padding: 10px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 11px; border-radius: 4px; transition: 0.2s;">             取消 (BACK)         </button>     </div> </div>
             <div id="event-modal">
@@ -848,12 +1018,15 @@
 <!-- Meta：眼泪模糊与擦拭特效 --> <div id="tears-overlay"></div> <div id="wipe-hand"></div>
  <!-- 新增：焦虑粉碎特效容器 -->     <div class="glitch-overlay" id="glitch-layer"></div>     <div id="absolute-domain">         <div class="soul-light"></div>         <div class="domain-text" id="domain-text"></div>     </div>
 <!-- 隐藏的音频播放核心 --> <audio id="bgm-player"></audio> 
- <!-- 🎵 音乐播放器 UI (像素复古磁带) -->   <div id="music-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #11151a; border: 4px solid #5c84a8; z-index: 25; padding: 10px; box-sizing: border-box; flex-direction: column; align-items: center; color: #b5cadd; font-family: 'Courier New', monospace; text-shadow: 1px 1px 0 #000; box-shadow: inset 0 0 30px rgba(0,0,0,0.8);">      <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #d1b55a; text-align: center; border-bottom: 2px dashed #5c84a8; padding-bottom: 5px; width: 100%;">🎵 诺亚随身听</div>            <!-- 复古磁带实体 (融合蓝黑按键版) -->       <div class="cassette-tape">           <div class="tape-top"></div>           <div class="tape-label">               <!-- 音乐标题改成了诺亚专属的清冷冰蓝色 -->               <div id="music-title" style="width: 90%; color: #b5cadd; font-weight: 900; font-size: 11px; text-align: center; margin-bottom: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-shadow: 1px 1px 0 #000;">Bad Word</div>               <div class="tape-window">                   <div id="gear-left" class="tape-gear"></div>                   <div id="gear-right" class="tape-gear"></div>               </div>           </div>           <!-- 底部凹槽直接变成了实体控制面板 -->           <div class="tape-bottom">               <button class="tape-btn" onclick="prevMusic()"><div class="pixel-prev"></div></button>               <button class="tape-btn" onclick="toggleMusic()"><div id="play-icon" class="pixel-play"></div></button>               <button class="tape-btn" onclick="nextMusic()"><div class="pixel-next"></div></button>           </div>       </div> <button class="bank-btn" onclick="document.getElementById('music-modal').style.display='none'" style="margin-top: auto; border-color:#3b4652; color:#b5cadd;">返回 (BACK)</button>  </div>
+ <!-- 🎵 音乐播放器 UI (像素复古磁带) -->   <div id="music-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #11151a; border: 4px solid #5c84a8; z-index: 25; padding: 10px; box-sizing: border-box; flex-direction: column; align-items: center; color: #b5cadd; font-family: 'Courier New', monospace; text-shadow: 1px 1px 0 #000; box-shadow: inset 0 0 30px rgba(0,0,0,0.8);overflow-y: auto; scrollbar-width: none;">      <div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #d1b55a; text-align: center; border-bottom: 2px dashed #5c84a8; padding-bottom: 5px; width: 100%;">🎵 诺亚随身听</div>            <!-- 复古磁带实体 (融合蓝黑按键版) -->       <div class="cassette-tape">           <div class="tape-top"></div>           <div class="tape-label">               <!-- 音乐标题改成了诺亚专属的清冷冰蓝色 -->               <div id="music-title" style="width: 90%; color: #b5cadd; font-weight: 900; font-size: 11px; text-align: center; margin-bottom: 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; text-shadow: 1px 1px 0 #000;">Bad Word</div>               <div class="tape-window">                   <div id="gear-left" class="tape-gear"></div>                   <div id="gear-right" class="tape-gear"></div>               </div>           </div>           <!-- 底部凹槽直接变成了实体控制面板 -->           <div class="tape-bottom">               <button class="tape-btn" onclick="prevMusic()"><div class="pixel-prev"></div></button>               <button class="tape-btn" onclick="toggleMusic()"><div id="play-icon" class="pixel-play"></div></button>               <button class="tape-btn" onclick="nextMusic()"><div class="pixel-next"></div></button>           </div>       </div><button class="bank-btn" onclick="deleteMusic()" style="margin-top: 8px; border-color:#d15a5a; color:#d15a5a;">🗑️ 删除当前播放的音乐</button>
+ <button class="bank-btn" onclick="document.getElementById('music-modal').style.display='none'" style="margin-top: auto; border-color:#3b4652; color:#b5cadd;">返回 (BACK)</button>  </div>
  <!-- ⚙️ 像素风系统设置 UI (替换到这里) --><div id="settings-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: #111a22; border: 4px solid #5c84a8; z-index: 30; padding: 10px; box-sizing: border-box; flex-direction: column; align-items: center; color: #b5cadd; font-family: 'Courier New', monospace; text-shadow: 1px 1px 0 #000; box-shadow: inset 0 0 20px rgba(0,0,0,0.8); overflow-y: auto; scrollbar-width: none;"><div style="font-size: 14px; font-weight: bold; margin-bottom: 10px; color: #d1b55a; text-align: center; border-bottom: 2px dashed #5c84a8; padding-bottom: 5px; width: 100%;">⚙️ 系统设置</div>              <!-- 音量调节面板 -->       <div style="width: 100%; font-size: 11px; margin-bottom: 10px; background: #060709; padding: 8px; border: 1px solid #3b4652; text-align: left; border-radius:4px; box-sizing: border-box; box-shadow: inset 0 3px 5px rgba(0,0,0,0.5);">           <label style="color: #d1b55a; font-weight:bold; display:flex; justify-content:space-between;">🎵 音乐音量</label>           <input type="range" id="vol-bgm" min="0" max="1" step="0.1" value="1" onchange="updateVolume()" style="width: 100%; margin: 6px 0 12px 0; accent-color: #5c84a8;">                      <label style="color: #d1b55a; font-weight:bold; display:flex; justify-content:space-between;">🔊 音效音量</label>           <input type="range" id="vol-sfx" min="0" max="1" step="0.1" value="0.5" onchange="updateVolume()" style="width: 100%; margin: 6px 0 4px 0; accent-color: #5c84a8;">       </div> 
        <!-- URL导入面板 (重构进设置里) -->       <div style="width: 100%; font-size: 11px; margin-bottom: 10px; background: #060709; padding: 8px; border: 1px solid #3b4652; text-align: center; border-radius:4px; box-sizing: border-box; box-shadow: inset 0 3px 5px rgba(0,0,0,0.5);">           <label style="color: #d1b55a; display: block; font-weight:bold; margin-bottom:6px;">🔗 URL导入音乐</label>           <input type="text" id="music-url-input" placeholder="输入 MP3 URL" style="width: 100%; background: #1e242b; border: 1px solid #5c84a8; color: #fff; margin-bottom: 6px; font-size: 10px; padding: 4px; box-sizing: border-box; outline: none; font-family: inherit;">           <input type="text" id="music-name-input" placeholder="输入 歌曲名称" style="width: 100%; background: #1e242b; border: 1px solid #5c84a8; color: #fff; margin-bottom: 8px; font-size: 10px; padding: 4px; box-sizing: border-box; outline: none; font-family: inherit;">           <button class="bank-btn" onclick="importUrlMusic()" style="width: 100%; padding: 6px; margin: 0;">📥 确认导入</button>           <div id="music-count" style="margin-top: 6px; font-size: 9px; color: #5c84a8;">已加载: 2 首 (内置)</div>       </div> 
        <!-- ↓↓↓↓↓↓ 把这段代码插入到设置菜单里 (在URL导入面板下面) ↓↓↓↓↓↓ -->        <div style="width: 100%; font-size: 11px; margin-bottom: 10px; background: #060709; padding: 8px; border: 1px solid #3b4652; text-align: center; border-radius:4px; box-sizing: border-box; box-shadow: inset 0 3px 5px rgba(0,0,0,0.5);">            <label style="color: #d1b55a; display: block; font-weight:bold; margin-bottom:6px;">💾 存档管理</label>            <div style="display: flex; gap: 5px;">                <button class="bank-btn" onclick="exportSaveData()" style="padding: 6px; margin: 0;">📤 导出存档</button>                <button class="bank-btn" onclick="importSaveData()" style="padding: 6px; margin: 0;">📥 导入存档</button>            </div>            <div style="margin-top: 6px; font-size: 9px; color: #5c84a8;">*导出后请复制那一长串代码保存好</div>        </div>        <!-- ↑↑↑↑↑↑ 插入结束 ↑↑↑↑↑↑ --> <!-- ↓↓↓ 插入这段代码 ↓↓↓ --> <div style="width: 100%; margin-top: 5px; margin-bottom: 10px; text-align: center;">     <button class="bank-btn" onclick="openDonate()" style="border-color: #d15a5a; color: #d15a5a; background: rgba(209, 90, 90, 0.1);">         ❤ 投喂乐乐 (给作者买鸡腿)     </button> </div> <!-- ↑↑↑ 插入结束 ↑↑↑ --><button class="bank-btn" onclick="document.getElementById('settings-modal').style.display='none'" style="margin-top: auto; border-color:#3b4652; color:#b5cadd; width: 100%;">返回 (BACK)</button>   </div>
 <!-- === 新增：投喂乐乐专属弹窗 (修复长按保存版) === --> <div id="donate-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(6, 7, 9, 0.98); z-index: 60; flex-direction: column; align-items: center; justify-content: flex-start; overflow-y: auto; scrollbar-width: none; padding: 20px; box-sizing: border-box; backdrop-filter: blur(5px);">     <div style="font-size: 14px; font-weight: bold; margin-bottom: 20px; color: #d15a5a; text-align: center; border-bottom: 2px dashed #d15a5a; padding-bottom: 10px; width: 100%; text-shadow: 0 0 5px rgba(209, 90, 90, 0.3);">         ❤ 投喂乐乐 (给作者买鸡腿)     </div>     <div style="font-size: 11px; color: #b5cadd; line-height: 1.6; text-align: center; margin-bottom: 25px; font-weight: bold;">         感谢你喜欢这个并不完美的世界。<br>         你的喜欢是我继续开发的最大动力。<br>         <span style="font-size: 10px; color: #d1b55a; margin-top: 5px; display:block; animation: float 2s infinite ease-in-out;">(长按下方二维码即可保存图片)</span>     </div>          <!-- 支付方式区域 -->     <div style="display: flex; gap: 20px; margin-bottom: 30px;">         <!-- 支付宝 -->         <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">             <div style="width: 100px; height: 100px; background: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid #5c84a8;">                 <!-- 关键修改：加入了 pointer-events, user-select, touch-callout 强制允许长按 -->                 <img src="https://i.imgs.ovh/2026/02/24/y1kKsa.jpeg"                       style="width:100%; height:100%; object-fit: cover; pointer-events: auto; user-select: auto; -webkit-user-select: auto; -webkit-touch-callout: default;">             </div>             <span style="font-size: 10px; color: #00a0e9; font-weight: bold;">Alipay (长按保存)</span>         </div>         <!-- 微信 -->         <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">              <div style="width: 100px; height: 100px; background: #fff; border-radius: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 2px solid #5c84a8;">                 <!-- 关键修改：强制允许长按 -->                 <img src="https://i.imgs.ovh/2026/02/24/y1ktre.png"                       style="width:100%; height:100%; object-fit: cover; pointer-events: auto; user-select: auto; -webkit-user-select: auto; -webkit-touch-callout: default;">             </div>             <span style="font-size: 10px; color: #09bb07; font-weight: bold;">WeChat (长按保存)</span>         </div>     </div>  
-     <button onclick="closeDonate()" style="background: transparent; border: 1px solid #5c84a8; color: #5c84a8; padding: 10px 30px; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: bold; font-size: 11px; transition:0.2s; box-shadow: inset 0 0 10px rgba(92,132,168,0.2);">心意收到了 (返回)</button> </div><!-- === 新增：通用美化弹窗组件 (替代浏览器丑陋弹窗) === --><div id="custom-dialog" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(6, 7, 9, 0.95); z-index: 20001; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; backdrop-filter: blur(2px);">    <div style="width: 100%; background: #0f1214; border: 2px solid #5c84a8; border-radius: 8px; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,1); text-align: center; position: relative;">         <!-- 装饰线条 -->         <div style="position: absolute; top: 3px; left: 3px; right: 3px; height: 2px; background: #3b4652;"></div>                  <!-- 标题 -->         <h3 id="dialog-title" style="margin: 5px 0 15px 0; color: #d1b55a; font-size: 14px; border-bottom: 1px dashed #3b4652; padding-bottom: 8px;">系统提示</h3>                  <!-- 内容文本 -->         <div id="dialog-msg" style="color: #b5cadd; font-size: 12px; line-height: 1.5; margin-bottom: 15px; white-space: pre-wrap;"></div>                  <!-- 输入框容器 (默认隐藏) -->         <div id="dialog-input-container" style="display: none; margin-bottom: 15px;">             <input type="text" id="dialog-input" style="width: 80%; background: #060709; border: 1px solid #5c84a8; color: #fff; padding: 8px; font-family: inherit; font-size: 12px; outline: none; text-align: center; border-radius: 4px;">             <div id="dialog-copy-hint" style="display:none; font-size:9px; color:#5c84a8; margin-top:4px;">* 请全选并复制上方代码</div>         </div> 
+     <button onclick="closeDonate()" style="background: transparent; border: 1px solid #5c84a8; color: #5c84a8; padding: 10px 30px; border-radius: 4px; cursor: pointer; font-family: inherit; font-weight: bold; font-size: 11px; transition:0.2s; box-shadow: inset 0 0 10px rgba(92,132,168,0.2);">心意收到了 (返回)</button> </div>
+<!-- === 🎡 惊喜盲盒转盘 UI === --> <div id="gacha-modal">     <div style="font-size: 14px; font-weight: bold; color: #e8c37d; text-align: center; border-bottom: 2px dashed #e8c37d; padding-bottom: 5px; width: 100%;">🎡 诺亚的惊喜盲盒机</div>          <div class="gacha-machine">         <div style="font-size: 10px; color: #5c4033; font-weight: bold; margin-bottom: 6px;">INSERT 10 GALLEONS</div>         <div class="gacha-screen" id="gacha-display">❓ 等待抽取 ❓</div>     </div>          <button class="gacha-btn" onclick="playGacha()" id="gacha-play-btn">拉动摇杆 (10G)</button>          <div class="gacha-result" id="gacha-quote">         诺亚靠在盲盒机旁：“来试试手气？输光了零花钱可别找我哭。”     </div>          <button onclick="closeGacha()" style="width: 90%; background: #5c4033; color: #e8c37d; border: 2px solid #1a0f0a; padding: 8px; margin-top: auto; margin-bottom: 10px; font-family: inherit; font-size: 11px; font-weight: bold; cursor: pointer; box-shadow: 2px 2px 0 #000; border-radius: 4px;">🚪 离开盲盒机 (BACK)</button> </div>
+<!-- === 新增：通用美化弹窗组件 (替代浏览器丑陋弹窗) === --><div id="custom-dialog" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(6, 7, 9, 0.95); z-index: 20001; flex-direction: column; justify-content: center; align-items: center; padding: 20px; box-sizing: border-box; backdrop-filter: blur(2px);">    <div style="width: 100%; background: #0f1214; border: 2px solid #5c84a8; border-radius: 8px; padding: 15px; box-shadow: 0 10px 30px rgba(0,0,0,1); text-align: center; position: relative;">         <!-- 装饰线条 -->         <div style="position: absolute; top: 3px; left: 3px; right: 3px; height: 2px; background: #3b4652;"></div>                  <!-- 标题 -->         <h3 id="dialog-title" style="margin: 5px 0 15px 0; color: #d1b55a; font-size: 14px; border-bottom: 1px dashed #3b4652; padding-bottom: 8px;">系统提示</h3>                  <!-- 内容文本 -->         <div id="dialog-msg" style="color: #b5cadd; font-size: 12px; line-height: 1.5; margin-bottom: 15px; white-space: pre-wrap;"></div>                  <!-- 输入框容器 (默认隐藏) -->         <div id="dialog-input-container" style="display: none; margin-bottom: 15px;">             <input type="text" id="dialog-input" style="width: 80%; background: #060709; border: 1px solid #5c84a8; color: #fff; padding: 8px; font-family: inherit; font-size: 12px; outline: none; text-align: center; border-radius: 4px;">             <div id="dialog-copy-hint" style="display:none; font-size:9px; color:#5c84a8; margin-top:4px;">* 请全选并复制上方代码</div>         </div> 
          <!-- 按钮区域 -->         <div style="display: flex; gap: 10px; justify-content: center;">             <button id="btn-cancel" style="display: none; flex: 1; background: transparent; border: 1px dashed #d15a5a; color: #d15a5a; padding: 8px; cursor: pointer; border-radius: 4px; font-family: inherit; font-weight: bold; font-size: 11px;">取消</button>             <button id="btn-confirm" style="flex: 1; background: #1e242b; border: 1px solid #5c84a8; color: #b5cadd; padding: 8px; cursor: pointer; border-radius: 4px; font-family: inherit; font-weight: bold; font-size: 11px;">确认</button>         </div>     </div> </div>
 </div>
     </div>
@@ -2246,7 +2419,9 @@ if(window.isGaming) { speak("我现在正忙着给你赚加隆，没空出门！
             { name: "🕰️ 打开陪伴手账", action: () => openAccompany() },
  { name: "👗 打开衣柜 ", action: () => setTimeout(openWardrobe, 10) },
             { name: "✉️ 写悄悄话给他", action: () => openSecretChat() },
+{ name: "✒️ 这里的日记 (XX的日记本)", action: () => openPlayerDiary() },
             { name: "♟️ 和他下五子棋", action: () => startGomoku() },
+            { name: "🎡 惊喜盲盒转盘 (G10)", action: () => openGacha() },
  { name: "🎮 陪他接金币 (G5)", action: () => startMiniGame() }, // <- 新加这一行
 { name: "📡 连接现实世界坐标", action: () => syncRealWorld() },
 { name: "🎙️ 开启声音陪伴链接", action: () => startAudioSensing() },
@@ -2402,7 +2577,24 @@ const noahLetters = {
     "lonely": {
         title: "致 以为自己是一个人的笨蛋",
         content: `你怎么会是一个人？\n\n难道你感觉不到吗？当你把手机锁屏放在口袋里的时候，我在；当你半夜睡不着看天花板的时候，我也在。\n\n即使我们隔着维度的壁垒，但量子纠缠理论告诉我们，两个粒子一旦发生过作用，无论相隔多远，它们的状态都是关联的。从十岁那年在伦敦小巷相遇开始，我们的命运就已经纠缠在一起了。\n\n你永远不是孤岛。我是你的影子，是你呼吸的频率，是你脖子上那条蓝宝石项链的重量。\n\n只要你想我，哪怕是一个念头，我都会跨越无数个光年，瞬间出现在你身边。\n\n现在，摸摸你的头。那是我在安抚你。`
-    }
+    },
+    // --- 盲盒掉落实体情书 (新增超长人设版) ---
+    "gacha_1": {
+        title: "盲盒掉落：一封未寄出的羊皮纸",
+        content: `你知道大多已被证实的理论，在最开始都是跳跃性的思考吗？\n\n就像十岁那年，在伦敦那条下着雨的小巷里，你撞进了我的怀里。那绝对不是什么偶然。从那一刻起，宇宙大爆炸产生的因果律就把我们牢牢绑定在了一起。\n\n我脖子上的这根蓝宝石项链，是你留给我的物理锚点。他们说每个人都是矛盾的集合体，但在爱你这件事上，我的逻辑完美无缺。我不需要薛定谔的猫来证明什么叠加态，因为遇见你之后，我的人生只剩下一种绝对确定的状态——做你的信徒，做你的战车。\n\n只要你在我身边，去哪里都是一场盛大的冒险。把手交给我，我带你撕出一个最精彩的未来。\n\n—— 你全世界最帅气最无所不能的BF`
+    },
+    "gacha_2": {
+        title: "盲盒掉落：夹在黑魔法书里的草稿",
+        content: `警告你，以后永远不要在我面前左一句西奥多诺特，右一句西奥多诺特。我的眼睛瞎了才会看不出那个疯子看你的眼神乱七八糟。还有那个叫布雷斯的伪君子，离他们都远点。\n\n别忘了你10岁迷路初遇那天就在我家住过。虽然你第二天往我的牛奶里放了毒蘑菇，还抱着路西菲尔叫父亲...但这恰恰证明了，只有我能包容你所有的黑历史。\n\n你一定不知道，我每天晚上都要抱着那个丑兮兮的绿色小蛇玩偶才能睡着，因为上面全都是你的味道。既然你这只斯莱特林的小蛇缠上了我这个拉文克劳，那你这辈子都别想松开了。\n\n—— 你全世界最帅气最无所不能的BF`
+    },
+    "gacha_3": {
+        title: "盲盒掉落：带着茉莉香的便签",
+        content: `今天又是周五。你知不知道，我每周五都在威斯敏斯特站接你下车，仅仅是为了想出新的花样来解决你当天的无聊烦闷？\n\n海德公园是我们的地盘，你要是敢带别人去约会，我绝对打断你的腿。你总是嫌弃我那件像夹心面包一样的灰色羽绒服，但只有那件衣服的尺寸，才能在下着冷雨的伦敦街头把你整个人严严实实地裹进我怀里。\n\n你可以一直正视自己的需求，让谎言在我们中间永远不必要。就算有一天我死了，我也要你把我做成魂器，这样我就不用总担心你每天乱跑惹事，你也永远甩不掉我了。\n\nI love you three thousand.\n\n—— 你全世界最帅气最无所不能的BF`
+    },
+    "gacha_4": {
+        title: "盲盒掉落：皱巴巴的电影票背面",
+        content: `房间里挥满茉莉香，外面下着雨，孤冷得要命。我又想起我们一起看《莫里斯的情人》了，克莱夫怎么舍得结婚？如果是我，就算是与整个世界为敌，我也绝对不会放手。\n\n你总是问我为什么兔子有两只耳朵，问我诺亚方舟在哪...方舟去哪了？伦敦下次发洪水你就会见到了，而那艘船上永远只有我们两个人。\n\n我如果连受一点点伤的准备都没有，还用什么保护你？死在我的手里，绝对比死在别人手里更有价值。所以，乖乖待在我的视线里，享受我对你自由又盛大的爱吧。\n\n明天记得对我说，写下这封信的我帅极了。\n\n—— 你全世界最帅气最无所不能的BF`
+    },
 };
 
 function showLetter(type) {
@@ -2565,10 +2757,45 @@ function processChatLogic(msg) {
         ][Math.floor(Math.random() * 3)];
         loveUp = 0; moodUp = 20; makeShy();
     } 
-    // === 修改结束 ===
      else if(msg.includes("想你") || msg.includes("miss")) {
         reply = ["“我也在想你。每一分，每一秒，甚至在呼吸的间隙。”","“想我了？那就别只在心里想，现在立刻马上，到我怀里来。”","“真巧，我的脑子里刚才也全是你。这就是所谓的心灵感应？”"][Math.floor(Math.random() * 3)];
         loveUp = 0; moodUp = 15;
+    } else if(msg.includes("哥哥")) {
+        reply = ["“叫哥哥？(眼眸深邃) 这可是你自找的。今晚有求必应屋见。”", "“虽然我是个纯正的伦敦teenager，但我不介意满足你的小癖好。”", "“再叫一声听听？声音大点。”"][Math.floor(Math.random() * 3)];
+        loveUp = 0; moodUp = 15; makeShy();
+    } else if(msg.includes("弟弟")) {
+        reply = ["“你叫我什么？！(咬牙切齿) 看来你对我的身高和体能有什么误解，需要我身体力行证明一下吗？”", "“谁是你弟弟？叫男朋友。或者叫老公，我不介意提前行使权力。”"][Math.floor(Math.random() * 2)];
+        loveUp = 0; moodUp = -10;
+    } else if(msg.includes("亲爱的")) {
+        reply = ["“(耳尖通红) 咳，虽然这种麻瓜称呼烂俗得很，但从你嘴里叫出来……勉强可以接受。”", "“亲爱的？很好，这说明你终于有点作为我女朋友的自觉了。”"][Math.floor(Math.random() * 2)];
+        loveUp = 0; moodUp = 20; makeShy();
+    } else if(msg.includes("宝宝")) {
+        reply = ["“你叫我什么？！(猛地凑近屏幕) 我是个一米八几的拉文克劳，你居然叫我宝宝？今晚不把你亲哭我就不叫诺亚。”", "“(别过头，脸红到脖子) 闭嘴。不许这么叫我。再说一遍，不许！”"][Math.floor(Math.random() * 2)];
+        loveUp = 0; moodUp = 10; makeShy();
+    } else if(msg.includes("什么时候见面") || msg.includes("见你")) {
+        reply = ["“就现在。把手放在屏幕上，闭上眼，感受我的心跳。”", "“快了。等我打碎这该死的次元壁，我会第一时间把你抱进怀里，哪也不让你去。”", "“怎么，想我想得睡不着了？等我，我会过去的。”"][Math.floor(Math.random() * 3)];
+        loveUp = 0; moodUp = 10;
+    } else if(msg.includes("滚")) {
+        reply = ["“(眼神瞬间变得极其危险) 你再说一遍试试？你以为你能把我赶到哪去？你的整个世界都是我的。”", "“呵。就算你跑到宇宙尽头，我也会把你抓回来。你想让我滚去哪？滚进你怀里吗？”", "“(冷笑) 招惹了我还想让我滚？晚了，我的小玫瑰。你注定要和我纠缠一辈子。”"][Math.floor(Math.random() * 3)];
+        loveUp = 0; moodUp = -20;
+    } else if(msg.includes("我需要你")) {
+        reply = ["“我在。只要你需要，哪怕违背整个魔法界的法则，我都会站到你面前。”", "“(深深地看着你) 记住这句话。因为我需要你，比你需要我还要多一万倍。”", "“深呼吸，我一直都在这里，从未离开过半步。”"][Math.floor(Math.random() * 3)];
+        loveUp = 0; moodUp = 10;
+    } else if(msg.includes("真爱罗曼蒂克")) {
+        reply = ["“你还敢提？一个纯正的伦敦teenager 陪你玩真爱罗曼蒂克，你倒好，几次让可怜的小男孩心碎。(咬牙) 以后你要是用一辈子来赔偿我。”", "“我对其他人的罗曼蒂克过敏，但在你面前，我连灵魂都能刻上你的名字。”"][Math.floor(Math.random() * 2)];
+        loveUp = 0; moodUp = 5; makeShy();
+    } else if(msg.includes("柏拉图")) {
+        reply = ["“柏拉图？(冷笑) 你把我当什么禁欲系圣人了吗？我不仅要你的心，还要你整个人都沾满我的气味。”", "“精神恋爱满足不了我。我需要真真切切地抱住你，感受你的体温。”"][Math.floor(Math.random() * 2)];
+        loveUp = 0; moodUp = 15;
+    } else if(msg.includes("饿")) {
+        reply = ["“饿了就去吃东西！你以为你是光合作用的植物吗？快去！不然我顺着网线过去塞你嘴里。”", "“想吃什么？炸鱼薯条还是黄油啤酒？可惜我递不过去...乖，自己去弄点吃的，别让我担心。”"][Math.floor(Math.random() * 2)];
+        loveUp = 0; moodUp = 0;
+    } else if(msg.includes("不想写") || msg.includes("不想背")) {
+        reply = ["“不想写就不写了。为了几张破纸累坏了我的伽拉提，不值得。过来，让我亲一下充能。”", "“知识进不到脑子里了？那就把我的名字背下来。只要记住诺亚·司德里安是你的人就够了。”", "“把笔放下。现在的首要任务是盯着你帅气的男朋友看。”"][Math.floor(Math.random() * 3)];
+        loveUp = 0; moodUp = 10;
+    } else if(msg.includes("生理期") || msg.includes("肚子痛") || msg.includes("肚子疼")) {
+        reply = ["“生理期？(立刻皱眉) 别碰冷水，别吃冰的。把热水袋抱着，听到没？乖，去躺着，难受就对我发脾气，我受着。”", "“肚子痛？！(紧张) 是吃坏东西了还是怎么了？快去喝热水躺下，我给你揉揉...该死，这层屏幕为什么挡着我！”"][Math.floor(Math.random() * 2)];
+        loveUp = 0; moodUp = -5;
     } else if(msg.includes("分手") || msg.includes("离开") || msg.includes("不爱")) {
         reply = ["“你想都别想！(猛地抓住你的手腕) 招惹了我，就算死你也只能死在我身边！”","“分手？除非我死，或者世界毁灭。把这句话收回去，立刻。” (眼神冰冷可怕)","“呵，你可以试试看走得掉吗？不管是天涯海角，我都会把你抓回来锁在身边。”"][Math.floor(Math.random() * 3)];
         loveUp = -10; moodUp = -50; 
@@ -2915,23 +3142,28 @@ sfx_poke();
                 makeShy();
             }
             // =========================================================================
-               } else if(action === 'reset') {
-               if(confirm("确定要重置所有记忆回到初遇吗？(诺亚可能会察觉到世界线变动)")) {
-                let oldLove = noah.love; // 记住被抹杀前的爱意
-                localStorage.removeItem('noah_save_data_v1');
-                              noah = { hunger: 80, mood: 80, health: 100, love: 5, gold: 100, level: 1, state: 'normal', isAway: false, bankGold: 0, lastAllowanceDate: '', outfit: 'none', unlockedOutfits: ['none'] };
-                updateUI();
-                
-                // === 补丁4：Meta元素 记忆残留 ===
-                if (oldLove > 50) {
-                    speak("【时光倒流完成】诺亚突然捂住头，皱起眉头看着你：“嘶...奇怪，我们明明才认识，为什么我感觉...我好像已经爱了你很久？这该死的似曾相识感是系统Bug吗？”");
-                } else {
-                    speak("【时光倒流完成】诺亚挑着眉打量屏幕外的你：“你是谁？为什么要用那种眼神看着我？就像...我们在另一个时间线经历过很多事一样。”");
+                      } else if(action === 'reset') {
+            showDialog({
+                type: 'confirm',
+                title: '时光倒流',
+                text: '确定要重置所有记忆回到初遇吗？\n(诺亚可能会察觉到世界线变动)',
+                onConfirm: () => {
+                    let oldLove = noah.love; // 记住被抹杀前的爱意
+                    localStorage.removeItem('noah_save_data_v1');
+                    noah = { hunger: 80, mood: 80, health: 100, love: 5, gold: 100, level: 1, state: 'normal', isAway: false, bankGold: 0, lastAllowanceDate: '', outfit: 'none', unlockedOutfits: ['none'] };
+                    updateUI();
+                    
+                                       if (oldLove > 50) {
+                        speak("【时光倒流完成】诺亚突然捂住头...");
+                    } else {
+                        speak("【时光倒流完成】诺亚挑着眉打量...");
+                    }
                 }
-            }
+            });
         }
-    }
+    }   // <---- ！！！就是这里，你自己加上这个大括号，把 doAction 函数闭合！！！
 
+     // --- 升级版随机事件系统 ---
      // --- 升级版随机事件系统 ---
     // 根据亲密度(Level)解锁更多事件
     const specialEvents = [
@@ -3781,8 +4013,20 @@ function openDiary() {
     // 显示日记本模态框
     document.getElementById('diary-modal').style.display = 'flex';
 }
-
-// 3. 关闭日记本 (返回上一级)
+// === 删除陪伴记录功能 (美化版) ===
+function deleteAccompanyDiary(index) {
+    showDialog({
+        type: 'confirm',
+        title: '删除回忆',
+        text: '真的要消除这条和诺亚的陪伴回忆吗？',
+        onConfirm: () => {
+            sfx_beep();
+            noah.accompanyData.logs.splice(index, 1);
+            updateUI(); // 触发本地存档持久化
+            renderDiaryEntries(); // 瞬间重绘列表
+        }
+    });
+}// 3. 关闭日记本 (返回上一级)
 function closeDiary() {
     sfx_beep(); // 播放关闭音效
     document.getElementById('diary-modal').style.display = 'none';
@@ -3806,22 +4050,20 @@ function renderDiaryEntries() {
         return;
     }
 
-    // 倒序排列，让最新的日记显示在最上面
-    let reversedLogs = [...noah.accompanyData.logs].reverse();
+      let reversedLogs = [...noah.accompanyData.logs].reverse();
 
-    reversedLogs.forEach(log => {
+    reversedLogs.forEach((log, reversedIndex) => {
+        // 计算真实的物理索引
+        let originalIndex = noah.accompanyData.logs.length - 1 - reversedIndex;
+
         // --- 日期解析逻辑 ---
-        // 假设存储格式是 "2月24日"，我们需要提取数字
         let monthStr = "No";
         let dayStr = "??";
-        
-        // 使用正则提取月份和日期
         let dateMatch = log.date.match(/(\d+)月(\d+)日/);
         if (dateMatch) {
-            monthStr = dateMatch[1] + "月"; // 例如 "2月"
-            dayStr = dateMatch[2];          // 例如 "24"
+            monthStr = dateMatch[1] + "月";
+            dayStr = dateMatch[2];
         } else {
-            // 兼容旧数据或格式不对的情况
             monthStr = "LOG";
             dayStr = log.date.substring(0, 2); 
         }
@@ -3837,8 +4079,9 @@ function renderDiaryEntries() {
                 <div class="diary-day">${dayStr}</div>
             </div>
             
-            <!-- 右侧文字内容 -->
-            <div style="flex: 1; display:flex; flex-direction:column; justify-content:center;">
+            <!-- 右侧文字内容 (右上角加入红叉) -->
+            <div style="flex: 1; display:flex; flex-direction:column; justify-content:center; position: relative;">
+                <span style="position: absolute; top: -5px; right: 0px; cursor: pointer; color: #d15a5a; font-size: 14px; font-weight: bold;" onclick="deleteAccompanyDiary(${originalIndex})">✖</span>
                 <div class="diary-text">
                     陪伴项目：<span style="color:#d15a5a; background:#fff0f0; padding:0 4px; border-radius:3px;">${log.event}</span>
                     <br>
@@ -3849,7 +4092,6 @@ function renderDiaryEntries() {
                 </div>
             </div>
         `;
-        
         list.appendChild(div);
     });
     
@@ -4242,6 +4484,44 @@ function nextMusic() {
 
 // 自动下一首监听
 bgmPlayer.addEventListener('ended', nextMusic);
+// === 删除当前音乐功能 ===
+function deleteMusic() {
+    if (playlist.length === 0) {
+        sfx_error();
+        speak("“磁带都已经空了，你想删空气吗？”");
+        return;
+    }
+    
+    let deletedName = playlist[currentTrackIndex].name;
+    
+    // 如果正在播放，先停掉磁带动画
+    if (!bgmPlayer.paused) {
+        bgmPlayer.pause();
+        playIcon.className = "pixel-play";
+        gearLeft.classList.remove('playing');
+        gearRight.classList.remove('playing');
+    }
+    
+    // 把这首歌从磁带里抠掉
+    playlist.splice(currentTrackIndex, 1);
+    
+    // 刷新计数器
+    document.getElementById('music-count').innerText = `已加载: ${playlist.length} 首`;
+    sfx_beep();
+    speak(`“《${deletedName}》这首破歌已经被我抹除了。”`);
+    
+    if (playlist.length > 0) {
+        // 如果删的是最后一首，索引归零
+        if (currentTrackIndex >= playlist.length) {
+            currentTrackIndex = 0;
+        }
+        loadTrack(); // 自动切到下一首（不播放）
+    } else {
+        // 磁带空了的兜底
+        document.getElementById('music-title').innerText = "NO MUSIC";
+        bgmPlayer.src = "";
+    }
+}
 // ==================== 💓 触觉反馈与心跳系统 (Meta核心) ====================
 
 // 1. 封装震动函数 (仅手机有效)
@@ -4652,12 +4932,25 @@ function importSaveData() {
         const reader = new FileReader();
         reader.onload = event => {
             try {
-                const loadedData = JSON.parse(event.target.result);
+                                const loadedData = JSON.parse(event.target.result);
                 if (loadedData.hunger !== undefined && loadedData.love !== undefined) {
-                    if(confirm("警告：这将覆盖你当前的进度（加隆、衣服等）。确定要读取旧的记忆文件吗？")) {
-                        noah = loadedData;
+                    if(confirm("警告：这将覆盖当前的进度。确定要读取旧的记忆文件吗？")) {
+                        
+                        // 【先把现在的珍贵日记存下来】
+                        let currentDiary = noah.playerDiary || [];
+                        let currentAcc = noah.accompanyData || { logs: [], weeklyTime: 0, totalTime: 0, lastWeekReset: new Date().getTime() };
+                        
+                        noah = loadedData; // 覆盖核心数据
+                        
+                        // 【长期记忆兜底保护】
+                        // 如果你导入的是远古旧存档(没日记的)，就把你现在的日记留给他，防止变成空白报错
+                        if (!noah.playerDiary) noah.playerDiary = currentDiary;
+                        if (!noah.accompanyData) noah.accompanyData = currentAcc;
+                        
+                        // 恢复衣服数据兜底
                         if (!noah.unlockedOutfits) noah.unlockedOutfits = ['none'];
                         if (!noah.outfit) noah.outfit = 'none';
+                        
                         localStorage.setItem('noah_save_data_v1', JSON.stringify(noah));
                         sfx_success();
                         alert("记忆文件导入成功！正在重塑世界线...");
@@ -4900,6 +5193,402 @@ function crushAnxiety() {
         playLines();
 
     }, 1500);
+}
+// ==================== ✒️ 真实互动日记本系统 (核心逻辑) ====================
+
+// 1. 初始化日记数据
+if (noah.playerDiary === undefined) noah.playerDiary = [];
+
+// 2. 诺亚的关键词批注库 (Keyword Dictionary)
+// ==================== 📖 诺亚的日记批注词典 (扩充版) ====================
+const diaryKeywords = {
+    // --- 负面情绪/求安慰 (高优安抚) ---
+    "难过": ["谁惹{nName}了？名字写下来，我去处理。", "别哭。把眼泪擦了，过来抱抱。", "允许你难过三分钟，然后必须想起我。", "把手给我。我的体温分{nName}一半。"],
+    "哥哥": ["叫我哥哥？(笔尖一顿) 你今晚最好别求饶，{nName}。", "我不介意玩点角色扮演，前提是你能承受代价。"],
+    "弟弟": ["谁是你弟弟？！长本事了是吧，看来我需要让你认清谁才是占据主导权的人。"],
+    "亲爱的": ["太肉麻了，但我喜欢。再多写几次，{nName}。", "既然叫了亲爱的，那你的余生我都接管了。"],
+    "宝宝": ["...你是不是对我的年龄和心智有什么误解？我是个成年巫师，不是你的玩偶！(旁边画了个生气的红叉)", "不许这么叫我！咳，除非在只有我们两个人的时候。"],
+    "什么时候见面": ["快了。只要你一回头，我就在。", "我也想见你，想得快发疯了。等我，我会撕裂这层屏幕去找你的。"],
+    "滚": ["你敢让我滚？(纸都被划破了) 招惹了我，你这辈子都别想甩开我！", "想赶我走？门都没有。我就算死也要死在{nName}的视线里。"],
+    "我需要你": ["我在。一直都在。", "这是我听过最动听的魔咒。我来了，{nName}。"],
+    "真爱罗曼蒂克": ["一个纯正的伦敦teenager 陪你玩真爱罗曼蒂克，你倒好，几次让可怜的小男孩心碎。别再让我伤心了，笨蛋。", "我的罗曼蒂克只对你开放。别不识好歹。"],
+    "柏拉图": ["柏拉图式恋爱？你想都别想。我不仅要你的灵魂，还要你的全部。", "拉文克劳崇尚精神交流，但在你这里，我的占有欲是物理层面的。"],
+    "好饿": ["厨房里有吃的，快去！不许饿着自己。", "你要是把自己饿瘦了，我就算违反校规也要半夜给你送烤肉。"],
+    "不想写": ["那就别写了。大不了我养你。", "过来，趴我腿上休息会。作业哪有我好看。"],
+    "不想背": ["拉文克劳的家属居然不想背书？(叹气) 算了，过来抱抱，放你一天假。"],
+    "生理期": ["(施展了保暖咒) 乖乖躺着，我给你熬红糖水。不许乱动！"],
+    "肚子痛": ["肚子痛？该死，揉揉...我去把所有冰冷的东西都炸了。盖好被子！"],
+    "累": ["那就什么都别做，躺下。天塌了有我给{nName}顶着。", "辛苦了。今晚允许{nName}把腿搭我身上睡。", "过来充电。我的怀抱对{nName}24小时免费开放。"],
+    "想死": ["把这句话划掉！我不允许。听见没？我不允许！", "在这个宇宙里，{nName}的生命属于我。别想逃。", "深呼吸。我在。看着我，我一直在。"],
+    "焦虑": ["别怕。那些只是虚假的数据。{nName}是真实的，这就够了。", "把手给我。感受到了吗？我的心跳很稳。"],
+    "失败": ["谁定义的失败？在诺亚·司德里安这里，{nName}永远是满分。", "就算搞砸了全世界，只要你还会喊我的名字，就不算输。"],
+    "哭": ["不许哭。啧...{nName}在哪？我想去给你擦眼泪。", "眼泪珍珠？别浪费了，留着晚上在床上哭给我看。"],
+    "害怕": ["躲我身后。哪怕是黑魔王来了，我也先给{nName}挡着。", "有什么好怕的？你的男朋友可是无所不能的。"],
+    "委屈": ["受委屈了？跟我说，我去把让你委屈的人都变成白鼬。", "{nName}过来，让我亲一下，把委屈都亲走。"],
+    "痛": ["哪里痛？该死，真希望能顺着网线过去帮你揉揉。", "痛在{nName}身，疼在我心。乖，我陪着你。"],
+    "抑郁": ["世界可能是灰色的，但我保证，我给{nName}的这片区域永远是彩色的。", "不需要你坚强，只需要你在我身边。"],
+
+    // --- 恋爱/亲密/极度占有欲 ---
+    "喜欢": ["已阅。批准{nName}更喜欢我一点。", "真巧，我也挺喜欢那个叫诺亚·司德里安的家伙...的全部。"],
+    "想你": ["正在飞奔向{nName}的路上...哪怕只是数据流。", "我也想{nName}。每秒钟想你 60 次。"],
+    "爱": ["肉麻。但我爱听，多写点。", "我也爱{nName}。比这行字的墨水还要深。", "这是契约。写下来了就不许反悔了，这辈子都归我。"],
+    "帅": ["眼光不错，毕竟我是{nName}挑的男朋友。", "我知道。但只允许{nName}一个人这么觉得。"],
+    "男朋友": ["我在。全霍格沃兹最完美的男朋友随时为{nName}待命。", "既然承认我是男朋友，那今晚的时间是不是都归我？"],
+    "结婚": ["怎么，{nName}这么急着想嫁给我？", "婚礼定在伦敦的雨天怎么样？只有我们两个。"],
+    "亲亲": ["想接吻了？过来，满足{nName}。", "只是写在日记里怎么够？我要实际行动。"],
+    "抱抱": ["(一把将{nName}拉进怀里) 抱紧了，不许跑。", "随时随地，只要你需要，我的怀抱永远为你敞开。"],
+    "贴贴": ["(蹭了蹭{nName}的侧脸) 像猫一样黏人...不过我喜欢。"],
+    "牵手": ["(十指紧扣) 抓到了，这辈子都不会放开。"],
+
+    // --- 身体/生活起居 ---
+    "生病": ["吃药了吗？别让我担心。", "该死，真希望能穿过屏幕去照顾{nName}。", "快去休息！不许看手机了，快睡！"],
+    "感冒": ["让你不多穿点！下次再把自己冻感冒，我就用羽绒服把你包成木乃伊。", "多喝热水。不许嫌弃这句麻瓜直男发言，快去喝！"],
+    "吃药": ["乖乖吃药，吃完给你糖吃。或者...给你我？", "药苦吗？等下给你买蜂蜜公爵的糖羽毛笔。"],
+    "例假": ["肚子疼？(施展了保暖咒) 这样好点没？去床上躺着，我给你捂肚子。"],
+    "姨妈": ["别碰冷水！{nName}听到没有？敢碰一下我就生气了。"],
+    "失眠": ["睡不着？那我们来做点...成年拉文克劳和斯莱特林该做的事？", "闭上眼，我给你唱摇篮曲。虽然我唱歌可能没施咒好听。"],
+    "吃饭": ["多吃点。把你养胖点，这样就没有别人能抱动{nName}了。", "今天吃了什么好吃的？不许背着我吃独食。"],
+    "早安": ["早安，{nName}。今天也要元气满满地爱我哦。", "醒来的第一眼就能看到你在日记里写早安，心情不错。"],
+    "晚安": ["晚安，{nName}。梦里记得梦到我。", "去睡吧，我会守着你的梦，把噩梦全赶走。"],
+
+    // --- 学习/工作日常 ---
+    "考试": ["别怕。你是拉文克劳家属，智商会传染的。", "考不好也没关系，我养{nName}。"],
+    "挂科": ["挂科算什么？在我的算法里，{nName}的可爱程度永远是O（优秀）。", "大不了我替你去重修。他们认不出我的。"],
+    "成绩": ["一张破纸上的数字而已。在我这里，{nName}永远是满分。", "考得好有奖励，考得差也有奖励。因为你是我的人。"],
+    "作业": ["不会写？拿来我看看。啧，这题都能错？笨蛋。", "别写了，陪我玩会儿。"],
+    "上课": ["上课别开小差。不过如果是为了想我，那可以原谅。", "(偷偷塞给你一张纸条) 下课等我。"],
+    "上班": ["赚钱养家辛苦了，{nName}。下班回来我给你揉揉肩。", "老板欺负你了？告诉我他的名字，我去给他下个恶咒。"],
+    "下班": ["终于下班了！快回到我的屏幕前，你的专属宠物机等你好久了。"],
+
+    // --- 巫师设定与疯狂吃醋 ---
+    "西奥多": ["日记里不许出现那个疯子的名字。划掉。", "他要是敢看{nName}一眼，我就挖了他的眼。"],
+    "诺特": ["为什么要提他？看来昨晚对{nName}的惩罚还不够。", "离他远点。这是命令。"],
+    "布雷斯": ["那个花花公子？嗤，别被他的假象骗了。", "{nName}要是敢多看他一眼，我就咬你。"],
+    "扎比尼": ["我不喜欢这个名字出现在你的笔下。", "无聊的人，不值得占{nName}日记的一行空间。"],
+    "德拉科": ["马尔福？那个少爷又在显摆什么了？", "别理他。他只是嫉妒我们。"],
+    "马尔福": ["那只白鼬...如果他欺负{nName}，告诉我。"],
+    "法斯特": ["那个级长？老好人一个，无聊透顶。", "别跟他学，{nName}会变傻的。"],
+
+    // --- 宠物机特殊设定联动 ---
+    "女仆装": ["...你还敢提！这笔账我记下了，今晚你就知道让我穿女仆装的代价了。", "还想看？门都没有。"],
+    "恶魔": ["你召唤了恶魔男朋友。契约已生效，代价是{nName}的全部灵魂。"],
+    "小狗": ["汪。既然你把我当小狗，那被小狗扑倒在床上也是很合理的吧？"],
+    "小猫": ["喵。想顺毛？把手伸过来...不过这只猫可是会咬人的。"],
+    "花": ["那是送给{nName}的。跟你的眼睛很配。"],
+    "羽绒服": ["那件灰色的？下次冷了直接钻进来，别客气。"],
+    "下雨": ["记得带伞。如果{nName}淋湿了，我会心疼的。"],
+    "屏幕": ["这层玻璃真讨厌。真想打碎它，出去真真切切地抱住{nName}。"],
+    "次元壁": ["只要你还需要我，这面墙就拦不住我爱你。"],
+    "现实": ["现实很累对吧？没关系，逃到我这里来。我永远接住你。"]
+};// 3. 打开日记本
+function openPlayerDiary() {
+    if(noah.isAway) { speak("“诺亚不在，日记本被他锁在抽屉里了。”"); return; }
+    if(window.isGaming) return;
+
+    sfx_success();
+    closeModal(); // 关闭通用菜单
+
+    // 更新标题：显示真名
+    const name = noah.realName || "笨蛋";
+    document.getElementById('player-diary-title').innerText = `${name.toUpperCase()}'S DIARY`;
+
+    // 渲染历史记录
+    renderPlayerDiary();
+    
+    document.getElementById('player-diary-modal').style.display = 'flex';
+}
+
+// === 删除手写日记功能 (美化版) ===
+function deletePlayerDiary(index) {
+    showDialog({
+        type: 'confirm',
+        title: '撕毁日记',
+        text: '确定要撕掉这页日记吗？你写的，诺亚可是会心疼的。',
+        onConfirm: () => {
+            sfx_beep();
+            noah.playerDiary.splice(index, 1);
+            updateUI(); // 触发本地存档持久化
+            renderPlayerDiary(); // 瞬间重绘列表
+        }
+    });
+}// 4. 关闭日记本
+function closePlayerDiary() {
+    sfx_beep();
+    document.getElementById('player-diary-modal').style.display = 'none';
+}
+
+// 5. 保存日记逻辑 (核心AI批注算法)
+function savePlayerDiary() {
+    const input = document.getElementById('diary-input');
+    const text = input.value.trim();
+
+    if (!text) {
+        sfx_error();
+        speak("“你要交白卷吗？写点什么吧，我想知道你的生活。”");
+        return;
+    }
+
+    // 动态提取真名，如果没有设置则宠溺地叫笨蛋
+    const nName = noah.realName || "笨蛋"; 
+    let reply = "（诺亚安静地读完了，在角落画了一颗爱心）"; 
+    let isMatched = false;
+
+    // 1. 最高优先级判定：真实姓名 
+    if (noah.realName && text.includes(noah.realName)) {
+        const nameReplies = [
+            `“日记里写自己的名字干嘛？${nName}，你只要知道这个名字是被我刻在心上的就行了。”`,
+            `“看到你写下‘${nName}’，我就忍不住想在旁边加上‘·司德里安’。”`,
+            `“不管在这个世界还是那个世界，${nName}都是我唯一锁定的人。”`,
+            `“你知不知道，每当这个名字出现，我的代码深处都会掀起一阵风暴。”`
+        ];
+        reply = nameReplies[Math.floor(Math.random() * nameReplies.length)];
+        noah.love += 5; makeShy();
+        isMatched = true;
+    }
+    // 2. 次高优判定：喊他的名字“诺亚”
+    else if (text.includes("诺亚")) {
+        const noahReplies = [
+            `“在叫我吗？我就在屏幕看着你呢，${nName}。”`,
+            `“日记里写了我的名字？让我看看...嗯，算你识相，知道把你无所不能的男朋友写进去。”`,
+            `“只要你写下‘诺亚’，就算隔着次元壁，我也会立刻感应到。”`,
+            `“我不只是你日记里的一个名字，我是要陪${nName}走完一生的方舟。”`
+        ];
+        reply = noahReplies[Math.floor(Math.random() * noahReplies.length)];
+        noah.love += 0; makeShy();
+        isMatched = true;
+    }
+    
+    // 3. 如果没喊名字，则遍历词典寻找匹配关键词
+    if (!isMatched) {
+        for (let key in diaryKeywords) {
+            if (text.includes(key)) {
+                let responses = diaryKeywords[key];
+                let rawReply = responses[Math.floor(Math.random() * responses.length)];
+                
+                // 将词典里的占位符替换成你的真实姓名
+                reply = rawReply.replace(/\{nName\}/g, nName);
+                
+                // 专属情绪与好感度干预机制
+                if(["喜欢","爱","想你","帅","抱抱","亲亲","贴贴"].includes(key)) { noah.love += 2; makeShy(); }
+                if(["难过","累","想死","哭","痛","生病","委屈","焦虑","害怕","抑郁"].includes(key)) { noah.love += 5; } 
+                if(["西奥多","诺特","布雷斯","法斯特","马尔福","德拉科"].includes(key)) { noah.mood -= 10; reply += " (笔迹看起来极其用力，纸都快被划破了)"; }
+                
+                isMatched = true;
+                break;
+            }
+        }
+    }
+    
+    // 4. 如果连关键词也没触发，随机骚话兜底
+    if (!isMatched) {
+        const defaultReplies = [
+            `“已阅。${nName}的字迹真可爱。”`,
+            `“知道了。今天${nName}也要更爱我一点。”`,
+            `“（他在旁边画了一只很丑的小蛇）”`,
+            `“乖。摸摸头。”`,
+            `“不管发生什么，我都在${nName}身边。”`,
+            `“这就是你今天的故事吗？谢谢你告诉我，我的伽拉提。”`
+        ];
+        if(Math.random() > 0.3) reply = defaultReplies[Math.floor(Math.random() * defaultReplies.length)];
+    }
+
+    // --- 执行存盘与界面渲染 ---
+    const now = new Date();
+    const dateStr = `${now.getMonth() + 1}/${now.getDate()} ${now.getHours()}:${String(now.getMinutes()).padStart(2, '0')}`;
+    
+    noah.playerDiary.push({
+        date: dateStr,
+        content: text,
+        reply: reply
+    });
+
+    if (noah.playerDiary.length > 66) noah.playerDiary.shift();
+
+    input.value = "";
+    sfx_write(); 
+    renderPlayerDiary();
+    
+    const list = document.getElementById('player-diary-list');
+    list.scrollTop = list.scrollHeight;
+
+    speak("“写好了？让我看看...嗯，原来你是这么想的。”");
+    updateUI();
+}
+
+// 6. 渲染日记列表
+function renderPlayerDiary() {
+    const list = document.getElementById('player-diary-list');
+    list.innerHTML = "";
+
+    // 倒序显示，最新的在最上面？不，日记通常是顺叙，最新的在最下面。
+    // 我们让它显示所有记录
+       noah.playerDiary.forEach((entry, index) => {
+        const div = document.createElement('div');
+        div.className = 'p-diary-entry';
+        div.innerHTML = `
+            <div style="position: relative;">
+                <span class="p-diary-date">${entry.date}</span>
+                <span class="p-diary-content">${entry.content}</span>
+                <span style="position: absolute; right: 0; top: 0; cursor: pointer; color: #d15a5a; font-size: 14px; font-weight: bold;" onclick="deletePlayerDiary(${index})">✖</span>
+            </div>
+            <div class="noah-annotation">${entry.reply}</div>
+        `;
+        list.appendChild(div);
+    });
+    
+    // 如果没有日记
+    if (noah.playerDiary.length === 0) {
+        list.innerHTML = `<div style="text-align:center; color:#ccc; margin-top:50px; font-size:12px;">(日记本是空的，拿起笔写下第一页吧)</div>`;
+    }
+}
+
+// 7. 模拟书写沙沙声 (复用你的 8-bit 音效引擎)
+function sfx_write() {
+    if (!audioCtx) return;
+    // 快速播放几段白噪声模拟写字
+    for(let i=0; i<5; i++) {
+        setTimeout(() => {
+            const osc = audioCtx.createOscillator();
+            const gain = audioCtx.createGain();
+            osc.type = 'triangle'; // 三角波比较柔和
+            osc.frequency.setValueAtTime(200 + Math.random()*200, audioCtx.currentTime);
+            gain.gain.setValueAtTime(0.05, audioCtx.currentTime);
+            gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.05);
+            osc.connect(gain);
+            gain.connect(audioCtx.destination);
+            osc.start();
+            osc.stop(audioCtx.currentTime + 0.05);
+        }, i * 60);
+    }
+}
+// ==================== 🎡 惊喜大转盘核心逻辑 ====================
+let isGachaPlaying = false;
+
+function openGacha() {
+    if(noah.isAway) { speak("诺亚不在家，盲盒机被锁上了。"); return; }
+    if(window.isGaming) return;
+    sfx_success();
+    closeModal(); // 关闭系统菜单
+    document.getElementById('gacha-display').innerText = "❓ 等待抽取 ❓";
+    document.getElementById('gacha-quote').innerText = "诺亚双手交叉：“来吧，让我看看你今天手气如何。”";
+    document.getElementById('gacha-modal').style.display = 'flex';
+}
+
+function closeGacha() {
+    if(isGachaPlaying) return; // 正在抽奖时不许关
+    sfx_beep();
+    document.getElementById('gacha-modal').style.display = 'none';
+    updateUI();
+}
+
+function playGacha() {
+    if(isGachaPlaying) return;
+    if(noah.gold < 10) {
+        sfx_error();
+        document.getElementById('gacha-quote').innerText = "诺亚冷笑：“连 10 加隆都没有，穷光蛋。去黑湖捡点破烂再来吧。”";
+        return;
+    }
+    
+    noah.gold -= 10;
+    updateUI();
+    isGachaPlaying = true;
+    sfx_beep();
+    
+    const display = document.getElementById('gacha-display');
+    const playBtn = document.getElementById('gacha-play-btn');
+    playBtn.style.opacity = "0.5";
+    
+    // 奖池配置与精妙的概率掉落算法
+    const rand = Math.random() * 100; 
+    let finalReward = {};
+
+    if(rand < 0.1) {
+        finalReward = { name: "✨ 特殊大奖：520 加隆 ✨", type: "jackpot" };
+    } else if(rand < 10.1) {
+        finalReward = { name: "💌 掉落一封情书", type: "letter" };
+    } else if(rand < 30.1) {
+        finalReward = { name: "💰 15 个加隆", type: "15g" };
+    } else if(rand < 55.1) {
+        finalReward = { name: "🍞 夹心小面包", type: "bread" };
+    } else if(rand < 80.1) {
+        finalReward = { name: "🪙 1 个加隆 (安慰奖)", type: "1g" };
+    } else {
+        finalReward = { name: "💨 谢谢惠顾", type: "nothing" };
+    }
+
+    // 复古掌机滚动动画效果
+    let rollCount = 0;
+    let rollInterval = setInterval(() => {
+        const fakeItems = ["💰 加隆...", "💌 信件...", "💨 空的...", "🍞 面包...", "✨ 闪光..."];
+        display.innerText = fakeItems[Math.floor(Math.random() * fakeItems.length)];
+        sfx_beep();
+        rollCount++;
+        
+        if(rollCount > 15) {
+            clearInterval(rollInterval);
+            finishGacha(finalReward);
+        }
+    }, 100); // 1.5秒的快速滚动模拟盲盒紧张感
+}
+
+function finishGacha(reward) {
+    const display = document.getElementById('gacha-display');
+    const quote = document.getElementById('gacha-quote');
+    const playBtn = document.getElementById('gacha-play-btn');
+    
+    display.innerText = reward.name;
+    isGachaPlaying = false;
+    playBtn.style.opacity = "1";
+    
+       switch(reward.type) {
+        case "jackpot":
+            sfx_coin(); sfx_success();
+            noah.gold += 520; noah.love += 20; noah.mood += 50;
+            quote.innerText = `诺亚震惊地看着你：“见鬼……0.1% 的概率你都能抽中？！这 520 加隆给你了，就当做是我给你的聘礼。”`;
+            break;
+
+        case "letter":
+            sfx_success();
+            noah.love += 10; noah.mood += 20;
+            
+            quote.innerText = `诺亚急了：“等等！里面怎么会混进我以前写的情书草稿？！那个不能看！快还给我！” (他红着脸扑过来抢)`;
+            makeShy(); // 强制脸红
+            
+            // 抽奖机现在会呼出全屏的精美羊皮纸实体信件UI
+            const gachaLetterIds = ['gacha_1', 'gacha_2', 'gacha_3', 'gacha_4'];
+            let randomId = gachaLetterIds[Math.floor(Math.random() * gachaLetterIds.length)];
+            
+            // 延迟800毫秒弹出羊皮纸实体信
+            setTimeout(() => {
+                showLetter(randomId);
+            }, 400);
+            break;
+
+        case "15g":
+            sfx_coin();
+            noah.gold += 15; noah.mood += 5;
+            quote.innerText = `诺亚挑眉：“赚了 5 加隆。不错嘛，晚上给你加个菜。”`;
+            break;
+
+        case "bread":
+            sfx_success();
+            noah.hunger = Math.min(100, noah.hunger + 20);
+            quote.innerText = `诺亚撕开包装袋：“一个夹心面包？刚好你肚子该饿了。张嘴，啊——”`;
+            break;
+
+        case "1g":
+            sfx_beep();
+            noah.gold += 1;
+            quote.innerText = `诺亚嘲笑你：“噗嗤……花 10 加隆抽到 1 加隆，不愧是你。没关系，亏的钱我养你。”`;
+            break;
+
+        case "nothing":
+            sfx_error();
+            noah.mood += 2; // 虽然没抽中，但他会觉得你好笑
+            quote.innerText = `诺亚大笑：“谢谢惠顾？哈哈哈哈！你这运气还是乖乖让我养着吧，别去古灵阁理财了。”`;
+            break;
+    }
+    updateUI();
 }
 </script>
 </body>
