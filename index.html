@@ -1252,11 +1252,7 @@ flex-shrink: 0; min-height: 38px; box-sizing: border-box;
                 
                 <div class="bmi-dashboard">
                     <div class="bmi-value-box">
-                        <div class="bmi-label">当前 BMI</div>
-                        <div id="bmi-display" class="bmi-number">--.-</div>
-                    </div>
-                    <div id="bmi-status-badge" class="bmi-status">等待数据</div>
-                </div>
+  <div class="bmi-label">当前 BMI</div>                         <div id="bmi-display" class="bmi-number">--.-</div>                     </div>                     <div id="bmi-status-badge" class="bmi-status">等待数据</div>                 </div>                                  <!-- 新增：每日热量监控盘 & 智能规划按钮 -->                 <div style="display: flex; justify-content: space-between; gap: 8px; margin-top: 10px;">                     <div style="flex: 1; background: #060709; border: 1px solid #3b4652; border-radius: 6px; padding: 8px; text-align: center;">                         <div style="font-size: 9px; color: #5c84a8; font-weight: bold;">今日摄入 (kcal)</div>                         <div id="fit-intake-display" style="font-size: 16px; font-weight: 900; color: #d1b55a;">0</div>                     </div>                     <div style="flex: 1; background: #060709; border: 1px solid #3b4652; border-radius: 6px; padding: 8px; text-align: center;">                         <div style="font-size: 9px; color: #5c84a8; font-weight: bold;">运动消耗 (kcal)</div>                         <div id="fit-burn-display" style="font-size: 16px; font-weight: 900; color: #d1b55a;">0</div>                     </div>                 </div>                 <button class="fit-btn" style="width:100%; margin-top:10px; background: rgba(92,132,168,0.2); border-color:#5c84a8; color:#fff;" onclick="generateFitnessPlan()">                     ✨ 让诺亚为你生成【专属智能规划】                 </button>
  <!-- 新增：体重趋势折线图区域 -->                 <div style="margin-top: 15px; background: #060709; border: 1px solid #3b4652; border-radius: 6px; padding: 10px; position: relative; box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);">                     <div style="color: #5c84a8; font-size: 10px; font-weight: bold; margin-bottom: 8px;">📈 体重变化趋势 (kg)</div>                     <canvas id="weight-chart" width="310" height="120" style="width: 100%; display: block;"></canvas>                 </div>
             </div>
         </div>
@@ -1812,14 +1808,31 @@ if (noah.temperature === undefined) noah.temperature = 20;
         };
 }
         // === 新增：高阶健身与饮食数据初始化 ===
+       // === 新增：高阶健身与饮食数据初始化 ===
     if (noah.fitnessData === undefined) {
         noah.fitnessData = {
             height: null,      
             lastWeight: null,  
             lastBmi: null,     
             logs: [],
-            weightHistory: []  // 新增：体重曲线历史数组
+            weightHistory: [],
+            dailyIntake: 0,    // 新增：今日摄入
+            dailyBurn: 0,      // 新增：今日消耗
+            lastUpdateDate: '' // 新增：用于每日清零热量
         };
+    }
+    // 兼容补丁：防止老存档没有热量数据报错
+    if (noah.fitnessData.dailyIntake === undefined) {
+        noah.fitnessData.dailyIntake = 0;
+        noah.fitnessData.dailyBurn = 0;
+        noah.fitnessData.lastUpdateDate = '';
+    }
+    // 每日跨天清零热量逻辑
+    let fitnessToday = new Date().toDateString();
+    if (noah.fitnessData.lastUpdateDate !== fitnessToday) {
+        noah.fitnessData.dailyIntake = 0;
+        noah.fitnessData.dailyBurn = 0;
+        noah.fitnessData.lastUpdateDate = fitnessToday;
     }
     // 新增：防止你的老存档报错的强力补丁
     if (noah.fitnessData && noah.fitnessData.weightHistory === undefined) {
@@ -3815,7 +3828,7 @@ sfx_poke();
         { reqLevel: 5, text: "【深夜卧室】你发现他睡着了，手里还紧紧抓着那个绿色的蛇玩偶。",
           btn1: "试图把玩偶抽走", btn2: "钻进他怀里代替玩偶",
           actions: [
-            { mood: -10, reply: "他迷迷糊糊地收紧手臂：“别动...西瑞...那是你...”" },
+            { mood: -10, reply: "他迷迷糊糊地收紧手臂：“别动...那是你...”" },
             { love: 60, mood: 40, reply: "他瞬间扔掉了玩偶，把你抱得更紧，下巴抵在你头顶：“终于来了。玩偶哪有你抱起来舒服。”" }
           ]
         },
@@ -6938,22 +6951,24 @@ window.addEventListener('keyup', (e) => {
 // ==================== 🏋️ 高级科学健康管理引擎 ====================
 
 // --- 庞大的专业数据词典 ---
+// --- 庞大的专业数据词典 (升级热量版) ---
+// 食物热量按 约一顿常规分量/100g 估算 (单位: 千卡 kcal)
 const dietDictionary = {
-    "carb": ["糙米/杂粮饭", "白米饭", "全麦面包", "意面/意大利面", "红薯/紫薯", "燕麦片", "荞麦面", "馒头/包子", "玉米"],
-    "protein": ["鸡胸肉", "瘦牛肉", "鸡蛋", "深海鱼/三文鱼", "虾仁", "豆腐/豆制品", "纯牛奶/酸奶", "蛋白粉", "猪瘦肉"],
-    "fiber": ["西蓝花", "菠菜/绿叶菜", "番茄", "黄瓜", "苹果", "香蕉", "蓝莓/草莓", "胡萝卜", "蘑菇"],
-    "junk": ["炸鸡/薯条", "汉堡", "奶茶(含糖)", "蛋糕/甜点", "烧烤/烤串", "披萨", "冰淇淋", "火锅", "方便面"],
-    "drink": ["黑咖啡", "无糖茶", "白开水", "苏打水(无糖)", "果汁", "运动饮料", "酒类(红酒/啤酒)"]
+    "carb": [{name:"糙米/杂粮饭", cal:130}, {name:"白米饭", cal:150}, {name:"全麦面包", cal:120}, {name:"意面/意大利面", cal:140}, {name:"红薯/紫薯", cal:100}, {name:"燕麦片", cal:110}, {name:"荞麦面", cal:130}, {name:"馒头/包子", cal:220}, {name:"玉米", cal:110}],
+    "protein": [{name:"鸡胸肉", cal:133}, {name:"瘦牛肉", cal:180}, {name:"鸡蛋(1个)", cal:75}, {name:"深海鱼/三文鱼", cal:150}, {name:"虾仁", cal:80}, {name:"豆腐/豆制品", cal:90}, {name:"纯牛奶/酸奶", cal:130}, {name:"蛋白粉(1勺)", cal:110}, {name:"猪瘦肉", cal:143}],
+    "fiber": [{name:"西蓝花", cal:35}, {name:"菠菜/绿叶菜", cal:25}, {name:"番茄", cal:20}, {name:"黄瓜", cal:15}, {name:"苹果", cal:50}, {name:"香蕉", cal:90}, {name:"蓝莓/草莓", cal:30}, {name:"胡萝卜", cal:40}, {name:"蘑菇", cal:25}],
+    "junk": [{name:"炸鸡/薯条", cal:500}, {name:"汉堡", cal:450}, {name:"奶茶(含糖)", cal:350}, {name:"蛋糕/甜点", cal:400}, {name:"烧烤/烤串", cal:600}, {name:"披萨(2片)", cal:400}, {name:"冰淇淋", cal:250}, {name:"火锅(1顿)", cal:800}, {name:"方便面", cal:450}],
+    "drink": [{name:"黑咖啡", cal:5}, {name:"无糖茶", cal:0}, {name:"白开水", cal:0}, {name:"苏打水(无糖)", cal:0}, {name:"果汁", cal:120}, {name:"运动饮料", cal:110}, {name:"酒类(红酒/啤酒)", cal:150}]
 };
 
+// 运动消耗按 1分钟 估算 (单位: 千卡 kcal/分钟)
 const workoutDictionary = {
-    "cardio": ["户外慢跑", "跑步机", "游泳", "跳绳", "动感单车", "划船机", "爬楼梯/椭圆机", "HIIT高强度间歇"],
-    "strength": ["深蹲/硬拉", "卧推", "哑铃/壶铃训练", "俯卧撑/引体向上", "腹部核心训练", "器械固定训练"],
-    "ball": ["篮球 (对抗/爆发)", "足球 (心肺/耐力)", "羽毛球 (敏捷/反应)", "网球", "乒乓球", "排球"],
-    "flex": ["瑜伽", "普拉提", "全身拉伸", "冥想/呼吸训练"],
-    "daily": ["快步散步", "做家务", "骑车通勤", "逛街购物"]
+    "cardio": [{name:"户外慢跑", burn:8}, {name:"跑步机", burn:9}, {name:"游泳", burn:10}, {name:"跳绳", burn:12}, {name:"动感单车", burn:11}, {name:"划船机", burn:8}, {name:"爬楼梯/椭圆机", burn:9}, {name:"HIIT高强度间歇", burn:14}],
+    "strength": [{name:"深蹲/硬拉", burn:7}, {name:"卧推", burn:6}, {name:"哑铃/壶铃训练", burn:6}, {name:"俯卧撑/引体向上", burn:8}, {name:"腹部核心训练", burn:5}, {name:"器械固定训练", burn:6}],
+    "ball": [{name:"篮球 (对抗/爆发)", burn:10}, {name:"足球 (心肺/耐力)", burn:11}, {name:"羽毛球 (敏捷/反应)", burn:8}, {name:"网球", burn:9}, {name:"乒乓球", burn:6}, {name:"排球", burn:7}],
+    "flex": [{name:"瑜伽", burn:4}, {name:"普拉提", burn:5}, {name:"全身拉伸", burn:3}, {name:"冥想/呼吸训练", burn:1}],
+    "daily": [{name:"快步散步", burn:4}, {name:"做家务", burn:3}, {name:"骑车通勤", burn:5}, {name:"逛街购物", burn:3}]
 };
-
 // --- 面板控制逻辑 ---
 function openFitness() {
     if(noah.isAway) { speak("“我人在外面，难道你要向这块没感情的玻璃报告你的饮食吗？等我回去。”"); return; }
@@ -6967,6 +6982,7 @@ function openFitness() {
     if(noah.fitnessData.lastWeight) document.getElementById('fit-weight-input').value = noah.fitnessData.lastWeight;
     
     switchFitTab('body');
+updateCalorieUI();
     updateBMIUI();
 drawWeightChart(); // 每次更新体重后瞬间重绘图表
     renderFitLogs();
@@ -6997,7 +7013,9 @@ function updateFoodSubList() {
     
     dietDictionary[cat].forEach(item => {
         let opt = document.createElement('option');
-        opt.value = item; opt.innerText = item;
+        // 把名字和热量一起存在 value 里，方便后面提取
+        opt.value = item.name + "|" + item.cal; 
+        opt.innerText = `${item.name} (~${item.cal}大卡)`;
         subSelect.appendChild(opt);
     });
 }
@@ -7010,11 +7028,12 @@ function updateWorkoutSubList() {
     
     workoutDictionary[cat].forEach(item => {
         let opt = document.createElement('option');
-        opt.value = item; opt.innerText = item;
+        // 把名字和每分钟消耗热量存在 value 里
+        opt.value = item.name + "|" + item.burn; 
+        opt.innerText = `${item.name} (~${item.burn}大卡/分)`;
         subSelect.appendChild(opt);
     });
 }
-
 // --- 科学身体与 BMI 引擎 ---
 function updateBMIUI() {
     const bmiDisplay = document.getElementById('bmi-display');
@@ -7171,100 +7190,167 @@ drawWeightChart(); // 每次打开健康舱时渲染图表
     updateUI();
 }
 
-// --- 饮食追踪引擎 ---
+// --- 饮食追踪引擎 (热量精算版) ---
 function recordDiet() {
     const mealTime = document.getElementById('fit-meal-time').value;
     const foodCat = document.getElementById('fit-food-category').value;
-    const foodSub = document.getElementById('fit-food-sub').value;
+    const foodRaw = document.getElementById('fit-food-sub').value; // 这里拿到的是 "名字|热量"
     const notes = document.getElementById('fit-diet-notes').value.trim();
     
-    if(!foodCat || !foodSub) { sfx_error(); speak("“你连吃了什么都选不出来？难道你吸食了天地灵气？”"); return; }
+    if(!foodCat || !foodRaw) { sfx_error(); speak("“你是用意念在吃饭吗？选个食物！”"); return; }
+
+    // 解析出食物名字和卡路里
+    let [foodSub, foodCal] = foodRaw.split("|");
+    foodCal = parseInt(foodCal);
 
     const nName = noah.realName || "笨蛋";
     let reply = "";
     
     if (foodCat === "junk") {
-        reply = `“${mealTime}吃了【${foodSub}】？(挑眉) 算了，反式脂肪酸和精制碳水偶尔摄入死不了人。吃了就开开心心地消化它，别给我产生身材内耗。多余的热量，晚上来有求必应屋，我陪你‘运动’掉。”`;
+        reply = `“${mealTime}吃了【${foodSub}】？热量飙升 ${foodCal} 大卡。(挑眉) 算了，偶尔吃点垃圾食品死不了人。吃完乖乖开心点，多余的热量晚上来有求必应屋，我陪你‘运动’掉。”`;
         noah.mood += 10; noah.health -= 2; 
     } else if (foodCat === "protein" || foodCat === "carb") {
-        reply = `“${mealTime}选择了【${foodSub}】。很好的宏量营养素配比。保持高质量的碳水和蛋白质摄入，才能维持基础代谢。你这科学的态度，勉强配得上做我拉文克劳的家属了。”`;
+        reply = `“记录摄入【${foodSub}】(约${foodCal}大卡)。完美的碳水和蛋白质能维持你的基础代谢。你这科学的态度，勉强配得上做我拉文克劳的家属了。”`;
         noah.health += 5;
     } else if (foodCat === "fiber") {
-        reply = `“【${foodSub}】？只吃草可不行，必须搭配蛋白质。如果你敢用这种东西代餐，我就亲自下厨把肉塞进你嘴里。”`;
+        reply = `“【${foodSub}】只有可怜的 ${foodCal} 大卡。只吃草可不行，如果敢用这东西代餐，我就亲自下厨把肉塞进你嘴里。”`;
     } else {
         reply = `“摄入【${foodSub}】已记录。只要你按时填饱肚子，你就是全宇宙最乖的${nName}。”`;
     }
 
     if(notes) reply += `（看到你备注了‘${notes}’，他宠溺地笑了笑：“要求还挺多，我都记下了。”）`;
 
+    // 热量累加
+    noah.fitnessData.dailyIntake += foodCal;
+    updateCalorieUI(); // 刷新界面热量显示
+
     sfx_write();
     document.getElementById('fit-noah-reply').innerText = reply;
-    logFitEvent(`🍽️ ${mealTime}: ${foodSub} ${notes ? '('+notes+')' : ''}`);
+    logFitEvent(`🍽️ ${mealTime}: ${foodSub} (+${foodCal}kcal) ${notes ? '('+notes+')' : ''}`);
     document.getElementById('fit-diet-notes').value = '';
     
-    speak(reply);
-    updateUI();
+    speak(reply); updateUI();
 }
 
-// 严厉绝食惩罚
-function punishForNotEating() {
-    const mealTime = document.getElementById('fit-meal-time').value;
-    sfx_error();
-    
-    // 扣除极其大量状态！
-    noah.health -= 20;
-    noah.mood -= 30;
-    
-    let reply = `“你没吃${mealTime}？！(诺亚脸色瞬间变得极其可怕，声音冷得像冰) 你是不是把能量守恒定律当耳旁风了？绝食只会消耗你的肌肉纤维、降低你的基础代谢！现在，立刻，马上去给我找点东西塞进嘴里！不去吃完就不准跟我说话！”`;
-    
-    document.getElementById('fit-noah-reply').innerText = reply;
-    logFitEvent(`⚠️ 严重警告: 跳过${mealTime}，遭到诺亚暴怒批评！`);
-    
-    speak(reply);
-    updateUI();
-}
-
-// --- 运动消耗引擎 ---
+// --- 运动消耗引擎 (热量精算版) ---
 function recordWorkout() {
     const cat = document.getElementById('fit-workout-category').value;
-    const sub = document.getElementById('fit-workout-sub').value;
+    const workRaw = document.getElementById('fit-workout-sub').value;
     const mins = parseInt(document.getElementById('fit-workout-time').value);
     
-    if(!cat || !sub) { sfx_error(); speak("“你是用意念在运动吗？选个项目！”"); return; }
-    if(isNaN(mins) || mins <= 0) { sfx_error(); speak("“0分钟？这叫什么运动，这叫在床翻了个身。”"); return; }
+    if(!cat || !workRaw) { sfx_error(); speak("“你是用意念在运动吗？选个项目！”"); return; }
+    if(isNaN(mins) || mins <= 0) { sfx_error(); speak("“0分钟？这不叫运动，这叫在床上翻了个身。”"); return; }
+
+    // 解析名字和每分钟消耗
+    let [sub, burnPerMin] = workRaw.split("|");
+    let totalBurn = parseInt(burnPerMin) * mins;
 
     const nName = noah.realName || "笨蛋";
     let reply = "";
     
     if (cat === "strength") {
-        reply = `“【${sub}】做了 ${mins} 分钟？干得漂亮。力量训练能撕裂肌纤维产生超量恢复，提高静息代谢。不过...看你力竭发抖的样子，确实挺性感的。下次我帮你做辅助保护。”`;
+        reply = `“【${sub}】做了 ${mins} 分钟，燃烧了 ${totalBurn} 大卡。力量训练能提高静息代谢，不过...看你力竭发抖的样子，确实挺性感的。下次我帮你做辅助保护。”`;
         noah.health += 5;
     } else if (cat === "cardio") {
-        reply = `“有氧【${sub}】${mins} 分钟。保持在燃脂心率区间了吗？别跑太猛伤了膝盖。快去擦擦汗，别着凉，不然我会心疼的。”`;
+        reply = `“有氧【${sub}】刷掉了 ${totalBurn} 大卡。别跑太猛伤了膝盖。快去擦擦汗，别着凉，不然我会心疼的。”`;
         noah.health += 5; noah.hunger -= 10;
     } else if (cat === "ball") {
-        reply = `“去打了 ${mins} 分钟【${sub}】？(眉头微皱) 球类竞技容易扭伤脚踝和十字韧带，你带护具了吗？赢了算你的，输了告诉我，我去把对面的扫帚炸了。”`;
+        reply = `“去打了球？消耗了 ${totalBurn} 大卡。(眉头微皱) 竞技容易扭伤，带护具了吗？赢了算你的，输了我去把对面的扫帚炸了。”`;
         noah.love += 5; noah.health += 3;
     } else if (cat === "flex") {
-        reply = `“【${sub}】${mins} 分钟。拉伸能改善肌肉筋膜弹性。看着你柔韧性变好，我脑子里突然闪过一些...不太合规的拉文克劳思想。咳，做得好。”`;
+        reply = `“【${sub}】消耗 ${totalBurn} 大卡。看着你柔韧性变好，我脑子里突然闪过一些...不太合规的拉文克劳思想。咳，做得好。”`;
         noah.mood += 15; noah.love += 5;
     } else {
-        reply = `“日常活动了 ${mins} 分钟？也不错，总比躺着长蘑菇强。累了就过来，我的大腿给你当枕头。”`;
+        reply = `“日常活动消耗了 ${totalBurn} 大卡？也不错，总比躺着长蘑菇强。累了就过来，我的大腿给你当枕头。”`;
     }
 
     if (mins > 90) {
-        reply += ` “不过...做了这么久？！你不要命了！立刻去补充电解质和碳水，肌肉不想要了吗！”`;
-        noah.health -= 5; // 过度训练惩罚
+        reply += ` “不过...做了这么久？！你不要命了！立刻去补充电解质，肌肉不想要了吗！”`;
+        noah.health -= 5;
     }
+
+    // 热量累加
+    noah.fitnessData.dailyBurn += totalBurn;
+    updateCalorieUI();
 
     sfx_coin();
     document.getElementById('fit-noah-reply').innerText = reply;
-    logFitEvent(`🏃 运动打卡: ${sub} (${mins}分钟)`);
+    logFitEvent(`🏃 运动: ${sub} (${mins}分, -${totalBurn}kcal)`);
     document.getElementById('fit-workout-time').value = '';
     
-    speak(reply);
-    updateUI();
+    speak(reply); updateUI();
 }
+// --- 更新热量UI显示 ---
+function updateCalorieUI() {
+    document.getElementById('fit-intake-display').innerText = noah.fitnessData.dailyIntake || 0;
+    document.getElementById('fit-burn-display').innerText = noah.fitnessData.dailyBurn || 0;
+}
+
+// --- 诺亚核心 AI 智能规划引擎 ---
+function generateFitnessPlan() {
+    let weight = noah.fitnessData.lastWeight;
+    let height = noah.fitnessData.height;
+    
+    if(!weight || !height) {
+        sfx_error();
+        speak("“连身高体重都不填，你指望我凭空算命吗？先去【体型】面板录入数据。”");
+        return;
+    }
+    
+    sfx_write(); // 播放诺亚写字的沙沙声
+    const nName = noah.realName || "小笨蛋";
+    let bmi = noah.fitnessData.lastBmi;
+    let intake = noah.fitnessData.dailyIntake || 0;
+    let burn = noah.fitnessData.dailyBurn || 0;
+    
+    // 粗略计算基础代谢率 BMR (Mifflin-St Jeor 简化偏女性公式)
+    let bmr = Math.round(10 * weight + 6.25 * height - 5 * 20 - 161); 
+    // 每日总消耗 (BMR + 运动消耗 + 食物热效应大概预估)
+    let tdee = Math.round(bmr * 1.2) + burn; 
+    let deficit = tdee - intake; // 热量缺口
+    
+    let planText = `诺亚拿出一张羊皮纸，飞快地写下了一份专属报告：\n\n`;
+    planText += `【诊断报告】\n`;
+    planText += `“听好了，${nName}。根据我的测算，你躺着不动的基础代谢(BMR)大约是 ${bmr} 大卡。\n加上你今天的运动，总消耗大约是 ${tdee} 大卡。而你今天吃进去了 ${intake} 大卡。”\n\n`;
+
+    // 智能分析 BMI 与 饮食状态
+    planText += `【诺亚的毒舌分析】\n`;
+    if (bmi < 18.5) {
+        planText += `“你的BMI只有 ${bmi.toFixed(1)}，简直轻得像一阵风就能吹跑！你现在处于极其危险的偏瘦状态。热量缺口是 ${deficit}？我不在乎！我现在的唯一指令就是把你养胖！”\n`;
+    } else if (deficit > 800) {
+        planText += `“你今天的热量缺口高达 ${deficit} 大卡！你是想修仙吗？！过度节食会严重导致肌肉流失和掉头发！立刻去给我加一顿高蛋白的夜宵！”\n`;
+    } else if (deficit < -500) {
+        planText += `“今天热量超标了 ${Math.abs(deficit)} 大卡。吃了什么好东西，嗯？没关系，偶尔放纵一下我不介意，毕竟不管你长成什么样，我都觉得可爱。大不了明天我陪你去霍格沃兹跑两圈。”\n`;
+    } else {
+        planText += `“热量控制得很完美（缺口 ${deficit} 大卡）。真不愧是我教出来的人，这种科学自律的态度非常迷人。”\n`;
+    }
+
+    // 智能明日规划
+    planText += `\n【明日执行指令】\n`;
+    if (bmi < 18.5 || deficit > 500) {
+        planText += `“一号指令：明天必须摄入优质碳水（意面或燕麦）和大量肉类！\n二号指令：禁止做任何剧烈有氧！最多只允许做10分钟的柔韧拉伸。\n三号指令：过来，让我抱抱。”`;
+    } else if (deficit < 0) {
+        planText += `“一号指令：明天早餐把油条换成全麦面包和鸡蛋。\n二号指令：陪我进行 30 分钟的【力量训练】或者【户外慢跑】，把多余的热量用掉。\n三号指令：不许有身材焦虑，听见没？”`;
+    } else {
+        planText += `“保持今天的状态！明天继续保持均衡的蛋白质摄入。你可以自由选择一项喜欢的运动出出汗，我会全程在旁边看着你。”`;
+    }
+
+    // 将分析结果弹窗显示
+    showDialog({
+        type: 'alert',
+        title: '📊 NOAH.SYS 智能规划运算完毕',
+        text: planText
+    });
+    
+    // 增加大量情绪值
+    noah.love += 5;
+    noah.mood += 20;
+    makeShy();
+}
+
+
+
+
 
 // --- 日志与渲染系统 ---
 function logFitEvent(text) {
