@@ -1136,6 +1136,84 @@ flex-shrink: 0; min-height: 38px; box-sizing: border-box;
 }
 .fit-log-item:last-child { border-bottom: none; }
 .fit-log-date { color: #d1b55a; font-weight: bold; margin-bottom: 2px; }
+       /* === 📜 终极电影级：活点地图专属样式 === */
+    .map-room {
+        position: absolute;
+        border: 2px solid #5c3a21;
+        background: rgba(235, 213, 179, 0.7);
+        color: #3e2615;
+        font-size: 11px; font-weight: 900;
+        padding: 6px 10px;
+        font-family: 'Georgia', 'Times New Roman', serif;
+        pointer-events: none;
+        box-shadow: inset 0 0 10px rgba(92, 58, 33, 0.3), 2px 2px 0 rgba(92, 58, 33, 0.2);
+        letter-spacing: 1px;
+    }
+    
+    /* 房间的魔法折线连接感 */
+    .map-room::after {
+        content: ''; position: absolute; top: 100%; left: 50%;
+        width: 2px; height: 15px; background: repeating-linear-gradient(to bottom, #5c3a21 0, #5c3a21 2px, transparent 2px, transparent 4px);
+    }
+
+    .map-footprint-box {
+        position: absolute;
+        display: flex; flex-direction: column; align-items: center;
+        opacity: 0; cursor: pointer; z-index: 19;
+        /* 平移时间改为由JS动态控制，这里只保留透明度动画 */
+        transition: opacity 0.5s ease-in-out;
+    }
+    .map-footprint-box:active { transform: scale(1.2) !important; }
+
+    /* --- 纯手工打造：魔法墨水脚印 --- */
+    .ink-footprints-container {
+        position: relative; width: 14px; height: 20px; margin-bottom: 2px;
+    }
+    .ink-foot {
+        position: absolute; width: 4px; height: 6px;
+        background: #3e2615; border-radius: 50% 50% 20% 20%;
+        box-shadow: 0 0 2px rgba(62, 38, 21, 0.8); /* 墨水晕染感 */
+        opacity: 0;
+    }
+    /* 脚趾头细节 */
+    .ink-foot::before {
+        content: ''; position: absolute; top: -3px; left: 0;
+        width: 4px; height: 2px; border-radius: 50%;
+        background: #3e2615; box-shadow: inherit;
+    }
+    /* 左右脚交替踩踏动画 */
+    .left-foot { left: 0; bottom: 0; transform: rotate(-10deg); animation: inkStep 0.8s infinite; }
+    .right-foot { right: 0; top: 0; transform: rotate(10deg); animation: inkStep 0.8s infinite 0.4s; }
+    
+    @keyframes inkStep {
+        0%, 100% { opacity: 0; transform: translateY(4px) scale(0.8); }
+        20% { opacity: 1; transform: translateY(0) scale(1); filter: blur(0px); }
+        80% { opacity: 0.5; filter: blur(0.5px); }
+    }
+
+    /* 手写花体字名字飘带 */
+    .map-name {
+        font-size: 11px; font-weight: bold; color: #1a0f08;
+        background: transparent;
+        padding: 2px 6px; 
+        border-left: 2px solid #5c3a21; /* 侧边墨水线 */
+        font-family: 'Brush Script MT', 'Georgia', cursive; /* 花体字 */
+        pointer-events: none;
+        transform: rotate(0deg) !important; /* 名字永远正向 */
+        text-shadow: 0.5px 0.5px 0px rgba(255,255,255,0.5);
+    }
+
+    /* 抓到后的墨水爆开特效 */
+    .ink-splatter {
+        width: 20px; height: 20px;
+        background: radial-gradient(circle, #3e2615 20%, transparent 60%);
+        border-radius: 50%; filter: blur(1px);
+        animation: splatterAnim 0.4s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+    }
+    @keyframes splatterAnim {
+        0% { transform: scale(0.5); opacity: 1; }
+        100% { transform: scale(3); opacity: 0; }
+    }
 </style>
 </head>
 <body>
@@ -1181,7 +1259,52 @@ flex-shrink: 0; min-height: 38px; box-sizing: border-box;
  width="120" height="156" style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 15; display: none; image-rendering: pixelated;"></canvas>
 <canvas id="gomoku-canvas" width="260" height="155" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 16; display: none; image-rendering: pixelated; background: #dca665; border-bottom: 2px solid #5c4033; box-sizing: border-box;"></canvas>
 <canvas id="platform-canvas" width="260" height="155" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 17; display: none; image-rendering: pixelated; background: #15202b; border-bottom: 2px solid #060709; box-sizing: border-box;"></canvas>
-            </div>            <div class="dialogue-box" id="dialogue-box">
+<!-- === 📜 终极版：活点地图遮罩层 (带开场电影级幕布) === -->  
+<div id="map-game-overlay" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; z-index:18; background:#e2cdad; background-image: repeating-linear-gradient(45deg, rgba(92,58,33,0.05) 0px, rgba(92,58,33,0.05) 2px, transparent 2px, transparent 10px), repeating-linear-gradient(-45deg, rgba(92,58,33,0.05) 0px, rgba(92,58,33,0.05) 2px, transparent 2px, transparent 10px), linear-gradient(90deg, rgba(139,90,43,0.1) 49%, rgba(139,90,43,0.4) 50%, rgba(139,90,43,0.1) 51%), radial-gradient(circle at 20% 80%, rgba(92,58,33,0.15) 0%, transparent 60%); box-shadow: inset 0 0 40px rgba(92,58,33,0.9); border-bottom:2px solid #5c4033; box-sizing:border-box; overflow:hidden;">      
+     
+     <!-- 地图真正的内容层 -->
+     <div id="map-actual-content" style="opacity:0; transition: opacity 2s ease-in-out; width:100%; height:100%;">
+         
+         <!-- 替换掉多余的咒语，改为原著经典的抬头与更美的排版 -->
+         <div style="text-align:center; color:#5c3a21; font-weight:900; font-size:10px; margin-top:8px; font-family:'Georgia', serif; position:relative; z-index: 20; letter-spacing: 0.5px; opacity:0.85;">
+             Messrs Moony, Wormtail, Padfoot, and Prongs<br>
+             <span style="font-size:12px; font-weight:bold; color:#3e2615; text-shadow: 1px 1px 0 rgba(255,255,255,0.4);">THE MARAUDER'S MAP</span>
+         </div>                    
+         
+         <!-- 霍格沃茨水印和复杂的折线背景(模拟密道连线) -->
+         <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; opacity: 0.25;">
+             <path d="M 30,60 Q 60,80 80,40 T 150,50 T 220,100" fill="transparent" stroke="#5c3a21" stroke-width="2" stroke-dasharray="4,4"/>
+             <path d="M 40,120 Q 80,150 120,100 T 200,120" fill="transparent" stroke="#5c3a21" stroke-width="1.5" stroke-dasharray="2,2"/>
+             <path d="M 180,30 Q 200,60 160,80" fill="transparent" stroke="#5c3a21" stroke-width="2" stroke-dasharray="3,3"/>
+         </svg>
+         
+         <div style="position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%); font-size: 100px; font-family: 'Times New Roman', serif; color: rgba(92,58,33,0.12); z-index: 0; pointer-events: none; font-weight: bold; text-align:center; line-height:0.8;">H<br><span style="font-size:18px; letter-spacing:8px;">HOGWARTS</span></div> 
+
+         <!-- 房间按钮增加了onclick事件，实现点击探索玩法！ -->
+         <div class="map-room" style="top:40px; left:5%; pointer-events:auto; cursor:pointer;" onclick="exploreRoom('天文塔')">天文塔</div>          
+         <div class="map-room" style="top:25px; right:5%; pointer-events:auto; cursor:pointer;" onclick="exploreRoom('图书馆')">图书馆</div>          
+         <div class="map-room" style="bottom:45px; left:8%; pointer-events:auto; cursor:pointer;" onclick="exploreRoom('魔药课')">魔药课</div>          
+         <div class="map-room" style="bottom:30px; right:10%; pointer-events:auto; cursor:pointer;" onclick="exploreRoom('大礼堂')">大礼堂</div>          
+         <div class="map-room" style="top:55%; left:38%; pointer-events:auto; cursor:pointer;" onclick="exploreRoom('有求必应屋')">有求必应屋</div>           
+         
+         <!-- 新增一个隐藏的密道入口彩蛋 -->
+         <div class="map-room secret-passage" style="top:80px; left:40%; background:transparent; border:1px dashed #8b5a2b; color:#8b5a2b; font-size:9px; pointer-events:auto; cursor:pointer; transform:rotate(-15deg);" onclick="exploreRoom('独眼女巫密道')">密道入口</div>
+
+         <div id="map-footprints-container" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index: 5;"></div>              
+         
+         <div style="position:absolute; bottom:5px; width:100%; text-align:center; font-size:9px; color:#5c3a21; font-weight:bold; z-index:20; opacity:0.9;">( 抓脚印 / 点击房间探索 / 按 B键 退出 )</div>
+     </div>
+
+     <!-- 开场动画专属文字层 -->
+     <div id="map-opening-text" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:90%; text-align:center; color:#5c3a21; font-family:'Georgia', serif; font-size:14px; font-weight:bold; z-index:25; opacity:0; transition: all 1.5s ease; text-shadow: 0 0 5px rgba(255,255,255,0.5);"></div>
+
+     <!-- 闭幕专用的黑场遮罩 -->      
+     <div id="map-curtain" style="position:absolute; top:0; left:0; width:100%; height:100%; background:#060709; z-index:30; opacity:0; pointer-events:none; transition: opacity 1.5s ease; display:flex; justify-content:center; align-items:center; text-align:center;">          
+         <div id="map-oath-text" style="color:#d1b55a; font-family:'Georgia', serif; font-size:16px; font-weight:bold; text-shadow: 0 0 10px #d1b55a; white-space:pre-wrap;"></div>      
+     </div>      
+</div>
+</div>
+       <div class="dialogue-box" id="dialogue-box">
                 <span id="text-content">正在载入霍格沃兹拉文克劳休息室...</span><span class="cursor"></span>
             </div>
 
@@ -1873,8 +1996,15 @@ if (noah.temperature === undefined) noah.temperature = 20;
             }
         }
     }
-    checkDailyBank();
-    checkWeeklySummary(); // 每次刷新页面检查是否需要发【周结总结信】
+       checkDailyBank();
+    
+    // 【完美修复补丁】：给周结信加一个 0.5 秒的延迟
+    // 让系统有时间先把画笔(ctx)准备好，彻底杜绝死机卡死！
+    setTimeout(() => {
+        checkWeeklySummary(); 
+    }, 500);
+
+
 // === 新增：诺亚在后台静默更新你的城市天气 ===
 async function silentUpdateWeather() {
     if (!noah.city) return; // 如果还没定位，就不查
@@ -2748,8 +2878,8 @@ let gameTimer = 0, gameScore = 0, noahX = 45, coins = [], lastCoinTime = 0, game
     };
 
     // --- 新增：打开地点选择菜单 ---
-    function openLocationMenu() {
-if(window.isPlatformGaming) return; // 拦截动作冒险游戏
+  function openLocationMenu() {
+    if(window.isPlatformGaming || window.isMapGaming) return; 
     if(window.isGomoku) { moveGomokuCursor(0, -1); return; }
 if(window.isGaming) { speak("我现在正忙着给你赚加隆，没空出门！"); return; }
         if(noah.isAway) { speak("诺亚正在外面探险，耐心点，女朋友。"); return; }
@@ -2894,6 +3024,7 @@ if(window.isGaming) { speak("我现在正忙着给你赚加隆，没空出门！
             { name: "✉️ 写悄悄话给他", action: () => openSecretChat() },
             { name: "📅 诺亚的专属日历", action: () => openCalendar() },
 { name: "✒️ 日记 ", action: () => openPlayerDiary() },
+{ name: "📜 打开活点地图捉弄他", action: () => startMapGame() },
             { name: "♟️ 和他下五子棋", action: () => startGomoku() },
             { name: "🎡 惊喜盲盒转盘 (G10)", action: () => openGacha() },
  { name: "🎮 陪他接金币 (G5)", action: () => startMiniGame() }, // <- 新加这一行
@@ -3020,10 +3151,8 @@ if(window.isGaming) { speak("我现在正忙着给你赚加隆，没空出门！
             speak("“房间里空荡荡的。去点一下屏幕上他留下的那封信吧。”");
             return;
         }
-if(window.isPlatformGaming) return; // 拦截动作冒险游戏
-if(window.isPlatformGaming) return; // 拦截动作冒险游戏
-    if(window.isGomoku) {
-        if(type === 'shop') moveGomokuCursor(0, 1);
+    if(window.isPlatformGaming || window.isMapGaming) return; 
+    if(window.isGomoku) {        if(type === 'shop') moveGomokuCursor(0, 1);
         if(type === 'feed') moveGomokuCursor(-1, 0);
         if(type === 'interact') moveGomokuCursor(1, 0);
         return;
@@ -3615,6 +3744,10 @@ sfx_poke();
         if(action === 'chat') showGomokuOptions(); // B键呼出选项
         return;
     }
+    if(window.isMapGaming) {
+        if(action === 'chat') showMapOptions(); // B键呼出地图菜单
+        return;
+    }
         if(noah.isAway || noah.isRunaway) return;
                if(action === 'status') {
             const levelThresholds = [0, 50, 200, 600, 1500, 5200, 13140];
@@ -4028,7 +4161,7 @@ if(noah.city && noah.weatherCondition && Math.random() < 0.3) {
             return;
         }
 if (typeof isStarGaming !== 'undefined' && isStarGaming) return; // <--- 【新增这1行】正在玩戳星星游戏时，拦截戳脸事件！
-        
+ if (window.isMapGaming) return; // 玩活点地图时拦截戳戳！       
           // === 修改开始：戳一戳互动（加入真名） ===
     const callName = noah.realName ? noah.realName : "笨蛋"; 
     const pokeQuotes = [
@@ -4053,8 +4186,8 @@ if (typeof isStarGaming !== 'undefined' && isStarGaming) return; // <--- 【新�
     let dragDist = 0;
     const pokeContainer = document.getElementById('canvas-container');
 
-    const startDrag = (e) => {
-        if(noah.isAway || noah.isRunaway) return;
+      const startDrag = (e) => {
+        if(noah.isAway || noah.isRunaway || window.isMapGaming) return;
         isDragging = true; dragDist = 0;
         dragStartX = e.type.includes('mouse') ? e.pageX : e.touches[0].pageX;
     };
@@ -7378,6 +7511,380 @@ function renderFitLogs() {
         list.appendChild(div);
     });
 }
+// ==================== 📜 电影级：活点地图小游戏核心逻辑 ====================
+window.isMapGaming = false;
+let mapGameInterval;
+let mapScore = 0;
+let activeCharacters = new Set();
+let mapPeevesTimer = null; // 捣蛋鬼的惩罚计时器
+
+const mapRooms = [
+    { name: "天文塔", x: 15, y: 35 },
+    { name: "图书馆", x: 75, y: 35 },
+    { name: "魔药课教室", x: 15, y: 75 },
+    { name: "大礼堂", x: 75, y: 75 },
+    { name: "有求必应屋", x: 45, y: 55 }
+];
+
+// 新增：呼出地图专属菜单
+function showMapOptions() {
+    sfx_beep();
+    const list = document.getElementById('modal-list');
+    list.innerHTML = '';
+    document.getElementById('modal-title').innerText = "📜 活点地图选项";
+    
+    let li1 = document.createElement('li');
+    li1.innerHTML = "<span>▶️ 继续监视</span>";
+    li1.onclick = () => { closeModal(); };
+    list.appendChild(li1);
+
+    let li2 = document.createElement('li');
+    li2.innerHTML = "<span>✨ 恶作剧完毕 (安全退出)</span>";
+    li2.onclick = () => { 
+        closeModal(); 
+        endMapGame(); 
+    };
+    list.appendChild(li2);
+
+    document.getElementById('sys-modal').style.display = 'block';
+}
+
+function startMapGame() {
+    if(noah.isAway) { speak("“你想在地图上找我？但我现在在外面探险，地图上只会显示一团乱码。”"); return; }
+    if(window.isGaming || window.isGomoku || window.isPlatformGaming) return;
+
+    sfx_success();
+    closeModal();
+    window.isMapGaming = true;
+    mapScore = 0; 
+    activeCharacters.clear(); 
+    if(mapPeevesTimer) clearTimeout(mapPeevesTimer);
+
+    document.getElementById('noah-canvas').style.display = 'none';
+    
+    // --- 控制开场动画的元素 ---
+    const overlay = document.getElementById('map-game-overlay');
+    const actualContent = document.getElementById('map-actual-content');
+    const openingText = document.getElementById('map-opening-text');
+    
+    overlay.style.display = 'block';
+    actualContent.style.opacity = '0'; // 初始隐藏地图内容
+    openingText.style.opacity = '0';
+    document.getElementById('map-footprints-container').innerHTML = '';
+
+    // 第一句引导台词
+    speak("“想打开活点地图？那就在心里跟我一起念那句咒语……” (魔法验证中，请勿乱点)");
+
+    // === 电影级开幕序列 (时间轴精准控制) ===
+    
+    // 1. 1秒后：掠夺者名字浮现
+    setTimeout(() => {
+        sfx_write(); // 播放羊皮纸沙沙声
+        openingText.innerHTML = "月亮脸、虫尾巴、大脚板与尖头叉子...";
+        openingText.style.opacity = '1';
+    }, 1000);
+
+    // 2. 3.5秒后：掠夺者名字淡出
+    setTimeout(() => {
+        openingText.style.opacity = '0';
+    }, 3500);
+
+    // 3. 4.5秒后：诺亚专属签名浮现
+    setTimeout(() => {
+        sfx_write();
+        openingText.innerHTML = "携 诺亚·司德里安<br><br><span style='font-size:11px; font-weight:normal;'>骄傲地献上</span>";
+        openingText.style.opacity = '1';
+    }, 4500);
+
+    // 4. 7秒后：签名淡出
+    setTimeout(() => {
+        openingText.style.opacity = '0';
+    }, 7000);
+
+    // 5. 8.5秒后：终极魔咒！庄严宣誓！
+    setTimeout(() => {
+        sfx_success(); // 魔法解开的清脆声
+        openingText.style.transform = "translate(-50%, -50%) scale(1.15)";
+        openingText.innerHTML = "“我庄严宣誓我没干好事”<br><span style='font-size:10px; font-style:italic;'>I solemnly swear that I am up to no good.</span>";
+        openingText.style.opacity = '1';
+    }, 8500);
+
+    // 6. 11秒后：宣誓字迹隐去，地图本体像墨水一样浮现！
+    setTimeout(() => {
+        openingText.style.opacity = '0';
+        openingText.style.transform = "translate(-50%, -50%) scale(1)"; // 恢复原本比例
+        actualContent.style.opacity = '1'; // 地图浮现！
+    }, 11000);
+
+    // 7. 13秒后：正式开始游戏！
+    setTimeout(() => {
+        speak("“地图开启了。现在，来抓我吧。看到掠夺者也可以点点看。” (按右下角 B键 退出)");
+        mapGameInterval = setInterval(spawnFootprint, 600);
+    }, 13000);
+}
+
+function spawnFootprint() {
+    if(!window.isMapGaming) return;
+    
+     const characters = [
+        { name: "诺亚", type: "noah", speed: Math.max(1500, 3200 - mapScore * 180) }, 
+        { name: "西奥多", type: "enemy", speed: 5000 },
+        { name: "布雷斯", type: "enemy", speed: 4500 },
+        { name: "斯内普", type: "teacher", speed: 6000 },
+        { name: "麦格教授", type: "teacher", speed: 6500 },
+        { name: "哈利波特", type: "student", speed: 4000 },
+        { name: "费尔奇", type: "guard", speed: 8000 },
+        // --- 新增：掠夺者原班人马彩蛋！ ---
+        { name: "大脚板", type: "marauder", speed: 3500 },
+        { name: "尖头叉子", type: "marauder", speed: 3500 },
+        { name: "月亮脸", type: "marauder", speed: 3500 },
+        { name: "虫尾巴", type: "traitor", speed: 4000 } // 必须手刃叛徒！
+    ];
+
+    let char = characters[Math.floor(Math.random() * characters.length)];
+    
+        // 惊喜玩法 1：10% 概率刷出金闪闪的嗅嗅
+    if(Math.random() < 0.1) {
+        char = { name: "嗅嗅", type: "niffler", speed: 2200 };
+    }
+    // 🔥 新增极限挑战：5% 概率刷出【金飞贼】！速度极其惊人！
+    else if(Math.random() < 0.05) {
+        char = { name: "金飞贼", type: "snitch", speed: 850 }; 
+    }
+    // 危机玩法 2：8% 概率刷出皮皮鬼
+    else if(Math.random() < 0.08 && !activeCharacters.has("皮皮鬼")) {
+        char = { name: "皮皮鬼", type: "peeves", speed: 5000 };
+    }
+    // 强制保底诺亚出场率
+    else if (!activeCharacters.has("诺亚") && Math.random() < 0.45) {
+        char = characters[0];
+    }
+
+    if (activeCharacters.has(char.name)) return; 
+    activeCharacters.add(char.name);
+
+    const container = document.getElementById('map-footprints-container');
+    const fpBox = document.createElement('div');
+    fpBox.className = 'map-footprint-box';
+    fpBox.style.transition = `transform ${char.speed}ms linear, opacity 0.5s ease-in-out`;
+
+    let startRoom = mapRooms[Math.floor(Math.random() * mapRooms.length)];
+    let endRoom = mapRooms[Math.floor(Math.random() * mapRooms.length)];
+    while(startRoom.name === endRoom.name) endRoom = mapRooms[Math.floor(Math.random() * mapRooms.length)]; 
+
+    fpBox.style.left = startRoom.x + '%';
+    fpBox.style.top = startRoom.y + '%'; 
+
+    let dx = endRoom.x - startRoom.x;
+    let dy = endRoom.y - startRoom.y;
+    let angle = Math.atan2(dy, dx) * 180 / Math.PI + 90;
+
+    // 🏆 根据身份渲染脚印颜色（金飞贼也是金色的！）
+    let inkColor = '#3e2615'; // 默认墨水黑
+    if (char.type === 'niffler' || char.type === 'snitch') inkColor = '#d1b55a'; 
+    if (char.type === 'peeves') inkColor = '#d15a5a'; 
+    
+    let nameFilter = (char.type === 'niffler' || char.type === 'snitch') ? 'text-shadow: 0 0 5px #d1b55a; color:#8b5a2b;' : '';
+    
+    fpBox.innerHTML = `
+        <div class="ink-footprints-container" style="transform: rotate(${angle}deg);">
+            <div class="ink-foot left-foot" style="background:${inkColor}; box-shadow: 0 0 3px ${inkColor};"></div>
+            <div class="ink-foot right-foot" style="background:${inkColor}; box-shadow: 0 0 3px ${inkColor};"></div>
+        </div>
+        <div class="map-name" style="${nameFilter}">${char.name}</div>
+    `;
+
+    // 皮皮鬼专属恶作剧惩罚（5秒内不点他，就会扣钱）
+    if(char.type === 'peeves') {
+        fpBox.style.animation = 'float 0.3s infinite'; // 皮皮鬼会鬼畜抖动
+        mapPeevesTimer = setTimeout(() => {
+            if(activeCharacters.has("皮皮鬼") && window.isMapGaming) {
+                sfx_error();
+                noah.gold = Math.max(0, noah.gold - 15);
+                noah.mood -= 5;
+                speak("“可恶！皮皮鬼刚才偷偷把你的口袋咬了个洞，偷走了 15 加隆！下次看到他赶紧点掉！”");
+                updateUI();
+            }
+        }, char.speed - 300);
+    }
+
+    fpBox.ontouchstart = fpBox.onmousedown = function(e) {
+        e.preventDefault(); 
+        if(!window.isMapGaming) return;
+
+        let computedStyle = window.getComputedStyle(fpBox);
+        fpBox.style.transform = computedStyle.transform;
+        fpBox.style.transition = 'none';
+
+        // 分支判定
+        if (char.type === "noah") {
+            sfx_poke(); 
+            if(navigator.vibrate) navigator.vibrate([20, 30]); 
+            mapScore++;
+            noah.love += 1; 
+            let catchQuotes = [
+                `“啧，被逮到了。我保证没有在去【${endRoom.name}】的路上想你。”`,
+                `“走得这么快还能被抓住？看来这辈子都逃不出你的视线了。”`,
+                `“【${startRoom.name}】太闷了，我正想去找你呢，就被你点到了。”`
+            ];
+            speak(catchQuotes[Math.floor(Math.random() * catchQuotes.length)]);
+            makeShy(); 
+        } 
+        else if (char.type === "niffler") {
+            sfx_coin();
+            let nGold = 25 + Math.floor(Math.random()*40); // 暴富！
+            noah.gold += nGold; noah.mood += 10;
+            speak(`“干得漂亮！你抓住了偷溜的金闪闪嗅嗅，它吐出了 ${nGold} 加隆！”`);
+        }
+        // --- 新增：抓住金飞贼判定 ---
+        else if (char.type === "snitch") {
+            sfx_success();
+            let nGold = 50 + Math.floor(Math.random()*50); // 暴富奖励：50~100加隆！
+            noah.gold += nGold; noah.mood += 20; noah.love += 5;
+            speak(`“梅林的胡子！你竟然在地图上抓到了移速惊人的【金飞贼】！狂赚 ${nGold} 加隆！连我都对你刮目相看了！”`);
+            makeShy();
+        }
+        else if (char.type === "peeves") {
+            sfx_success();
+            clearTimeout(mapPeevesTimer); // 打断惩罚
+            speak("“干得好！讨厌的皮皮鬼被你用魔咒赶跑了，霍格沃兹少不了你。”");
+        }
+        // --- 新增：掠夺者彩蛋判定 ---
+        else if (char.type === "marauder") {
+            sfx_success();
+            noah.love += 2; noah.mood += 5;
+            let mQuotes = [
+                `“你竟然发现了【${char.name}】的踪迹！据说他们可是这张活点地图的缔造者。”`,
+                `“【${char.name}】？看来今晚有除了我之外的家伙在兴奋地夜游了。”`
+            ];
+            speak(mQuotes[Math.floor(Math.random() * mQuotes.length)]);
+        }
+        // --- 新增：手刃叛徒虫尾巴 ---
+        else if (char.type === "traitor") {
+            sfx_error(); // 播放沉重的打击音效
+            if(navigator.vibrate) navigator.vibrate([50, 80, 50]); // 手机震动感拉满
+            noah.mood += 15; // 诺亚觉得极度解气，心情大好
+            speak("“【虫尾巴】？！干得漂亮，你踩到了那个该死的叛徒！这一下踩得真解气！”");
+        }
+        else {
+            sfx_error();
+            if(navigator.vibrate) navigator.vibrate(50);
+            if(char.type === "enemy") {
+                noah.mood -= 5;
+                speak(`“你点【${char.name}】干嘛？！你是不是在偷偷看他去哪！今晚没你好果子吃。”`);
+            } else if(char.type === "guard") {
+                noah.gold = Math.max(0, noah.gold - 5); 
+                speak("“糟了，你惊动费尔奇了！快躲起来！被扣了 5 加隆！”");
+            } else if(char.name === "斯内普") {
+                noah.mood -= 2;
+                speak("“点斯内普教授？你这周的魔药学论文写完了吗就敢招惹他？”");
+            } else {
+                speak(`“别看${char.name}了，抓你自己的男朋友不好吗？”`);
+            }
+        }
+
+        // 墨水爆浆特效 (根据不同颜色爆不同墨水)
+        fpBox.innerHTML = `<div class="ink-splatter" style="background: radial-gradient(circle, ${inkColor} 20%, transparent 60%);"></div>`;
+        activeCharacters.delete(char.name);
+        
+        setTimeout(() => { 
+            fpBox.style.opacity = '0';
+            setTimeout(() => { if(fpBox.parentNode) fpBox.remove(); }, 500);
+        }, 300);
+        updateUI();
+    };
+
+    container.appendChild(fpBox);
+
+    setTimeout(() => {
+        fpBox.style.opacity = '1';
+        fpBox.style.transform = `translate(calc(${dx}vw - ${dx}%), calc(${dy}vh - ${dy}%))`;
+    }, 50);
+
+    setTimeout(() => {
+        if(fpBox.parentNode && fpBox.innerHTML.includes('left-foot')) {
+            fpBox.style.opacity = '0';
+            activeCharacters.delete(char.name);
+            setTimeout(() => { if(fpBox.parentNode) fpBox.remove(); }, 500);
+        }
+    }, char.speed); 
+}
+
+function endMapGame() {
+    window.isMapGaming = false;
+    clearInterval(mapGameInterval);
+    if(mapPeevesTimer) clearTimeout(mapPeevesTimer);
+    activeCharacters.clear();
+    sfx_beep();
+
+    // 修复后的闭幕仪式：文字与黑屏遮罩齐飞
+    const curtain = document.getElementById('map-curtain');
+    curtain.style.opacity = '1';
+    document.getElementById('map-oath-text').innerText = "恶作剧完毕\nMischief Managed";
+
+    setTimeout(() => {
+        document.getElementById('map-game-overlay').style.display = 'none';
+        document.getElementById('noah-canvas').style.display = 'block';
+        curtain.style.opacity = '0'; // 褪去黑幕
+
+        if (mapScore > 0) {
+            noah.mood += 10;
+            let goldReward = mapScore * 10; 
+            noah.gold += goldReward;
+            speak(`“恶作剧完毕。你一共在地图上抓了我 ${mapScore} 次。奖励你 ${goldReward}G 零花钱，过来抱抱。”`);
+        } else {
+            speak("“地图合上了。你盯了半天连我一次都没抓到？看来只能我用绳子把你跟我绑在一起了。”");
+        }
+        updateUI();
+    }, 2000); 
+} // 1.5秒闭合仪式后退出
+// ==================== 🗺️ 活点地图房间探索引擎 ====================
+function exploreRoom(roomName) {
+    if(!window.isMapGaming) return;
+    sfx_poke(); // 播放点击音效
+    
+    // 随机事件盲盒
+    let events = [
+        `你在【${roomName}】发现了一张诺亚留下的字条：“别乱点房间了，去抓我的脚印。”`,
+        `【${roomName}】空荡荡的，只有风吹过羊皮纸发出的沙沙声。`,
+        `运气不错！你在【${roomName}】的角落里发现了一枚被人遗忘的加隆！`,
+        `皮皮鬼刚从【${roomName}】的墙壁穿过去，对着你做了一个鬼脸！`,
+        `你在【${roomName}】闻到了淡淡的茉莉花香，诺亚好像刚从这里经过。`,
+        `透过地图，你发现【${roomName}】里有两只猫头鹰正在打架。`
+    ];
+    let result = events[Math.floor(Math.random() * events.length)];
+    
+    // 判定奖励
+    if(result.includes("加隆")) { 
+        sfx_coin(); 
+        noah.gold += 5; 
+    } 
+    else if(result.includes("茉莉花香") || result.includes("字条")) { 
+        noah.love += 1; 
+        makeShy(); 
+    }
+    else { 
+        noah.mood += 1; 
+    }
+    
+    // 告诉玩家结果
+    speak(`【地图探索】${result}`);
+    updateUI();
+    
+    // 视觉特效：点击的房间会闪烁红光！
+    let rooms = document.querySelectorAll('.map-room');
+    rooms.forEach(el => {
+        if(el.innerText === roomName || (roomName === '独眼女巫密道' && el.classList.contains('secret-passage'))) {
+            let oldBg = el.style.backgroundColor;
+            el.style.backgroundColor = 'rgba(209, 90, 90, 0.6)'; // 闪红光
+            setTimeout(() => { 
+                el.style.backgroundColor = oldBg || 'rgba(235, 213, 179, 0.7)'; 
+            }, 300);
+        }
+    });
+}
+// ==========================================================
+// ==========================================================
 </script>
 </body>
 </html>
