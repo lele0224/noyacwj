@@ -1136,52 +1136,89 @@ flex-shrink: 0; min-height: 38px; box-sizing: border-box;
 }
 .fit-log-item:last-child { border-bottom: none; }
 .fit-log-date { color: #d1b55a; font-weight: bold; margin-bottom: 2px; }
-       /* === 📜 终极电影级：活点地图专属样式 === */
+    /* === 📜 终极电影级：活点地图专属样式 === */
+    /* 房间标牌：加入羊皮纸质感和复古墨水边框 */
     .map-room {
         position: absolute;
         border: 2px solid #5c3a21;
-        background: rgba(235, 213, 179, 0.7);
+        background: linear-gradient(135deg, rgba(235, 213, 179, 0.9) 0%, rgba(212, 185, 149, 0.9) 100%);
         color: #3e2615;
         font-size: 11px; font-weight: 900;
         padding: 6px 10px;
         font-family: 'Georgia', 'Times New Roman', serif;
-        pointer-events: none;
-        box-shadow: inset 0 0 10px rgba(92, 58, 33, 0.3), 2px 2px 0 rgba(92, 58, 33, 0.2);
+        /* 核心修复：允许点击 */
+        pointer-events: auto; cursor: pointer; z-index: 25; 
+        box-shadow: inset 0 0 10px rgba(92, 58, 33, 0.5), 2px 2px 0 rgba(92, 58, 33, 0.3);
         letter-spacing: 1px;
+        border-radius: 2px;
+        transition: 0.2s;
+    }
+    
+    .map-room:hover {
+        transform: scale(1.05);
+        box-shadow: inset 0 0 15px rgba(92, 58, 33, 0.6), 4px 4px 0 rgba(92, 58, 33, 0.4);
     }
     
     /* 房间的魔法折线连接感 */
     .map-room::after {
         content: ''; position: absolute; top: 100%; left: 50%;
         width: 2px; height: 15px; background: repeating-linear-gradient(to bottom, #5c3a21 0, #5c3a21 2px, transparent 2px, transparent 4px);
+        pointer-events: none;
     }
 
-    .map-footprint-box {
+    /* 密道专属样式：隐藏得更深，但点击响应区域更大 */
+    .secret-passage {
+        background: rgba(235, 213, 179, 0.3) !important; 
+        border: 1px dashed #8b5a2b !important; 
+        color: #8b5a2b !important; 
+        font-size: 9px !important; 
+        z-index: 30 !important; /* 强制最高层级，绝对能点到！ */
+        box-shadow: none !important;
+        opacity: 0.7;
+    }
+    .secret-passage:hover { opacity: 1; border: 1px solid #8b5a2b !important; background: rgba(235, 213, 179, 0.8) !important; }
+
+      .map-footprint-box {
         position: absolute;
         display: flex; flex-direction: column; align-items: center;
-        opacity: 0; cursor: pointer; z-index: 19;
-        /* 平移时间改为由JS动态控制，这里只保留透明度动画 */
+        opacity: 0; cursor: pointer; z-index: 45;
         transition: opacity 0.5s ease-in-out;
+        /* 👇这是新增的关键代码：强制允许点击，并向外扩展 15px 的隐形触摸区，手机上随便点都能点中！ */
+        pointer-events: auto !important; 
+        padding: 15px; margin: -15px; 
     }
     .map-footprint-box:active { transform: scale(1.2) !important; }
+    /* --- 活点地图新增：隐身咒与缩小药水特效 --- */
+    .map-invisible {
+        animation: map-invis 2s infinite alternate ease-in-out !important;
+    }
+    @keyframes map-invis {
+        0%, 100% { opacity: 1; filter: blur(0); }
+        50% { opacity: 0; pointer-events: none; filter: blur(2px); } /* 隐身时不可点击，增加挑战！ */
+    }
 
-    /* --- 纯手工打造：魔法墨水脚印 --- */
+    .map-tiny .ink-footprints-container {
+        transform: scale(0.5) !important;
+    }
+    .map-tiny .map-name {
+        font-size: 8px !important;
+        transform: scale(0.8);
+    }
+    /* 纯手工打造：魔法墨水脚印 */
     .ink-footprints-container {
         position: relative; width: 14px; height: 20px; margin-bottom: 2px;
     }
     .ink-foot {
         position: absolute; width: 4px; height: 6px;
         background: #3e2615; border-radius: 50% 50% 20% 20%;
-        box-shadow: 0 0 2px rgba(62, 38, 21, 0.8); /* 墨水晕染感 */
+        box-shadow: 0 0 2px rgba(62, 38, 21, 0.8); 
         opacity: 0;
     }
-    /* 脚趾头细节 */
     .ink-foot::before {
         content: ''; position: absolute; top: -3px; left: 0;
         width: 4px; height: 2px; border-radius: 50%;
-        background: #3e2615; box-shadow: inherit;
+        background: inherit; box-shadow: inherit;
     }
-    /* 左右脚交替踩踏动画 */
     .left-foot { left: 0; bottom: 0; transform: rotate(-10deg); animation: inkStep 0.8s infinite; }
     .right-foot { right: 0; top: 0; transform: rotate(10deg); animation: inkStep 0.8s infinite 0.4s; }
     
@@ -1196,14 +1233,13 @@ flex-shrink: 0; min-height: 38px; box-sizing: border-box;
         font-size: 11px; font-weight: bold; color: #1a0f08;
         background: transparent;
         padding: 2px 6px; 
-        border-left: 2px solid #5c3a21; /* 侧边墨水线 */
-        font-family: 'Brush Script MT', 'Georgia', cursive; /* 花体字 */
+        border-left: 2px solid #5c3a21; 
+        font-family: 'Brush Script MT', 'Georgia', cursive; 
         pointer-events: none;
-        transform: rotate(0deg) !important; /* 名字永远正向 */
+        transform: rotate(0deg) !important; 
         text-shadow: 0.5px 0.5px 0px rgba(255,255,255,0.5);
     }
 
-    /* 抓到后的墨水爆开特效 */
     .ink-splatter {
         width: 20px; height: 20px;
         background: radial-gradient(circle, #3e2615 20%, transparent 60%);
@@ -1214,6 +1250,111 @@ flex-shrink: 0; min-height: 38px; box-sizing: border-box;
         0% { transform: scale(0.5); opacity: 1; }
         100% { transform: scale(3); opacity: 0; }
     }
+/* ================= 📚 诺亚的拉文克劳词典 专属 UI ================= */
+#vocab-modal, #vocab-learn-modal, #vocab-import-modal {
+    display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(10, 13, 17, 0.98); z-index: 70; padding: 15px; box-sizing: border-box;
+    flex-direction: column; align-items: center; font-family: 'Courier New', monospace;
+    backdrop-filter: blur(5px); overflow-y: auto; scrollbar-width: none;
+}
+.vocab-title {
+    font-size: 14px; font-weight: 900; color: #5c84a8; margin-bottom: 15px;
+    border-bottom: 2px dashed #5c84a8; padding-bottom: 5px; width: 100%; text-align: center;
+    text-shadow: 0 0 8px rgba(92, 132, 168, 0.6);
+}
+.vocab-stats-box {
+    width: 100%; background: #060709; border: 1px solid #3b4652; border-radius: 6px;
+    padding: 10px; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 15px;
+    box-shadow: inset 0 2px 8px rgba(0,0,0,0.8);
+}
+.vocab-stat-item {
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    background: #11151a; border: 1px solid #1e242b; padding: 8px 0; border-radius: 4px;
+}
+.vocab-stat-num { font-size: 16px; font-weight: bold; color: #d1b55a; margin-top: 4px; }
+.vocab-stat-label { font-size: 9px; color: #b5cadd; }
+
+/* 闪卡样式 */
+.vocab-card {
+    width: 100%; min-height: 180px; background: #e8c37d; border: 4px solid #5c4033;
+    border-radius: 8px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+    box-shadow: inset 0 0 20px rgba(139, 90, 43, 0.2), 0 10px 20px rgba(0,0,0,0.8);
+    position: relative; margin-bottom: 20px; padding: 20px; box-sizing: border-box;
+}
+.vocab-card::before {
+    content: 'Ravenclaw Dictionary'; position: absolute; top: 5px; left: 10px;
+    font-size: 9px; color: #8b5a2b; font-family: 'Georgia', serif; opacity: 0.6;
+}
+.vocab-fav-btn {
+    position: absolute; top: 10px; right: 15px; font-size: 20px; cursor: pointer;
+    color: #8b5a2b; transition: 0.2s; text-shadow: 1px 1px 0 rgba(255,255,255,0.5);
+}
+.vocab-fav-btn.active { color: #d15a5a; animation: heartbeat 1s infinite; }
+.vocab-word-display { font-size: 24px; font-weight: 900; color: #3e2615; text-align: center; word-break: break-word; font-family: 'Times New Roman', serif; }
+.vocab-meaning-display { font-size: 14px; font-weight: bold; color: #5c3a21; text-align: center; margin-top: 20px; border-top: 1px dashed #8b5a2b; padding-top: 15px; width: 80%; display: none; line-height: 1.5; }
+
+/* 按钮样式 */
+.vocab-btn-group { display: flex; gap: 10px; width: 100%; margin-top: 10px; }
+.vocab-btn {
+    flex: 1; background: #1e242b; color: #b5cadd; border: 1px solid #5c84a8; 
+   padding: 12px; font-family: inherit; font-size: 12px; font-weight: bold;
+    cursor: pointer; border-radius: 4px; transition: 0.2s; box-shadow: 0 4px 0 #0f1214;
+}
+.vocab-btn:active { transform: translateY(4px); box-shadow: 0 0 0 #0f1214; }
+.vocab-btn-primary { background: #5c84a8; color: #000; border-color: #b5cadd; }
+.vocab-btn-danger { background: rgba(209, 90, 90, 0.1); border-color: #d15a5a; color: #d15a5a; }
+/* === 📇 新增：总词书列表专属样式 === */
+#vocab-list-modal {
+    display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(10, 13, 17, 0.98); z-index: 75; padding: 15px; box-sizing: border-box;
+    flex-direction: column; align-items: center; font-family: 'Courier New', monospace;
+    backdrop-filter: blur(5px);
+}
+.vocab-list-container {
+    width: 100%; flex: 1; overflow-y: auto; scrollbar-width: none;
+    background: #060709; border: 2px solid #3b4652; border-radius: 6px; padding: 10px; box-sizing: border-box;
+}
+.vocab-list-item {
+    display: flex; justify-content: space-between; align-items: center;
+    background: #11151a; border-bottom: 1px dashed #3b4652; padding: 10px 5px; margin-bottom: 5px;
+}
+.vocab-list-word { font-size: 14px; font-weight: bold; color: #d1b55a; width: 40%; word-break: break-all; }
+.vocab-list-mean { font-size: 11px; color: #b5cadd; width: 45%; text-align: left; line-height: 1.4; }
+.vocab-list-fav { font-size: 18px; cursor: pointer; color: #8b5a2b; width: 15%; text-align: right; transition: 0.2s; }
+.vocab-list-fav.active { color: #d15a5a; text-shadow: 0 0 5px rgba(209,90,90,0.5); }
+.vocab-list-fav:active { transform: scale(1.2); }
+/* === 🕹️ 单词连线游戏专属样式 === */
+#vocab-match-modal {
+    display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(10, 13, 17, 0.98); z-index: 75; padding: 15px; box-sizing: border-box;
+    flex-direction: column; align-items: center; font-family: 'Courier New', monospace;
+    backdrop-filter: blur(5px); overflow-y: auto; scrollbar-width: none;
+}
+.match-container {
+    display: flex; justify-content: space-between; width: 100%; gap: 10px; margin-top: 20px; flex: 1;
+}
+.match-col {
+    display: flex; flex-direction: column; gap: 12px; width: 50%;
+}
+.match-item {
+    background: #1e242b; border: 2px solid #3b4652; color: #b5cadd;
+    padding: 12px 8px; border-radius: 6px; text-align: center; cursor: pointer;
+    font-size: 11px; font-weight: bold; transition: 0.2s; word-break: break-word;
+    box-shadow: 0 4px 0 #0f1214;
+}
+.match-item:active { transform: translateY(4px); box-shadow: 0 0 0 #0f1214; }
+.match-item.selected { 
+    background: #5c84a8; color: #000; border-color: #b5cadd; 
+    transform: translateY(2px); box-shadow: 0 2px 0 #0f1214; 
+}
+.match-item.matched { 
+    background: #2a3b2c; border-color: #4a6b4e; color: #a3c9a6; 
+    pointer-events: none; opacity: 0.5; box-shadow: none; transform: translateY(4px); 
+}
+.match-item.error { 
+    background: #d15a5a; color: #fff; border-color: #8b0000; animation: shake 0.3s; 
+}
+@keyframes shake { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(-5px); } 75% { transform: translateX(5px); } }
 </style>
 </head>
 <body>
@@ -1259,42 +1400,11 @@ flex-shrink: 0; min-height: 38px; box-sizing: border-box;
  width="120" height="156" style="position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); z-index: 15; display: none; image-rendering: pixelated;"></canvas>
 <canvas id="gomoku-canvas" width="260" height="155" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 16; display: none; image-rendering: pixelated; background: #dca665; border-bottom: 2px solid #5c4033; box-sizing: border-box;"></canvas>
 <canvas id="platform-canvas" width="260" height="155" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 17; display: none; image-rendering: pixelated; background: #15202b; border-bottom: 2px solid #060709; box-sizing: border-box;"></canvas>
-<!-- === 📜 终极版：活点地图遮罩层 (带开场电影级幕布) === -->  
-<div id="map-game-overlay" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; z-index:18; background:#e2cdad; background-image: repeating-linear-gradient(45deg, rgba(92,58,33,0.05) 0px, rgba(92,58,33,0.05) 2px, transparent 2px, transparent 10px), repeating-linear-gradient(-45deg, rgba(92,58,33,0.05) 0px, rgba(92,58,33,0.05) 2px, transparent 2px, transparent 10px), linear-gradient(90deg, rgba(139,90,43,0.1) 49%, rgba(139,90,43,0.4) 50%, rgba(139,90,43,0.1) 51%), radial-gradient(circle at 20% 80%, rgba(92,58,33,0.15) 0%, transparent 60%); box-shadow: inset 0 0 40px rgba(92,58,33,0.9); border-bottom:2px solid #5c4033; box-sizing:border-box; overflow:hidden;">      
-     
-     <!-- 地图真正的内容层 -->
-     <div id="map-actual-content" style="opacity:0; transition: opacity 2s ease-in-out; width:100%; height:100%;">
-         
-         <!-- 替换掉多余的咒语，改为原著经典的抬头与更美的排版 -->
-         <div style="text-align:center; color:#5c3a21; font-weight:900; font-size:10px; margin-top:8px; font-family:'Georgia', serif; position:relative; z-index: 20; letter-spacing: 0.5px; opacity:0.85;">
-             Messrs Moony, Wormtail, Padfoot, and Prongs<br>
-             <span style="font-size:12px; font-weight:bold; color:#3e2615; text-shadow: 1px 1px 0 rgba(255,255,255,0.4);">THE MARAUDER'S MAP</span>
-         </div>                    
-         
-         <!-- 霍格沃茨水印和复杂的折线背景(模拟密道连线) -->
-         <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; opacity: 0.25;">
-             <path d="M 30,60 Q 60,80 80,40 T 150,50 T 220,100" fill="transparent" stroke="#5c3a21" stroke-width="2" stroke-dasharray="4,4"/>
-             <path d="M 40,120 Q 80,150 120,100 T 200,120" fill="transparent" stroke="#5c3a21" stroke-width="1.5" stroke-dasharray="2,2"/>
-             <path d="M 180,30 Q 200,60 160,80" fill="transparent" stroke="#5c3a21" stroke-width="2" stroke-dasharray="3,3"/>
-         </svg>
-         
-         <div style="position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%); font-size: 100px; font-family: 'Times New Roman', serif; color: rgba(92,58,33,0.12); z-index: 0; pointer-events: none; font-weight: bold; text-align:center; line-height:0.8;">H<br><span style="font-size:18px; letter-spacing:8px;">HOGWARTS</span></div> 
 
-         <!-- 房间按钮增加了onclick事件，实现点击探索玩法！ -->
-         <div class="map-room" style="top:40px; left:5%; pointer-events:auto; cursor:pointer;" onclick="exploreRoom('天文塔')">天文塔</div>          
-         <div class="map-room" style="top:25px; right:5%; pointer-events:auto; cursor:pointer;" onclick="exploreRoom('图书馆')">图书馆</div>          
-         <div class="map-room" style="bottom:45px; left:8%; pointer-events:auto; cursor:pointer;" onclick="exploreRoom('魔药课')">魔药课</div>          
-         <div class="map-room" style="bottom:30px; right:10%; pointer-events:auto; cursor:pointer;" onclick="exploreRoom('大礼堂')">大礼堂</div>          
-         <div class="map-room" style="top:55%; left:38%; pointer-events:auto; cursor:pointer;" onclick="exploreRoom('有求必应屋')">有求必应屋</div>           
-         
-         <!-- 新增一个隐藏的密道入口彩蛋 -->
-         <div class="map-room secret-passage" style="top:80px; left:40%; background:transparent; border:1px dashed #8b5a2b; color:#8b5a2b; font-size:9px; pointer-events:auto; cursor:pointer; transform:rotate(-15deg);" onclick="exploreRoom('独眼女巫密道')">密道入口</div>
-
-         <div id="map-footprints-container" style="position:absolute; top:0; left:0; width:100%; height:100%; z-index: 5;"></div>              
-         
-         <div style="position:absolute; bottom:5px; width:100%; text-align:center; font-size:9px; color:#5c3a21; font-weight:bold; z-index:20; opacity:0.9;">( 抓脚印 / 点击房间探索 / 按 B键 退出 )</div>
-     </div>
-
+<!-- === 📜 终极版：活点地图遮罩层 (带开场电影级幕布与复古羊皮纸质感) === -->   <div id="map-game-overlay" style="display:none; position:absolute; top:0; left:0; width:100%; height:100%; z-index:18;       background: #e2cdad;       /* 核心升级：羊皮纸做旧折痕、边缘烧焦暗角、魔法阵暗纹 */      background-image:          linear-gradient(90deg, rgba(92,58,33,0.05) 33%, rgba(139,90,43,0.3) 33.5%, rgba(92,58,33,0.05) 34%),         linear-gradient(90deg, rgba(92,58,33,0.05) 66%, rgba(139,90,43,0.3) 66.5%, rgba(92,58,33,0.05) 67%),         radial-gradient(circle at 50% 50%, transparent 40%, rgba(50, 30, 10, 0.6) 100%),         repeating-linear-gradient(45deg, rgba(92,58,33,0.03) 0px, rgba(92,58,33,0.03) 2px, transparent 2px, transparent 15px);      box-shadow: inset 0 0 60px rgba(60,30,10,0.9); border-bottom:3px solid #3e2615; box-sizing:border-box; overflow:hidden;">                  <!-- 地图真正的内容层 -->      <div id="map-actual-content" style="opacity:0; transition: opacity 2s ease-in-out; width:100%; height:100%;">                    <div style="text-align:center; color:#5c3a21; font-weight:900; font-size:10px; margin-top:8px; font-family:'Georgia', serif; position:relative; z-index: 20; letter-spacing: 0.5px; opacity:0.85;">              Messrs Moony, Wormtail, Padfoot, and Prongs<br>              <span style="font-size:12px; font-weight:bold; color:#3e2615; text-shadow: 1px 1px 0 rgba(255,255,255,0.4);">THE MARAUDER'S MAP</span>          </div>                                        <!-- 霍格沃茨魔法阵水印和密道连线 -->          <svg style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; opacity: 0.35;">              <path d="M 30,60 Q 60,80 80,40 T 150,50 T 220,100" fill="transparent" stroke="#5c3a21" stroke-width="2" stroke-dasharray="3,4"/>              <path d="M 40,120 Q 80,150 120,100 T 200,120" fill="transparent" stroke="#5c3a21" stroke-width="1.5" stroke-dasharray="2,3"/>              <!-- 通向密道的特殊脚印虚线 -->              <path d="M 120,80 Q 110,60 100,85" fill="transparent" stroke="#8b5a2b" stroke-width="2" stroke-dasharray="2,4"/>          </svg>                 <div style="position: absolute; top: 55%; left: 50%; transform: translate(-50%, -50%); font-size: 100px; font-family: 'Times New Roman', serif; color: rgba(92,58,33,0.15); z-index: 0; pointer-events: none; font-weight: bold; text-align:center; line-height:0.8; text-shadow: 2px 2px 0px rgba(255,255,255,0.2);">H<br><span style="font-size:18px; letter-spacing:8px;">HOGWARTS</span></div>                             <!-- ==================== 修复：活点地图脚印容器与房间 ==================== --> <div id="map-footprints-container" style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 40; pointer-events: none;"></div> 
+ <div class="map-room" style="top: 25%; left: 8%;" onclick="exploreRoom('天文塔')">天文塔</div> <div class="map-room" style="top: 25%; left: 68%;" onclick="exploreRoom('图书馆')">图书馆</div> <div class="map-room" style="top: 65%; left: 8%;" onclick="exploreRoom('魔药课教室')">魔药课教室</div> <div class="map-room" style="top: 65%; left: 68%;" onclick="exploreRoom('大礼堂')">大礼堂</div> <div class="map-room" style="top: 45%; left: 35%;" onclick="exploreRoom('有求必应屋')">有求必应屋</div> 
+ <div class="map-room secret-passage" style="top: 80%; left: 35%;" onclick="exploreRoom('独眼女巫密道')">独眼女巫密道</div> <!-- ==================== 修复结束 ==================== --> 
+ </div> <!-- 结束 map-actual-content -->
      <!-- 开场动画专属文字层 -->
      <div id="map-opening-text" style="position:absolute; top:50%; left:50%; transform:translate(-50%, -50%); width:90%; text-align:center; color:#5c3a21; font-family:'Georgia', serif; font-size:14px; font-weight:bold; z-index:25; opacity:0; transition: all 1.5s ease; text-shadow: 0 0 5px rgba(255,255,255,0.5);"></div>
 
@@ -1320,6 +1430,74 @@ flex-shrink: 0; min-height: 38px; box-sizing: border-box;
 <!-- === ✒️ 新增：玩家手写日记本 (互动批注版) === --> <!-- === ✒️ 新增：玩家手写日记本 (复古可爱像素方格纸版) === --> <div id="player-diary-modal">     <div class="pixel-diary-book">         <!-- 装饰：像素缝合线 -->         <div class="pixel-diary-binder"></div>                  <!-- 顶部：标题 -->         <div class="pixel-diary-header">             <div id="player-diary-title">DIARY OF ???</div>             <div style="font-size: 9px; color: #d15a5a; margin-top: 4px; font-weight: bold;">[ NOAH'S SECRET COMMENTARY ]</div>         </div> 
          <!-- 中间：日记列表 (自动生成内容防越界) -->         <div id="player-diary-list">             <!-- JS 会在这里生成内容 -->         </div> 
          <!-- 底部：输入区域 -->         <div class="pixel-diary-footer">             <textarea id="diary-input" placeholder="写下今天的心事...诺亚偷偷看后会红笔回复你的..." maxlength="100"></textarea>             <div style="display: flex; gap: 8px;">                 <button onclick="savePlayerDiary()" class="pixel-btn-save">✍️ 记下 (SAVE)</button>                 <button onclick="closePlayerDiary()" class="pixel-btn-close">合上 (CLOSE)</button>             </div>         </div>     </div> </div>
+<!-- === 📚 诺亚的拉文克劳真理词典 主界面 === -->
+<div id="vocab-modal">
+    <div class="vocab-title">📚 诺亚的真理词典</div>
+    <div class="vocab-stats-box">
+        <div class="vocab-stat-item"><span class="vocab-stat-label">词库总数</span><span class="vocab-stat-num" id="v-stat-total">0</span></div>
+        <div class="vocab-stat-item"><span class="vocab-stat-label">已斩杀 (已掌握)</span><span class="vocab-stat-num" id="v-stat-mastered" style="color:#5c84a8;">0</span></div>
+        <div class="vocab-stat-item"><span class="vocab-stat-label">待复习 (错题)</span><span class="vocab-stat-num" id="v-stat-wrong" style="color:#d15a5a;">0</span></div>
+        <div class="vocab-stat-item"><span class="vocab-stat-label">我的偏爱 (收藏)</span><span class="vocab-stat-num" id="v-stat-fav" style="color:#ff99cc;">0</span></div>
+    </div>
+    
+    <button class="vocab-btn vocab-btn-primary" style="width:100%; margin-bottom:10px;" onclick="startVocab('all')">📖 开始背单词 (顺序/随机)</button>
+    
+    <div class="vocab-btn-group">
+        <button class="vocab-btn" onclick="startVocab('wrong')">⚠️ 错题本复习</button>
+        <button class="vocab-btn" onclick="startVocab('fav')">❤ 偏爱生词本</button>
+    </div>
+ <button class="vocab-btn" style="width:100%; margin-top:10px; background: rgba(209, 181, 90, 0.1); border-color:#d1b55a; color:#d1b55a;" onclick="startVocabMatch()">🕹️ 单词连线</button>
+    <!-- 新增：查看总词书按钮 -->     <button class="vocab-btn" style="width:100%; margin-top:10px; background: rgba(92, 132, 168, 0.1); border-color:#5c84a8; color:#5c84a8;" onclick="openVocabList()">📇 查看总词书 </button>
+    <div class="vocab-btn-group" style="margin-top: 15px; border-top: 1px dashed #3b4652; padding-top: 15px;">
+        <button class="vocab-btn" onclick="openVocabImport()">📥 一键导入词库</button>
+        <button class="vocab-btn vocab-btn-danger" onclick="closeVocab()">🚪 退出词典</button>
+    </div>
+</div>
+
+<!-- === 📥 词典导入界面 === -->
+<div id="vocab-import-modal">
+    <div class="vocab-title">📥 注入新的知识储备</div>
+    <div style="font-size:10px; color:#5c84a8; margin-bottom:10px; width:100%; line-height:1.5;">
+        * 支持格式 (每行一个)：<br>
+        单词,中文意思<br>
+        单词=中文意思<br>
+        单词 中文意思
+    </div>
+    <textarea id="vocab-import-input" placeholder="例如：\napple,苹果\nmagic=魔法\nlove 爱" 
+        style="width:100%; height:180px; background:#060709; border:2px solid #5c84a8; color:#b5cadd; padding:10px; font-family:inherit; font-size:12px; resize:none; border-radius:4px; box-sizing:border-box; outline:none; margin-bottom:15px;"></textarea>
+    
+    <div class="vocab-btn-group">
+        <button class="vocab-btn vocab-btn-primary" onclick="confirmVocabImport()">确认注入</button>
+        <button class="vocab-btn vocab-btn-danger" onclick="document.getElementById('vocab-import-modal').style.display='none'">取消</button>
+    </div>
+</div>
+
+<!-- === 📖 背单词闪卡学习界面 === -->
+<div id="vocab-learn-modal">
+    <div class="vocab-title" id="vocab-learn-title">正在学习...</div>
+    <div style="font-size:10px; color:#b5cadd; margin-bottom:10px;">进度: <span id="vocab-progress">0/0</span></div>
+    
+    <div class="vocab-card">
+        <div class="vocab-fav-btn" id="vocab-fav-btn" onclick="toggleVocabFav()">❤</div>
+        <div class="vocab-word-display" id="vocab-word-display">Apple</div>
+        <div class="vocab-meaning-display" id="vocab-meaning-display">苹果</div>
+    </div>
+    
+    <!-- 状态1：未看答案 -->
+    <div class="vocab-btn-group" id="vocab-step1-btns">
+        <button class="vocab-btn vocab-btn-primary" style="flex:2;" onclick="revealVocab()">点击查看释义 (SHOW)</button>
+    </div>
+    
+    <!-- 状态2：已看答案 -->
+    <div class="vocab-btn-group" id="vocab-step2-btns" style="display:none;">
+        <button class="vocab-btn vocab-btn-danger" onclick="markVocab(false)">✘ 不认识 (忘了)</button>
+        <button class="vocab-btn" style="background:#2a3b2c; border-color:#4a6b4e; color:#a3c9a6;" onclick="markVocab(true)">✔ 认识 (掌握)</button>
+    </div>
+    
+    <button class="vocab-btn" style="width:100%; margin-top:20px; border:none; background:transparent; color:#5c84a8; text-decoration:underline;" onclick="closeVocabLearn()">结束本次学习</button>
+</div>
+<!-- === 📇 新增：总词书列表界面 === -->  <div id="vocab-list-modal">          <div class="vocab-title" style="margin-bottom: 6px; padding-bottom: 4px;">📇 诺亚的词汇档案</div>          <div style="font-size:9px; color:#b5cadd; margin-bottom:6px; text-align:center; width:100%; line-height: 1.2;">滑动查看生词。<br>点击右侧的 <span style="color:#d15a5a;">❤</span> 加入或取消偏爱。</div>               <div class="vocab-list-container" id="vocab-list-content" style="margin-bottom: 6px;">                  <!-- 单词列表将由 JS 动态生成到这里 -->          </div>               <!-- 仅重写了这个界面的按钮样式：缩小边距、压低高度、自动置底 -->  <button class="vocab-btn vocab-btn-danger" style="width:100%; margin-top: auto; padding: 8px; font-size: 11px; box-shadow: 0 2px 0 #0f1214; flex: none; flex-shrink: 0;" onclick="closeVocabList()">🚪 返回词典菜单</button></div>
+<!-- === 🕹️ 单词连线小游戏界面 === --> <div id="vocab-match-modal">     <div class="vocab-title">🕹️ 记忆神经连线</div>     <div style="font-size:10px; color:#b5cadd; margin-bottom:10px; text-align:center; line-height:1.5;">         点击左侧单词，再点击右侧释义进行连线。<br>         <span style="color:#d15a5a;">* 连错会被诺亚抓进错题本，全对有加隆奖励！</span>     </div>          <div class="match-container">         <!-- 左列放英文单词 -->         <div class="match-col" id="match-left-col"></div>         <!-- 右列放中文释义 -->         <div class="match-col" id="match-right-col"></div>     </div>          <button class="vocab-btn vocab-btn-danger" style="width:100%; margin-top:20px;" onclick="closeVocabMatch()">🚪 逃跑 (退回词典)</button> </div>
 <!-- === 新增：悄悄话输入终端 UI === --> <div id="chat-modal" style="display: none; position: absolute; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 15, 20, 0.98); z-index: 40; flex-direction: column; justify-content: center; align-items: center; padding: 15px; box-sizing: border-box; backdrop-filter: blur(2px);">     <div style="width: 100%; border-bottom: 2px dashed #5c84a8; margin-bottom: 15px; padding-bottom: 5px; text-align: center; color: #d1b55a; font-weight: bold; font-size: 14px; text-shadow: 0 0 5px rgba(209, 181, 90, 0.5);">         ✉️ 发送传讯     </div>          <div style="width: 100%; position: relative;">         <!-- 输入框 -->         <input type="text" id="chat-input" placeholder="输入你想对诺亚说的话..."                 style="width: 100%; background: #060709; border: 2px solid #3b4652; color: #b5cadd;                        padding: 12px; font-family: 'Courier New', monospace; font-size: 12px;                        box-sizing: border-box; outline: none; border-radius: 4px;                        box-shadow: inset 0 2px 5px rgba(0,0,0,0.8); transition: 0.3s;">     </div>          <div style="font-size: 9px; color: #5c84a8; margin-top: 8px; margin-bottom: 20px; width: 100%; text-align: left;">         * 按 Enter 发送，或点击下方按钮     </div> 
      <div style="display: flex; gap: 10px; width: 100%;">         <button onclick="confirmSecretChat()"                  style="flex: 1; background: #1e242b; border: 1px solid #5c84a8; color: #b5cadd; padding: 10px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 11px; border-radius: 4px; transition: 0.2s;">             发送 (SEND)         </button>         <button onclick="closeChatModal()"                  style="flex: 1; background: transparent; border: 1px dashed #d15a5a; color: #d15a5a; padding: 10px; cursor: pointer; font-weight: bold; font-family: inherit; font-size: 11px; border-radius: 4px; transition: 0.2s;">             取消 (BACK)         </button>     </div> </div>
             <div id="event-modal">
@@ -1967,6 +2145,12 @@ if (noah.temperature === undefined) noah.temperature = 20;
                 weight: noah.fitnessData.lastWeight
             });
         }
+    }
+    // === 新增：拉文克劳词典数据初始化 ===
+    if (noah.vocabData === undefined) {
+        noah.vocabData = {
+            words: [] // 格式: { word:"apple", mean:"苹果", master:false, wrong:0, fav:false }
+        };
     }
     // === 离家出走系统初始化 ===
     if (noah.lastOnlineTime === undefined) noah.lastOnlineTime = Date.now();
@@ -3019,6 +3203,7 @@ if(window.isGaming) { speak("我现在正忙着给你赚加隆，没空出门！
         interact: [
  { name: "🎵 诺亚随身听", action: () => { sfx_success(); document.getElementById('music-modal').style.display='flex'; } },           
             { name: "🕰️ 打开陪伴手账", action: () => openAccompany() },
+            { name: "📚 诺亚的真理词书 (背单词)", action: () => openVocab() },
  { name: "👗 打开衣柜 ", action: () => setTimeout(openWardrobe, 10) },
             { name: "⚖️ 诺亚的科学健康监控舱", action: () => openFitness() },
             { name: "✉️ 写悄悄话给他", action: () => openSecretChat() },
@@ -7626,7 +7811,7 @@ function startMapGame() {
 function spawnFootprint() {
     if(!window.isMapGaming) return;
     
-     const characters = [
+    const characters = [
         { name: "诺亚", type: "noah", speed: Math.max(1500, 3200 - mapScore * 180) }, 
         { name: "西奥多", type: "enemy", speed: 5000 },
         { name: "布雷斯", type: "enemy", speed: 4500 },
@@ -7634,31 +7819,20 @@ function spawnFootprint() {
         { name: "麦格教授", type: "teacher", speed: 6500 },
         { name: "哈利波特", type: "student", speed: 4000 },
         { name: "费尔奇", type: "guard", speed: 8000 },
-        // --- 新增：掠夺者原班人马彩蛋！ ---
         { name: "大脚板", type: "marauder", speed: 3500 },
         { name: "尖头叉子", type: "marauder", speed: 3500 },
         { name: "月亮脸", type: "marauder", speed: 3500 },
-        { name: "虫尾巴", type: "traitor", speed: 4000 } // 必须手刃叛徒！
+        { name: "虫尾巴", type: "traitor", speed: 4000 },
+        // --- 新增：赫敏，带来时间转换器减速特效！ ---
+        { name: "赫敏", type: "hermione", speed: 4500 }
     ];
 
     let char = characters[Math.floor(Math.random() * characters.length)];
     
-        // 惊喜玩法 1：10% 概率刷出金闪闪的嗅嗅
-    if(Math.random() < 0.1) {
-        char = { name: "嗅嗅", type: "niffler", speed: 2200 };
-    }
-    // 🔥 新增极限挑战：5% 概率刷出【金飞贼】！速度极其惊人！
-    else if(Math.random() < 0.05) {
-        char = { name: "金飞贼", type: "snitch", speed: 850 }; 
-    }
-    // 危机玩法 2：8% 概率刷出皮皮鬼
-    else if(Math.random() < 0.08 && !activeCharacters.has("皮皮鬼")) {
-        char = { name: "皮皮鬼", type: "peeves", speed: 5000 };
-    }
-    // 强制保底诺亚出场率
-    else if (!activeCharacters.has("诺亚") && Math.random() < 0.45) {
-        char = characters[0];
-    }
+    if(Math.random() < 0.1) { char = { name: "嗅嗅", type: "niffler", speed: 2200 }; }
+    else if(Math.random() < 0.05) { char = { name: "金飞贼", type: "snitch", speed: 850 }; }
+    else if(Math.random() < 0.08 && !activeCharacters.has("皮皮鬼")) { char = { name: "皮皮鬼", type: "peeves", speed: 5000 }; }
+    else if (!activeCharacters.has("诺亚") && Math.random() < 0.45) { char = characters[0]; }
 
     if (activeCharacters.has(char.name)) return; 
     activeCharacters.add(char.name);
@@ -7679,10 +7853,10 @@ function spawnFootprint() {
     let dy = endRoom.y - startRoom.y;
     let angle = Math.atan2(dy, dx) * 180 / Math.PI + 90;
 
-    // 🏆 根据身份渲染脚印颜色（金飞贼也是金色的！）
-    let inkColor = '#3e2615'; // 默认墨水黑
+    let inkColor = '#3e2615'; 
     if (char.type === 'niffler' || char.type === 'snitch') inkColor = '#d1b55a'; 
     if (char.type === 'peeves') inkColor = '#d15a5a'; 
+    if (char.type === 'hermione') inkColor = '#c4a482'; // 赫敏带点神秘色彩
     
     let nameFilter = (char.type === 'niffler' || char.type === 'snitch') ? 'text-shadow: 0 0 5px #d1b55a; color:#8b5a2b;' : '';
     
@@ -7694,9 +7868,14 @@ function spawnFootprint() {
         <div class="map-name" style="${nameFilter}">${char.name}</div>
     `;
 
-    // 皮皮鬼专属恶作剧惩罚（5秒内不点他，就会扣钱）
+    // --- 新增可玩性机制：隐身咒 与 缩小药水 ---
+    let isTiny = Math.random() < 0.2; // 20%概率变小，奖励翻倍
+    let isInvisible = Math.random() < 0.15; // 15%概率会隐身闪烁
+    if (isTiny) fpBox.classList.add('map-tiny');
+    if (isInvisible) fpBox.classList.add('map-invisible');
+
     if(char.type === 'peeves') {
-        fpBox.style.animation = 'float 0.3s infinite'; // 皮皮鬼会鬼畜抖动
+        fpBox.style.animation = 'float 0.3s infinite'; 
         mapPeevesTimer = setTimeout(() => {
             if(activeCharacters.has("皮皮鬼") && window.isMapGaming) {
                 sfx_error();
@@ -7716,54 +7895,67 @@ function spawnFootprint() {
         fpBox.style.transform = computedStyle.transform;
         fpBox.style.transition = 'none';
 
-        // 分支判定
+        // --- 缩小的怪物给双倍奖励！ ---
+        let multiplier = isTiny ? 2 : 1; 
+        let tinyMsg = isTiny ? "【缩小药水额外翻倍！】" : "";
+
         if (char.type === "noah") {
             sfx_poke(); 
             if(navigator.vibrate) navigator.vibrate([20, 30]); 
-            mapScore++;
-            noah.love += 1; 
+            mapScore += (1 * multiplier);
+            noah.love += (1 * multiplier); 
             let catchQuotes = [
-                `“啧，被逮到了。我保证没有在去【${endRoom.name}】的路上想你。”`,
-                `“走得这么快还能被抓住？看来这辈子都逃不出你的视线了。”`,
-                `“【${startRoom.name}】太闷了，我正想去找你呢，就被你点到了。”`
+                `“啧，被逮到了。我保证没有在去【${endRoom.name}】的路上想你。” ${tinyMsg}`,
+                `“走得这么快还能被抓住？看来这辈子都逃不出你的视线了。” ${tinyMsg}`,
+                `“【${startRoom.name}】太闷了，我正想去找你呢，就被你点到了。” ${tinyMsg}`
             ];
             speak(catchQuotes[Math.floor(Math.random() * catchQuotes.length)]);
             makeShy(); 
         } 
         else if (char.type === "niffler") {
-            sfx_coin();
-            let nGold = 25 + Math.floor(Math.random()*40); // 暴富！
-            noah.gold += nGold; noah.mood += 10;
-            speak(`“干得漂亮！你抓住了偷溜的金闪闪嗅嗅，它吐出了 ${nGold} 加隆！”`);
+            // 修改：嗅嗅不再是纯送钱机器，它可能会偷你的钱！
+            if (Math.random() < 0.5) {
+                sfx_coin();
+                let nGold = (3 + Math.floor(Math.random()*5)) * multiplier; // 削减送钱数量(3-8加隆)
+                noah.gold += nGold; noah.mood += 5;
+                speak(`“抓到一只落单的嗅嗅！它从肚皮口袋里掉出了 ${nGold} 加隆。${tinyMsg}”`);
+            } else {
+                sfx_error();
+                let stealGold = 5 * multiplier;
+                noah.gold = Math.max(0, noah.gold - stealGold); // 扣钱
+                noah.mood -= 5;
+                speak(`“糟糕！这只狡猾的嗅嗅不仅没吐钱，还趁你抓它时偷走了 ${stealGold} 加隆溜了！${tinyMsg}”`);
+            }
         }
-        // --- 新增：抓住金飞贼判定 ---
         else if (char.type === "snitch") {
             sfx_success();
-            let nGold = 50 + Math.floor(Math.random()*50); // 暴富奖励：50~100加隆！
-            noah.gold += nGold; noah.mood += 20; noah.love += 5;
-            speak(`“梅林的胡子！你竟然在地图上抓到了移速惊人的【金飞贼】！狂赚 ${nGold} 加隆！连我都对你刮目相看了！”`);
+            // 修改：金飞贼改为给少量钱，但给大量“偏爱值”和“心情”
+            let nGold = (10 + Math.floor(Math.random()*10)) * multiplier; 
+            noah.gold += nGold; noah.mood += 30; noah.love += 0;
+            speak(`“梅林的胡子！你竟然抓到了移速惊人的【金飞贼】！诺亚看起来为你骄傲极了！”`);
             makeShy();
+        }
+        else if (char.type === "hermione") {
+            sfx_success();
+            speak("“你抓到了【赫敏】！她掉落了时间转换器，地图上所有人的移动速度瞬间变慢了！”");
+            // ⭐️ 全场子弹时间魔法！强行拉长屏幕上所有的脚印动画 ⭐️
+            let allFps = document.querySelectorAll('.map-footprint-box');
+            allFps.forEach(f => { f.style.transitionDuration = '12s'; });
         }
         else if (char.type === "peeves") {
             sfx_success();
-            clearTimeout(mapPeevesTimer); // 打断惩罚
+            clearTimeout(mapPeevesTimer); 
             speak("“干得好！讨厌的皮皮鬼被你用魔咒赶跑了，霍格沃兹少不了你。”");
         }
-        // --- 新增：掠夺者彩蛋判定 ---
         else if (char.type === "marauder") {
             sfx_success();
             noah.love += 2; noah.mood += 5;
-            let mQuotes = [
-                `“你竟然发现了【${char.name}】的踪迹！据说他们可是这张活点地图的缔造者。”`,
-                `“【${char.name}】？看来今晚有除了我之外的家伙在兴奋地夜游了。”`
-            ];
-            speak(mQuotes[Math.floor(Math.random() * mQuotes.length)]);
+            speak(`“你竟然发现了【${char.name}】的踪迹！据说他们可是这张活点地图的缔造者。”`);
         }
-        // --- 新增：手刃叛徒虫尾巴 ---
         else if (char.type === "traitor") {
-            sfx_error(); // 播放沉重的打击音效
-            if(navigator.vibrate) navigator.vibrate([50, 80, 50]); // 手机震动感拉满
-            noah.mood += 15; // 诺亚觉得极度解气，心情大好
+            sfx_error(); 
+            if(navigator.vibrate) navigator.vibrate([50, 80, 50]); 
+            noah.mood += 15; 
             speak("“【虫尾巴】？！干得漂亮，你踩到了那个该死的叛徒！这一下踩得真解气！”");
         }
         else {
@@ -7783,7 +7975,6 @@ function spawnFootprint() {
             }
         }
 
-        // 墨水爆浆特效 (根据不同颜色爆不同墨水)
         fpBox.innerHTML = `<div class="ink-splatter" style="background: radial-gradient(circle, ${inkColor} 20%, transparent 60%);"></div>`;
         activeCharacters.delete(char.name);
         
@@ -7838,53 +8029,553 @@ function endMapGame() {
         updateUI();
     }, 2000); 
 } // 1.5秒闭合仪式后退出
-// ==================== 🗺️ 活点地图房间探索引擎 ====================
+// ==================== 🗺️ 活点地图房间探索引擎 (原著沉浸增强版) ====================
+let lastRoomClickTime = 0;
+let lastRoomClicked = "";
+
 function exploreRoom(roomName) {
     if(!window.isMapGaming) return;
-    sfx_poke(); // 播放点击音效
     
-    // 随机事件盲盒
-    let events = [
-        `你在【${roomName}】发现了一张诺亚留下的字条：“别乱点房间了，去抓我的脚印。”`,
-        `【${roomName}】空荡荡的，只有风吹过羊皮纸发出的沙沙声。`,
-        `运气不错！你在【${roomName}】的角落里发现了一枚被人遗忘的加隆！`,
-        `皮皮鬼刚从【${roomName}】的墙壁穿过去，对着你做了一个鬼脸！`,
-        `你在【${roomName}】闻到了淡淡的茉莉花香，诺亚好像刚从这里经过。`,
-        `透过地图，你发现【${roomName}】里有两只猫头鹰正在打架。`
-    ];
-    let result = events[Math.floor(Math.random() * events.length)];
+    // --- 新增：双击防误触系统 ---
+    let now = Date.now();
+    // 如果800毫秒内连续点了同一个房间，才判定为真正进入
+    if (lastRoomClicked === roomName && (now - lastRoomClickTime) < 800) {
+        lastRoomClicked = "";
+        lastRoomClickTime = 0;
+    } else {
+        // 只点了一次，给出提示和闪烁，不进入！
+        lastRoomClicked = roomName;
+        lastRoomClickTime = now;
+        sfx_beep();
+        speak(`“你想进【${roomName}】？再点一次确认进入。小心别让目标在地图上溜走了。”`);
+        
+        // 让点击的房间闪烁金光提示
+        let rooms = document.querySelectorAll('.map-room');
+        rooms.forEach(el => {
+            if (el.innerText === roomName || (roomName === '独眼女巫密道' && el.classList.contains('secret-passage'))) {
+                el.style.background = 'rgba(209, 181, 90, 0.7)'; 
+                setTimeout(() => { 
+                    el.style.background = el.classList.contains('secret-passage') ? 'rgba(235, 213, 179, 0.3)' : 'linear-gradient(135deg, rgba(235, 213, 179, 0.9) 0%, rgba(212, 185, 149, 0.9) 100%)'; 
+                }, 300);
+            }
+        });
+        return; // 拦截执行，保护你的地图进度
+    }
     
-    // 判定奖励
-    if(result.includes("加隆")) { 
-        sfx_coin(); 
-        noah.gold += 5; 
+    sfx_poke(); // 播放成功进入的音效
+    
+    let result = "";
+    let nName = noah.realName || "笨蛋";
+
+    // --- 独眼女巫密道：究极原著彩蛋 ---
+    if (roomName === '独眼女巫密道') {
+        sfx_success();
+        noah.hunger = Math.min(100, noah.hunger + 20); // 吃糖吃饱了
+        noah.mood += 15;
+        noah.love += 5;
+        result = `【密道彩蛋】你用魔杖敲了敲雕像，低声念出“左右分离(Dissendium)”。顺着狭窄的密道滑下去，你居然来到了蜂蜜公爵糖果店的地窖！诺亚在纸上浮现出一行字：“又去偷吃巧克力蛙？给我留一块，${nName}。”`;
+        speak(result);
+        makeShy();
     } 
-    else if(result.includes("茉莉花香") || result.includes("字条")) { 
-        noah.love += 1; 
-        makeShy(); 
-    }
-    else { 
-        noah.mood += 1; 
+    // --- 分房间的原著事件盲盒 ---
+    else {
+        let events = [];
+        if (roomName === '天文塔') {
+            events = [
+                `你在【天文塔】边缘发现了一枚掉落的加隆，似乎是占卜课学生遗落的。`,
+                `诺亚的墨水在【天文塔】浮现：“这里风大，不许一个人去上面吹风。”`,
+                `透过地图，你看到【天文塔】上有两对小情侣正在夜游约会。`
+            ];
+        } else if (roomName === '图书馆') {
+            events = [
+                `你在【图书馆】禁书区边缘抓到了一只正在啃羊皮纸的皮皮鬼！`,
+                `地图显示平斯夫人正在【图书馆】的第七排书架巡逻。`,
+                `诺亚在【图书馆】给你留了言：“我借的那本《高级魔药制作》在你那里吗？”`
+            ];
+        } else if (roomName === '斯莱特林地窖') {
+            events = [
+                `【斯莱特林地窖】里冷飕飕的。你发现斯内普教授正以极快的速度在走廊里穿梭。`,
+                `你在【斯莱特林地窖】的角落捡到了几枚加隆！运气不错。`,
+                `诺亚的墨水警告：“离那群阴险的小蛇远点，除了你这只。”`
+            ];
+        } else if (roomName === '大礼堂') {
+            events = [
+                `地图上显示【大礼堂】的长桌上正摆满了丰盛的夜宵！你感觉有点饿了。`,
+                `韦斯莱双子正在【大礼堂】的角落里密谋着什么，他们还对着地图的方向抛了个媚眼。`,
+                `你在【大礼堂】的赫奇帕奇长桌下捡到了 10 个加隆！`
+            ];
+        } else if (roomName === '有求必应屋') {
+            events = [
+                `你在【有求必应屋】闻到了淡淡的茉莉花香，诺亚好像刚从这里经过。`,
+                `【有求必应屋】现在变成了一个堆满杂物的地方，你在里面翻出了一些加隆。`,
+                `诺亚在地图上写道：“今晚有求必应屋见，密码你知道的。”`
+            ];
+        }
+        
+        result = events[Math.floor(Math.random() * events.length)];
+        
+        // 判定奖励
+        if (result.includes("加隆")) { 
+            sfx_coin(); 
+            let g = result.includes("10") ? 10 : 5;
+            noah.gold += g; 
+            speak(`【地图探索】${result} (加隆 +${g})`);
+        } else if (result.includes("饿了")) {
+            noah.hunger = Math.max(0, noah.hunger - 5);
+            speak(`【地图探索】${result} (饱食度 -5)`);
+        } else if (result.includes("茉莉花香") || result.includes("留言") || result.includes("警告")) { 
+            noah.love += 2; 
+            makeShy(); 
+            speak(`【地图探索】${result}`);
+        } else { 
+            noah.mood += 1; 
+            speak(`【地图探索】${result}`);
+        }
     }
     
-    // 告诉玩家结果
-    speak(`【地图探索】${result}`);
     updateUI();
     
-    // 视觉特效：点击的房间会闪烁红光！
+    // 视觉特效：点击的房间会闪烁魔法红光！
     let rooms = document.querySelectorAll('.map-room');
     rooms.forEach(el => {
-        if(el.innerText === roomName || (roomName === '独眼女巫密道' && el.classList.contains('secret-passage'))) {
-            let oldBg = el.style.backgroundColor;
-            el.style.backgroundColor = 'rgba(209, 90, 90, 0.6)'; // 闪红光
+        if (el.innerText === roomName || (roomName === '独眼女巫密道' && el.classList.contains('secret-passage'))) {
+            let oldBg = el.style.background;
+            el.style.background = 'rgba(209, 90, 90, 0.7)'; // 闪红光
             setTimeout(() => { 
-                el.style.backgroundColor = oldBg || 'rgba(235, 213, 179, 0.7)'; 
+                // 恢复原状
+                el.style.background = el.classList.contains('secret-passage') ? 'rgba(235, 213, 179, 0.3)' : 'linear-gradient(135deg, rgba(235, 213, 179, 0.9) 0%, rgba(212, 185, 149, 0.9) 100%)'; 
             }, 300);
         }
     });
 }
 // ==========================================================
 // ==========================================================
+// ==================== 📚 诺亚的拉文克劳词典 核心引擎 ====================
+let currentVocabList = []; // 当前学习队列
+let currentVocabIndex = 0;
+let currentVocabMode = ''; // all, wrong, fav
+
+function openVocab() {
+    if (noah.isAway) { speak("“我人在外面，你想让空气考你单词吗？等我回去。”"); return; }
+    if (window.isGaming || window.isGomoku) return;
+    sfx_success(); closeModal();
+
+    // 计算统计数据
+    let total = noah.vocabData.words.length;
+    let mastered = noah.vocabData.words.filter(w => w.master).length;
+    let wrong = noah.vocabData.words.filter(w => w.wrong > 0).length;
+    let fav = noah.vocabData.words.filter(w => w.fav).length;
+
+    document.getElementById('v-stat-total').innerText = total;
+    document.getElementById('v-stat-mastered').innerText = mastered;
+    document.getElementById('v-stat-wrong').innerText = wrong;
+    document.getElementById('v-stat-fav').innerText = fav;
+
+    document.getElementById('vocab-modal').style.display = 'flex';
+    speak("“想学习了？很好，这才是拉文克劳家属该有的觉悟。把你的词库交给我，我来考你。”");
+}
+
+function closeVocab() {
+    sfx_beep();
+    document.getElementById('vocab-modal').style.display = 'none';
+}
+
+function openVocabImport() {
+    sfx_beep();
+    document.getElementById('vocab-import-input').value = "";
+    document.getElementById('vocab-import-modal').style.display = 'flex';
+}
+
+function confirmVocabImport() {
+    let input = document.getElementById('vocab-import-input').value.trim();
+    if (!input) { sfx_error(); speak("“你交了一张白纸给我？写点生词进去！”"); return; }
+
+    let lines = input.split('\n');
+    let addedCount = 0;
+
+    lines.forEach(line => {
+        // 支持三种分隔符：逗号，等号，空格
+        let parts = line.split(/[,=，]| +/);
+        if (parts.length >= 2) {
+            let w = parts[0].trim();
+            let m = parts.slice(1).join(' ').trim(); // 把剩余部分当做释义
+            if (w && m) {
+                // 检查是否已存在
+                let existing = noah.vocabData.words.find(item => item.word.toLowerCase() === w.toLowerCase());
+                if (!existing) {
+                    noah.vocabData.words.push({ word: w, mean: m, master: false, wrong: 0, fav: false });
+                    addedCount++;
+                }
+            }
+        }
+    });
+
+    sfx_success();
+    document.getElementById('vocab-import-modal').style.display = 'none';
+    updateUI(); // 保存
+    openVocab(); // 刷新界面
+    speak(`“词库注入完毕。成功录入 ${addedCount} 个新词汇。准备好接受我的地狱特训了吗？”`);
+}
+
+function startVocab(mode) {
+    if (noah.vocabData.words.length === 0) {
+        sfx_error(); speak("“你的词库空空如也，先去【一键导入词库】里塞点东西再来找我。”"); return;
+    }
+
+    currentVocabMode = mode;
+    currentVocabList = [];
+
+    if (mode === 'all') {
+        // 优先抽未掌握的，如果都掌握了就全抽
+        currentVocabList = noah.vocabData.words.filter(w => !w.master);
+        if (currentVocabList.length === 0) currentVocabList = [...noah.vocabData.words];
+        document.getElementById('vocab-learn-title').innerText = "📖 常规背诵特训";
+    } else if (mode === 'wrong') {
+        currentVocabList = noah.vocabData.words.filter(w => w.wrong > 0);
+        document.getElementById('vocab-learn-title').innerText = "⚠️ 错题本复仇";
+    } else if (mode === 'fav') {
+        currentVocabList = noah.vocabData.words.filter(w => w.fav);
+        document.getElementById('vocab-learn-title').innerText = "❤ 专属偏爱词库";
+    }
+
+    if (currentVocabList.length === 0) {
+        sfx_error(); speak("“这个分类下没有单词。你是不是想偷懒？”"); return;
+    }
+
+    // 打乱数组 (洗牌算法)
+    currentVocabList.sort(() => Math.random() - 0.5);
+    
+    currentVocabIndex = 0;
+    document.getElementById('vocab-modal').style.display = 'none';
+    document.getElementById('vocab-learn-modal').style.display = 'flex';
+    
+    speak("“专注点。别看别的地方，看着屏幕上的词。我不允许你记不住。”");
+    renderCurrentVocab();
+}
+
+function renderCurrentVocab() {
+    if (currentVocabIndex >= currentVocabList.length) {
+        // 学习结束
+        sfx_success();
+        closeVocabLearn();
+        openVocab(); // 回到主界面
+        let quotes = [
+            "“终于背完了？勉强及格。过来，脑子累了就靠在我肩膀上休息会。”",
+            "“这次的正确率还凑合。只要你肯学，哪怕你是巨怪我也能把你教成天才。”"
+        ];
+        noah.love += 2; noah.mood += 10; updateUI();
+        speak(quotes[Math.floor(Math.random() * quotes.length)]);
+        return;
+    }
+
+    let item = currentVocabList[currentVocabIndex];
+    
+    document.getElementById('vocab-progress').innerText = `${currentVocabIndex + 1} / ${currentVocabList.length}`;
+    document.getElementById('vocab-word-display').innerText = item.word;
+    document.getElementById('vocab-meaning-display').innerText = item.mean;
+    document.getElementById('vocab-meaning-display').style.display = 'none'; // 隐藏释义
+    
+    // 爱心状态
+    let favBtn = document.getElementById('vocab-fav-btn');
+    if (item.fav) favBtn.classList.add('active');
+    else favBtn.classList.remove('active');
+
+    // 按钮切换
+    document.getElementById('vocab-step1-btns').style.display = 'flex';
+    document.getElementById('vocab-step2-btns').style.display = 'none';
+}
+
+function revealVocab() {
+    sfx_poke();
+    document.getElementById('vocab-meaning-display').style.display = 'block';
+    document.getElementById('vocab-step1-btns').style.display = 'none';
+    document.getElementById('vocab-step2-btns').style.display = 'flex';
+}
+
+function toggleVocabFav() {
+    sfx_heartbeat();
+    let item = currentVocabList[currentVocabIndex];
+    item.fav = !item.fav;
+    
+    let favBtn = document.getElementById('vocab-fav-btn');
+    if (item.fav) {
+        favBtn.classList.add('active');
+        speak(`“把【${item.word}】放进偏爱库了。就像你在我心里一样。”`);
+    } else {
+        favBtn.classList.remove('active');
+        speak(`“取消收藏了。喜新厌旧？不过你对我可不能这样。”`);
+    }
+    updateUI();
+}
+
+function markVocab(isKnown) {
+    let item = currentVocabList[currentVocabIndex];
+    const nName = noah.realName || "笨蛋";
+
+    if (isKnown) {
+        sfx_coin();
+        item.master = true;
+        // 如果原本是错题，答对一次减少一点错题值
+        if (item.wrong > 0) item.wrong--; 
+        
+        if (Math.random() < 0.3) {
+            let praises = [
+                `“答对了。真聪明，不愧是我看上的人。”`,
+                `“记性不错。作为奖励，允许你等会多摸我两下。”`,
+                `“漂亮。把这些词踩在脚下，我带你去更远的未来。”`
+            ];
+            speak(praises[Math.floor(Math.random() * praises.length)]);
+            makeShy();
+        }
+    } else {
+        sfx_error();
+        item.master = false;
+        item.wrong++;
+        
+        // 如果答错了，把这个词重新塞到队列后面，强制复习直到记住！
+        currentVocabList.push(item);
+        
+        let scolds = [
+            `“啧，【${item.word}】是 ${item.mean}！怎么又忘了？给我刻在脑子里！”`,
+            `“这么简单的词都不认识？${nName}，你今晚别想睡了，我在梦里考你。”`,
+            `“答错了。没关系，有我陪你复习，错一百遍我也陪你。”`
+        ];
+        speak(scolds[Math.floor(Math.random() * scolds.length)]);
+        noah.mood -= 1; // 诺亚会因为你答错微微叹气
+    }
+
+    updateUI(); // 保存数据
+    currentVocabIndex++;
+    renderCurrentVocab();
+}
+
+function closeVocabLearn() {
+    sfx_beep();
+    document.getElementById('vocab-learn-modal').style.display = 'none';
+}
+// ==================== 📇 诺亚的总词书系统 ====================
+function openVocabList() {
+    // 检查是否有单词
+    if (noah.vocabData.words.length === 0) {
+        sfx_error(); 
+        speak("“你的词库里一个词都没有，你想看什么？想看空气还是想看我？”"); 
+        return;
+    }
+    
+    sfx_success();
+    document.getElementById('vocab-modal').style.display = 'none';
+    document.getElementById('vocab-list-modal').style.display = 'flex';
+    renderVocabList(); // 生成列表
+    speak("“这里记录了你所有的词汇锚点。有哪个想让我特别关照的，标上红心。”");
+}
+
+function closeVocabList() {
+    sfx_beep();
+    document.getElementById('vocab-list-modal').style.display = 'none';
+    
+    // 关闭时重新计算一下主界面的统计数据（防止在里面点了收藏，出来数字不对）
+    let total = noah.vocabData.words.length;
+    let mastered = noah.vocabData.words.filter(w => w.master).length;
+    let wrong = noah.vocabData.words.filter(w => w.wrong > 0).length;
+    let fav = noah.vocabData.words.filter(w => w.fav).length;
+
+    document.getElementById('v-stat-total').innerText = total;
+    document.getElementById('v-stat-mastered').innerText = mastered;
+    document.getElementById('v-stat-wrong').innerText = wrong;
+    document.getElementById('v-stat-fav').innerText = fav;
+    
+    document.getElementById('vocab-modal').style.display = 'flex';
+}
+
+function renderVocabList() {
+    const listContainer = document.getElementById('vocab-list-content');
+    listContainer.innerHTML = ''; // 清空旧列表
+
+    noah.vocabData.words.forEach((item, index) => {
+        let div = document.createElement('div');
+        div.className = 'vocab-list-item';
+        
+        // 判断当前是不是偏爱（收藏）状态
+        let favClass = item.fav ? 'vocab-list-fav active' : 'vocab-list-fav';
+        let favIcon = item.fav ? '❤' : '♡';
+        
+        div.innerHTML = `
+            <div class="vocab-list-word">${item.word}</div>
+            <div class="vocab-list-mean">${item.mean}</div>
+            <div class="${favClass}" onclick="toggleFavInList(${index})">${favIcon}</div>
+        `;
+        listContainer.appendChild(div);
+    });
+}
+
+function toggleFavInList(index) {
+    sfx_heartbeat(); // 播放诺亚的心跳声效
+    let item = noah.vocabData.words[index];
+    item.fav = !item.fav; // 切换收藏状态
+    
+    updateUI(); // 保存到本地存档
+    renderVocabList(); // 瞬间重新渲染列表，让红心立刻变化
+}
+// ==================== 🕹️ 单词连线小游戏引擎 ====================
+let matchPairs = []; 
+let leftList = []; 
+let rightList = [];
+let selectedLeft = null;
+let selectedRight = null;
+let matchedCount = 0;
+
+function startVocabMatch() {
+    // 检查词汇量是否够（最少需要4个才能凑一局）
+    if (noah.vocabData.words.length < 4) {
+        sfx_error();
+        speak("“词库里连 4 个单词都没有，你想连什么？连空气吗？先去多背几个词！”");
+        return;
+    }
+
+    sfx_success();
+    document.getElementById('vocab-modal').style.display = 'none';
+    document.getElementById('vocab-match-modal').style.display = 'flex';
+    
+    initMatchGame();
+    speak("“规则很简单：把单词和意思连起来。敢连错的话，我就把它们塞进你的错题本里，让你今晚做梦都在背书。”");
+}
+
+function closeVocabMatch() {
+    sfx_beep();
+    document.getElementById('vocab-match-modal').style.display = 'none';
+    document.getElementById('vocab-modal').style.display = 'flex';
+    speak("“怎么，脑细胞不够用了？去休息一下再来吧。”");
+}
+
+function initMatchGame() {
+    matchedCount = 0;
+    selectedLeft = null;
+    selectedRight = null;
+    
+    // 从所有词库中随机抽 5 个词
+    let pool = [...noah.vocabData.words].sort(() => Math.random() - 0.5);
+    matchPairs = pool.slice(0, Math.min(5, pool.length));
+    
+    // 制作左侧（单词）和右侧（释义）列表
+    leftList = matchPairs.map(item => ({ text: item.word, matchWord: item.word, ref: item }));
+    rightList = matchPairs.map(item => ({ text: item.mean, matchWord: item.word }));
+    
+    // 彻底打乱左右列表
+    leftList.sort(() => Math.random() - 0.5);
+    rightList.sort(() => Math.random() - 0.5);
+    
+    renderMatchGame();
+}
+
+function renderMatchGame() {
+    const leftCol = document.getElementById('match-left-col');
+    const rightCol = document.getElementById('match-right-col');
+    leftCol.innerHTML = '';
+    rightCol.innerHTML = '';
+    
+    leftList.forEach((item, index) => {
+        let div = document.createElement('div');
+        div.className = 'match-item';
+        div.innerText = item.text;
+        div.onclick = () => onSelectMatch('left', item.matchWord, div, item.ref);
+        leftCol.appendChild(div);
+    });
+    
+    rightList.forEach((item, index) => {
+        let div = document.createElement('div');
+        div.className = 'match-item';
+        div.innerText = item.text;
+        div.onclick = () => onSelectMatch('right', item.matchWord, div, null);
+        rightCol.appendChild(div);
+    });
+}
+
+function onSelectMatch(side, matchWord, element, ref) {
+    sfx_beep();
+    // 已经匹配成功的方块不能再点
+    if (element.classList.contains('matched')) return;
+    
+    // 处理选中状态的样式高亮
+    if (side === 'left') {
+        if (selectedLeft && selectedLeft.el) selectedLeft.el.classList.remove('selected');
+        selectedLeft = { word: matchWord, el: element, ref: ref };
+        element.classList.add('selected');
+    } else {
+        if (selectedRight && selectedRight.el) selectedRight.el.classList.remove('selected');
+        selectedRight = { word: matchWord, el: element };
+        element.classList.add('selected');
+    }
+    
+    // 如果两边都点选了，执行判定
+    if (selectedLeft && selectedRight) {
+        checkMatchResult();
+    }
+}
+
+function checkMatchResult() {
+    let left = selectedLeft;
+    let right = selectedRight;
+    selectedLeft = null;
+    selectedRight = null;
+    
+    if (left.word === right.word) {
+        // 匹配成功！
+        sfx_coin();
+        left.el.classList.remove('selected');
+        right.el.classList.remove('selected');
+        left.el.classList.add('matched'); // 变成浅绿色
+        right.el.classList.add('matched');
+        
+        // 智能消灭错题
+        if (left.ref.wrong > 0) left.ref.wrong--;
+        left.ref.master = true; 
+        updateUI(); // 实时保存
+        
+        matchedCount++;
+        // 检测是否 5 个全部连完
+        if (matchedCount === matchPairs.length) {
+            setTimeout(() => {
+                sfx_success();
+                noah.love += 2; noah.mood += 10;
+                noah.gold += 10; // 给加隆奖励
+                updateUI();
+                
+                showDialog({
+                    type: 'confirm',
+                    title: '🎉 连线大满贯',
+                    text: '“全都连对了？真聪明，看在你这么努力的份上，奖励你 10 加隆。\n还要继续挑战下一组吗？”',
+                    onConfirm: () => { initMatchGame(); } // 点确认直接开始下一把
+                });
+            }, 500);
+        }
+    } else {
+        // 匹配失败 (惩罚机制)
+        sfx_error();
+        left.el.classList.add('error'); // 变红并抖动
+        right.el.classList.add('error');
+        
+        // 强行塞回错题本
+        left.ref.master = false;
+        left.ref.wrong++;
+        updateUI();
+        
+        const nName = noah.realName || "笨蛋";
+        let scolds = [
+            `“啧，这都能连错？【${left.word}】的意思可不是那个！我把你记在错题本上了。”`,
+            `“你到底有没有在认真看？错！今晚别睡了，我要亲自拷问你。”`,
+            `“${nName}，你的小脑瓜是不是又走神想我了？连个线都能错？”`
+        ];
+        speak(scolds[Math.floor(Math.random() * scolds.length)]);
+        noah.mood -= 2;
+        makeShy(); // 诺亚也会因为你总想着他走神而傲娇脸红
+        
+        // 延迟取消错误状态，让你看清自己错哪了
+        setTimeout(() => {
+            left.el.classList.remove('selected', 'error');
+            right.el.classList.remove('selected', 'error');
+        }, 500);
+    }
+}
 </script>
 </body>
 </html>
